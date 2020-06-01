@@ -41,6 +41,10 @@ export const AsideRegister = styled.aside`
   align-items: center;
   margin-top: 30px;
 
+  form {
+    width: 100%;
+  }
+
   h1 {
     margin-top: 100px;
     font-weight: bold;

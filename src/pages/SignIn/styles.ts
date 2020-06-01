@@ -35,12 +35,16 @@ const appearFromLeft = keyframes`
 export const AsideLogin = styled.aside`
   animation: ${appearFromLeft} 1s;
 
-  display: flex;
-  flex-direction: column;
   width: 100%;
   max-width: 330px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   margin-top: 30px;
+
+  form {
+    width: 100%;
+  }
 
   h1 {
     margin-top: 100px;
