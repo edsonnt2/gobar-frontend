@@ -13,7 +13,7 @@ export const Content = styled.div`
   flex-direction: column;
   width: 100%;
   max-width: 1280px;
-  margin: 24px auto 50px;
+  margin: 94px auto 50px;
   padding: 0 10px;
 `;
 
@@ -21,8 +21,8 @@ export const BackPage = styled.button`
   display: flex;
   align-self: flex-start;
   align-items: center;
-  color: #f9f7f0;
-  transition: color 0.2s;
+  color: var(--color-white-primary);
+  transition: opacity 0.2s;
   font-weight: bold;
   border: 0;
   background: transparent;
@@ -31,7 +31,7 @@ export const BackPage = styled.button`
   }
 
   &:hover {
-    color: ${shade(0.2, '#f9f7f0')};
+    opacity: 0.72;
   }
 `;
 
@@ -55,8 +55,8 @@ export const ContentRegister = styled.div`
   padding-top: 75px;
   padding: 75px 20px 30px 20px;
   width: 100%;
-  background: #2f2f31;
-  border: 1px solid #2a2a2c;
+  background: var(--color-gray-secondary);
+  border: 1px solid var(--color-gray-tertiary);
   border-radius: 6px;
   position: relative;
 `;
@@ -68,18 +68,18 @@ export const BoxImgBusiness = styled.label`
   left: 35px;
   top: -75px;
   border-radius: 50%;
-  border: 2px solid #2a2a2c;
-  background: #2f2f31;
+  border: 2px solid var(--color-gray-tertiary);
+  background: var(--color-gray-secondary);
   cursor: pointer;
 
   span {
-    background: #2f2f31;
-    border: 1px solid #2a2a2c;
+    background: var(--color-gray-secondary);
+    border: 1px solid var(--color-gray-tertiary);
     border-radius: 50%;
     width: 35px;
     height: 35px;
 
-    color: #979797;
+    color: var(--color-gray-primary);
     display: flex;
     align-items: center;
     justify-content: center;

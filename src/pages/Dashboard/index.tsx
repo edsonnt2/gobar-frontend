@@ -37,7 +37,7 @@ const Dashboard: React.FC = () => {
           Usar minha localização
         </ButtonLocation>
 
-        <RegisterBusiness to="register-business">
+        <RegisterBusiness to="business/register">
           Quero usar o goBar em meu negócio
         </RegisterBusiness>
       </Content>

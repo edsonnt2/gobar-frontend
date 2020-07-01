@@ -1,10 +1,19 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-export const Container = styled.div`
+interface ImgProps {
+  imgInCircle: number;
+}
+
+export const Container = styled.div<ImgProps>`
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+
+  ${({ imgInCircle }) =>
+    imgInCircle &&
+    css`
+      border-radius: 50%;
+    `}
   overflow: hidden;
 
   img {
@@ -12,5 +21,9 @@ export const Container = styled.div`
     width: 100%;
     top: 50%;
     transform: translateY(-50%);
+  }
+
+  input {
+    display: none;
   }
 `;

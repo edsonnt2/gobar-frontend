@@ -10,11 +10,17 @@ import { useField } from '@unform/core';
 import { Container } from './styles';
 
 interface InputProps {
+  imgInCircle?: boolean;
   name: string;
   imgPreview: string;
 }
 
-const FileInput: React.FC<InputProps> = ({ name, imgPreview, ...rest }) => {
+const FileInput: React.FC<InputProps> = ({
+  name,
+  imgPreview,
+  imgInCircle,
+  ...rest
+}) => {
   const inputRef = useRef(null);
 
   const { fieldName, registerField } = useField(name);
@@ -48,12 +54,12 @@ const FileInput: React.FC<InputProps> = ({ name, imgPreview, ...rest }) => {
   }, [fieldName, registerField, imgPreview]);
 
   return (
-    <Container>
+    <Container imgInCircle={Number(imgInCircle)}>
       <img src={preview} alt={fieldName} />
       <input
         ref={inputRef}
         type="file"
-        id="file"
+        id={name}
         {...rest}
         onChange={handlePreview}
       />

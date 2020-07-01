@@ -24,7 +24,7 @@ const toastTypeShow = {
 export const Container = styled(animated.div)<ContainerProps>`
   position: relative;
   width: 360px;
-
+  margin-left: 20px;
   padding: 16px 30px 16px 16px;
   border-radius: 10px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);

@@ -54,12 +54,14 @@ const RegisterBusiness: React.FC = () => {
   const { addToast } = useToast();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
+  const [loadingCategory, setLoadingCategory] = useState(false);
+
   const [categories, setCategories] = useState<string[]>([]);
 
-  // const [allCategories, setAllCategories] = useState<CategoriesBusiness[]>([]);
-  // const [findCategories, setFindCategories] = useState<CategoriesBusiness[]>(
-  //   [],
-  // );
+  const [allCategories, setAllCategories] = useState<CategoriesBusiness[]>([]);
+  const [findCategories, setFindCategories] = useState<CategoriesBusiness[]>(
+    [],
+  );
 
   const functionThatSubmitsForm = useCallback(() => {
     formRef.current?.submitForm();
@@ -72,9 +74,9 @@ const RegisterBusiness: React.FC = () => {
 
         if (!haveSave) setCategories([...categories, saveCategory]);
 
-        // Colocar focus de volta no input categoria
-        // setFindCategories([]);
+        setFindCategories([]);
         formRef.current?.setFieldValue('category', ' ');
+        formRef.current?.getFieldRef('category').focus();
       }
     },
     [categories],
@@ -179,28 +181,26 @@ const RegisterBusiness: React.FC = () => {
             .filter(char => Number(char) || char === '0')
             .join('');
 
-        if (file) {
-          const formData = new FormData();
-          formData.append('avatar', file);
-          await api.patch('business/avatar', formData);
-        }
+        const formData = new FormData();
+
+        formData.append('name', name);
+        formData.append('categories', categories.join(','));
+        formData.append('cpf_or_cnpj', cpf_or_cnpj);
+        formData.append('zip_code', zip_code);
+        formData.append('street', street);
+        formData.append('number', number);
+        formData.append('district', district);
+        formData.append('city', city);
+        formData.append('state', state);
+        if (complement) formData.append('complement', complement);
+        if (formattedCellPhone)
+          formData.append('cell_phone', formattedCellPhone);
+        if (formattedPhone) formData.append('phone', formattedPhone);
+        if (file) formData.append('avatar', file);
 
         const {
           data: { business, token },
-        } = await api.post('business', {
-          city,
-          cpf_or_cnpj,
-          district,
-          name,
-          number,
-          state,
-          street,
-          zip_code,
-          categories,
-          ...(complement && { complement }),
-          ...(formattedCellPhone && { cell_phone: formattedCellPhone }),
-          ...(formattedPhone && { phone: formattedPhone }),
-        });
+        } = await api.post('business', formData);
 
         saveAuth({
           token,
@@ -214,7 +214,7 @@ const RegisterBusiness: React.FC = () => {
           description: 'Seu novo Négocio foi cadastrado no goBar :D',
         });
 
-        history.push('/register-product-business');
+        history.push('/business/register-product');
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
@@ -287,56 +287,50 @@ const RegisterBusiness: React.FC = () => {
     [addToast, categories, saveAuth, user, history],
   );
 
-  // const handleUploadLogo = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-  //   const { files } = e.target;
+  const loadCategories = useCallback(
+    (search: string, allCat: CategoriesBusiness[]) => {
+      const matchCategories = search.trim()
+        ? allCat.filter(cat => {
+            const haveInCategories = categories.find(
+              getCategory => getCategory === cat.name,
+            );
 
-  //   if (files) {
-  //     const formData = new FormData();
-  //     formData.append('avatar', files[0]);
+            return (
+              cat.name.toLowerCase().includes(search.toLowerCase().trim()) &&
+              !haveInCategories
+            );
+          })
+        : [];
 
-  //     api
-  //       .patch<{ avatar_url: string }>('business/avatar', formData)
-  //       .then(response => {
-  //         setImgBusiness(response.data.avatar_url);
-  //       });
-  //   }
-  // }, []);
+      setFindCategories(matchCategories);
+    },
+    [categories],
+  );
 
-  // FAZER A BUSCA COM AUTO COMPLETE
-  // useEffect(() => {
-  //   if (category !== '' && findCategories.length === 0) {
-  //     setLoading(true);
-  //     const loadCategories = async (search: string): Promise<void> => {
-  //       const getCategories = await api.get<GetCategories[]>('categories', {
-  //         params: {
-  //           search,
-  //         },
-  //       });
+  const searchAutoComplete = useCallback(
+    async (category: string) => {
+      if (categories.length < 4) {
+        setLoadingCategory(true);
+        if (category.trim() !== '' && findCategories.length === 0) {
+          const getCategories = await api.get<CategoriesBusiness[]>(
+            'business/categories/search',
+            {
+              params: {
+                search: category,
+              },
+            },
+          );
+          loadCategories(category, getCategories.data);
 
-  //       setAllCategories(getCategories.data);
-  //     };
-
-  //     loadCategories(category.trim());
-  //     setLoading(false);
-  //   }
-  // }, [category, findCategories.length]);
-
-  // useEffect(() => {
-  //   const matchCategories = category.trim()
-  //     ? allCategories.filter(cat => {
-  //         const haveInCategories = categories.find(
-  //           getCategory => getCategory === cat.name,
-  //         );
-
-  //         return (
-  //           cat.name.toLowerCase().includes(category.toLowerCase().trim()) &&
-  //           !haveInCategories
-  //         );
-  //       })
-  //     : [];
-
-  //   setFindCategories(matchCategories);
-  // }, [allCategories, categories, category]);
+          setAllCategories(getCategories.data);
+        } else {
+          loadCategories(category, allCategories);
+        }
+        setLoadingCategory(false);
+      }
+    },
+    [findCategories, allCategories, categories, loadCategories],
+  );
 
   return (
     <Container>
@@ -354,7 +348,7 @@ const RegisterBusiness: React.FC = () => {
           <ContentRegister>
             <Form onSubmit={handleSubmit} ref={formRef}>
               <BoxImgBusiness htmlFor="file">
-                <FileInput name="file" imgPreview={imgNoBusiness} />
+                <FileInput name="file" imgInCircle imgPreview={imgNoBusiness} />
 
                 <span>
                   <FiCamera size={20} />
@@ -365,12 +359,17 @@ const RegisterBusiness: React.FC = () => {
               <Input
                 mask=""
                 name="category"
-                hasTitle="Categoria"
+                hasTitle="Categorias"
                 placeholder="Adicione até 4 categorias"
                 hasMultSelect={{
                   items: categories,
                   handleRemove: handleRemoveCategory,
                   handleSelect: handleListCategory,
+                }}
+                hasAutoComplete={{
+                  loading: loadingCategory,
+                  list: findCategories,
+                  handleChange: searchAutoComplete,
                 }}
               />
 

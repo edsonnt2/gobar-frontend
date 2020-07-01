@@ -8,20 +8,29 @@ interface PropsInput {
   isDisabled: boolean;
 }
 
+interface PropsAutoComplete {
+  loading: number;
+}
+
+interface PropsAutoCompleteLi {
+  hasSelected: boolean;
+}
+
 export const Container = styled.div`
   span {
     display: block;
-    color: #979797;
-    margin-bottom: 2px;
+    color: var(--color-gray-primary);
+    margin-bottom: 4px;
 
     margin-top: 14px;
   }
 `;
 
 export const BoxInput = styled.div<PropsInput>`
+  position: relative;
   width: 100%;
-  border: 2px solid #23211f;
-  background: #23211f;
+  border: 2px solid var(--color-input);
+  background: var(--color-input);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -34,7 +43,7 @@ export const BoxInput = styled.div<PropsInput>`
     !isDisabled
       ? css`
           &:hover {
-            border-color: #e6a43a;
+            border-color: var(--color-yellow-primary);
           }
         `
       : css`
@@ -47,24 +56,24 @@ export const BoxInput = styled.div<PropsInput>`
 
   > svg {
     margin-left: 10px;
-    color: #979797;
+    color: var(--color-gray-primary);
   }
 
   ${({ isFilled }) =>
     isFilled &&
     css`
       svg {
-        color: #e6a43a;
+        color: var(--color-yellow-primary);
       }
     `}
 
   ${({ isError }) =>
     isError &&
     css`
-      border-color: #f00;
+      border-color: var(--color-red-primary);
 
       svg {
-        color: #f00;
+        color: var(--color-red-primary);
       }
     `}
 
@@ -72,24 +81,24 @@ export const BoxInput = styled.div<PropsInput>`
   ${({ isFocused }) =>
     isFocused &&
     css`
-      border-color: #e6a43a;
+      border-color: var(--color-yellow-primary);
 
       svg {
-        color: #e6a43a;
+        color: var(--color-yellow-primary);
       }
     `}
 
 
   input {
     height: 52px;
-    margin: 0 10px;
+    padding: 0 10px;
     border: 0;
     flex: 1;
     background: transparent;
-    color: #fff;
+    color: var(--color-text-input);
 
     &::placeholder {
-      color: #979797;
+      color: var(--color-gray-primary);
     }
   }
 `;
@@ -109,7 +118,7 @@ const appearFromTop = keyframes`
 
 export const Error = styled.div`
   animation: ${appearFromTop} 0.4s;
-  background: #e63a3a;
+  background: var(--color-red-secondary);
   width: 100%;
   border-radius: 6px;
   padding: 10px;
@@ -122,7 +131,7 @@ export const Error = styled.div`
     content: '';
     position: absolute;
     border-style: solid;
-    border-color: #e63a3a transparent;
+    border-color: var(--color-red-secondary) transparent;
     border-width: 0 8px 8px 8px;
     bottom: 100%;
     left: 50%;
@@ -168,4 +177,45 @@ export const MultSelect = styled.ul`
       }
     }
   }
+`;
+
+export const AutoComplete = styled.ul<PropsAutoComplete>`
+  list-style: none;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  max-height: 400px;
+  z-index: 2;
+  border: 1px solid #444341;
+  overflow-y: auto;
+  background: #373735;
+
+  li {
+    ${({ loading }) =>
+      loading
+        ? css`
+            text-align: center;
+          `
+        : css`
+            cursor: pointer;
+            &:hover {
+              background: var(--color-yellow-primary);
+            }
+          `}
+  }
+`;
+
+export const LiAutoComplete = styled.li<PropsAutoCompleteLi>`
+  display: block;
+  padding: 9px 8px;
+
+  & + li {
+    border-top: 1px solid #444341;
+  }
+
+  ${({ hasSelected }) =>
+    hasSelected &&
+    css`
+      background: var(--color-yellow-primary);
+    `}
 `;

@@ -8,17 +8,18 @@ interface SignInData {
 
 interface User {
   id: string;
-  full_name: string;
+  name: string;
   cell_phone: number;
   email: string;
   birthDate: string;
   avatar_url: string;
 }
 
-interface Business {
+export interface Business {
   id: string;
   name: string;
   avatar_url: string;
+  table: number;
 }
 
 interface LocalStorageData {
@@ -31,7 +32,7 @@ interface AuthContextData {
   user: User;
   business?: Business;
   signIn(credentials: SignInData): Promise<void>;
-  saveAuth(data: LocalStorageData): void;
+  saveAuth(data: Partial<LocalStorageData>): void;
   signOut(): void;
 }
 
@@ -58,7 +59,10 @@ const AuthProvider: React.FC = ({ children }) => {
     async ({ cellPhoneOrEmail, password }: SignInData) => {
       const {
         data: { user, token },
-      } = await api.post('sessions', { cellPhoneOrEmail, password });
+      } = await api.post('sessions', {
+        cellPhoneOrEmail,
+        password,
+      });
 
       localStorage.setItem('@goBar:token', token);
       localStorage.setItem('@goBar:user', JSON.stringify(user));
@@ -71,18 +75,33 @@ const AuthProvider: React.FC = ({ children }) => {
   );
 
   const saveAuth = useCallback(
-    ({ user, token, business }: LocalStorageData) => {
-      localStorage.setItem('@goBar:token', token);
-      localStorage.setItem('@goBar:user', JSON.stringify(user));
+    ({ user, token, business }: Partial<LocalStorageData>) => {
+      let newToken;
+      if (token) {
+        newToken = token;
+        localStorage.setItem('@goBar:token', token);
+        api.defaults.headers.authorization = `Bearer ${token}`;
+      } else {
+        newToken = data.token;
+      }
 
-      if (business)
+      if (business) {
         localStorage.setItem('@goBar:business', JSON.stringify(business));
+      } else {
+        localStorage.removeItem('@goBar:business');
+      }
 
-      api.defaults.headers.authorization = `Bearer ${token}`;
+      let newUser;
+      if (user) {
+        newUser = user;
+        localStorage.setItem('@goBar:user', JSON.stringify(newUser));
+      } else {
+        newUser = data.user;
+      }
 
-      setData({ user, token, business });
+      setData({ user: newUser, token: newToken, business });
     },
-    [],
+    [data],
   );
 
   const signOut = useCallback(() => {

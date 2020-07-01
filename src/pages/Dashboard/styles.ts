@@ -15,7 +15,7 @@ export const Content = styled.div`
   align-items: center;
   width: 100%;
   max-width: 500px;
-  margin: 55px auto 30px;
+  margin: 125px auto 30px;
   padding: 0 10px;
 
   h1 {

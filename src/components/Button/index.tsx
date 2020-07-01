@@ -3,8 +3,8 @@ import { Container } from './styles';
 
 type PropsButton = ButtonHTMLAttributes<HTMLButtonElement>;
 
-const Input: React.FC<PropsButton> = ({ children, ...rest }) => {
+const Button: React.FC<PropsButton> = ({ children, ...rest }) => {
   return <Container {...rest}>{children}</Container>;
 };
 
-export default Input;
+export default Button;

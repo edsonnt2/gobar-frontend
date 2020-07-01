@@ -58,7 +58,12 @@ export const ContentRegister = styled.div`
 
   h1 {
     font-size: 20px;
-    margin: 30px 0 60px 0;
+    margin: 30px 0 50px 0;
+  }
+
+  h2 {
+    font-size: 18px;
+    margin: 30px 0 18px 0;
   }
 `;
 
@@ -74,20 +79,41 @@ export const SeparateInput = styled.span`
   width: 8px;
 `;
 
-export const ImageProduct = styled.label`
-  position: absolute;
-  right: 58px;
-  top: -46px;
-  width: 150px;
-  height: 150px;
-  cursor: pointer;
-  border: 1px solid #2a2a2c;
-  transition: border-color 0.2s;
-  background: #bab7ad;
-  overflow: hidden;
+export const ContentIngress = styled.ul`
+  list-style: none;
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid #23211f;
+`;
 
-  &:hover {
-    border-color: #e6a43a;
+export const ListIngress = styled.li`
+  position: relative;
+  height: 58px;
+  display: flex;
+  align-items: center;
+
+  & + li {
+    border-top: 1px solid #23211f;
+  }
+
+  span {
+    color: #d0cec7;
+    margin: 0 15px;
+  }
+
+  svg {
+    width: 24px;
+    height: 24px;
+    color: #fedf75;
+    position: absolute;
+    right: 18px;
+    top: calc(50% - 12px);
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: ${shade(0.2, '#fedf75')};
+    }
   }
 `;
 

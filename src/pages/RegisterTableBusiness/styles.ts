@@ -58,36 +58,7 @@ export const ContentRegister = styled.div`
 
   h1 {
     font-size: 20px;
-    margin: 30px 0 60px 0;
-  }
-`;
-
-export const ContentInput = styled.div`
-  display: flex;
-
-  div {
-    flex: 1;
-  }
-`;
-
-export const SeparateInput = styled.span`
-  width: 8px;
-`;
-
-export const ImageProduct = styled.label`
-  position: absolute;
-  right: 58px;
-  top: -46px;
-  width: 150px;
-  height: 150px;
-  cursor: pointer;
-  border: 1px solid #2a2a2c;
-  transition: border-color 0.2s;
-  background: #bab7ad;
-  overflow: hidden;
-
-  &:hover {
-    border-color: #e6a43a;
+    margin: 30px 0 50px 0;
   }
 `;
 

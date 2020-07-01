@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components';
-import { shade } from 'polished';
 
 import SignInBackground from '../../assets/background-singin.svg';
 
@@ -49,15 +48,15 @@ export const AsideRegister = styled.aside`
     margin-top: 100px;
     font-weight: bold;
     font-size: 24px;
-    color: #f9f7f0;
+
     margin-bottom: 28px;
   }
 
   a {
     text-decoration: none;
-    color: #f9f7f0;
+    color: var(--color-white-primary);
     margin-top: 24px;
-    transition: color 0.2s;
+    transition: opacity 0.2s;
 
     display: flex;
     align-items: center;
@@ -65,7 +64,7 @@ export const AsideRegister = styled.aside`
     margin-top: 85px;
 
     &:hover {
-      color: ${shade(0.2, '#f9f7f0')};
+      opacity: 0.72;
     }
 
     svg {
@@ -95,18 +94,18 @@ export const ContentDescription = styled.div`
       padding-right: 20px;
 
       a {
-        color: #e5a43a;
+        color: var(--color-yellow-primary);
         text-decoration: none;
-        transition: color 0.2s;
+        transition: opacity 0.2s;
 
         &:hover {
-          color: ${shade(0.2, '#e5a43a')};
+          opacity: 0.72;
         }
       }
 
       & + li {
         padding: 0 20px;
-        border-left: 1px solid #e5a43a;
+        border-left: 1px solid var(--color-yellow-primary);
       }
     }
   }

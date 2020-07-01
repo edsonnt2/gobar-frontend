@@ -105,10 +105,10 @@ const SignUp: React.FC = () => {
 
           switch (whichError) {
             case 'Email already registered in another account':
-              errorData = { email: 'E-mail já está cadastrodo' };
+              errorData = { email: 'E-mail já está cadastrado' };
               break;
             case 'Phone already registered in another account':
-              errorData = { cell_phone: 'Celular já está cadastrodo' };
+              errorData = { cell_phone: 'Celular já está cadastrado' };
               break;
             case 'Format Date invalid':
               errorData = { birthDate: 'Data informada é inválida' };

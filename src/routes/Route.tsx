@@ -3,29 +3,41 @@ import { Route as ReactDOMRoute, RouteProps, Redirect } from 'react-router-dom';
 import { useAuth } from '../hooks/Auth';
 
 interface ReactDOMRouteProps extends RouteProps {
-  isPrimave?: boolean;
+  isPrivate?: boolean;
   isReleased?: boolean;
+  isBusiness?: boolean;
   component: React.ComponentType;
 }
 
 const Route: React.FC<ReactDOMRouteProps> = ({
-  isPrimave = false,
+  isPrivate = false,
   isReleased = false,
+  isBusiness = false,
   component: Component,
   ...rest
 }) => {
-  const { user } = useAuth();
+  const { user, business } = useAuth();
 
   return (
     <ReactDOMRoute
       {...rest}
       render={({ location }) => {
-        return isPrimave === !!user || isReleased ? (
-          <Component />
-        ) : (
+        if (isPrivate === !!user || isReleased) {
+          return isBusiness === !!business ? (
+            <Component />
+          ) : (
+            <Redirect
+              to={{
+                pathname: isBusiness ? '/dashboard' : '/business',
+                state: { from: location },
+              }}
+            />
+          );
+        }
+        return (
           <Redirect
             to={{
-              pathname: isPrimave ? '/' : '/dashboard',
+              pathname: isPrivate ? '/' : '/dashboard',
               state: { from: location },
             }}
           />

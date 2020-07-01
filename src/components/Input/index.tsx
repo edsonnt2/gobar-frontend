@@ -10,14 +10,29 @@ import { IconBaseProps } from 'react-icons/lib/cjs';
 import ReactInputMask, { Props as InputProps } from 'react-input-mask';
 import { useField } from '@unform/core';
 import { FiXCircle } from 'react-icons/fi';
-import { Container, BoxInput, Error, MultSelect } from './styles';
+import {
+  Container,
+  BoxInput,
+  Error,
+  MultSelect,
+  AutoComplete,
+  LiAutoComplete,
+} from './styles';
+import formattedValue from '../../utils/formattedValue';
 
 interface PropsInput extends InputProps {
   hasTitle?: string;
   name: string;
   formatField?: 'cpf-and-cnpj' | 'number';
-  hasAutoComplete?: boolean;
   styleInput?: object;
+  hasAutoComplete?: {
+    loading: boolean;
+    list: {
+      name: string;
+    }[];
+    handleChange(search: string): Promise<void>;
+    handleSelect?: (filed: string) => void;
+  };
   hasMultSelect?: {
     items: string[];
     handleRemove(remove: string): void;
@@ -27,6 +42,7 @@ interface PropsInput extends InputProps {
   hasUpBlur?: {
     handleBlur(): void;
   };
+  isCurrency?: boolean;
 }
 
 const Input: React.FC<PropsInput> = ({
@@ -37,12 +53,16 @@ const Input: React.FC<PropsInput> = ({
   hasTitle,
   formatField,
   hasMultSelect,
+  hasAutoComplete,
   hasUpBlur,
   styleInput,
+  isCurrency,
   ...rest
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
+  const [cursor, setCursor] = useState(-1);
+
   const [valueForm, setValueForm] = useState('');
   const refInput = useRef(null);
   const { error, fieldName, registerField, clearError } = useField(name);
@@ -59,14 +79,36 @@ const Input: React.FC<PropsInput> = ({
 
   const handleKeyPress = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.charCode === 13 && hasMultSelect)
-        hasMultSelect.handleSelect(valueForm);
+      const lengthList = hasAutoComplete ? hasAutoComplete.list.length : 0;
+
+      if (e.keyCode === 13) {
+        const saveItem =
+          cursor > -1 ? hasAutoComplete?.list[cursor].name : valueForm;
+
+        if (saveItem) {
+          if (hasMultSelect) {
+            hasMultSelect.handleSelect(saveItem);
+          } else if (hasAutoComplete?.handleSelect) {
+            setValueForm(saveItem);
+            hasAutoComplete.handleSelect(fieldName);
+          }
+        }
+      } else if (e.keyCode === 38 && cursor >= 0) {
+        setCursor(cursor - 1);
+      } else if (e.keyCode === 40 && cursor < lengthList - 1) {
+        setCursor(cursor + 1);
+      }
     },
-    [hasMultSelect, valueForm],
+    [hasMultSelect, valueForm, hasAutoComplete, cursor, fieldName],
   );
 
   const handleChange = useCallback(
     (value: string) => {
+      if (hasAutoComplete) {
+        setCursor(-1);
+        hasAutoComplete.handleChange(value);
+      }
+
       setIsFilled(!!value);
 
       if (formatField) {
@@ -122,11 +164,44 @@ const Input: React.FC<PropsInput> = ({
               .join(''),
           );
         }
+      } else if (isCurrency) {
+        const formatChar = value
+          .split('')
+          .filter(char => Number(char) || char === '0')
+          .join('')
+          .replace(',', '.');
+
+        const valueCurrency =
+          formatChar.length === 1
+            ? `0.0${formatChar}`
+            : formatChar
+                .split('')
+                .map((char, index) =>
+                  index + 2 === formatChar.length ? `.${char}` : char,
+                )
+                .join('');
+
+        setValueForm(
+          valueCurrency === '.00' ? '' : formattedValue(Number(valueCurrency)),
+        );
       } else {
         setValueForm(value);
       }
     },
-    [formatField],
+    [formatField, hasAutoComplete, isCurrency],
+  );
+
+  const handleClickAutoComplete = useCallback(
+    item => {
+      if (hasMultSelect) {
+        hasMultSelect.handleSelect(item);
+      } else {
+        setValueForm(item);
+        if (hasAutoComplete?.handleSelect)
+          hasAutoComplete.handleSelect(fieldName);
+      }
+    },
+    [hasMultSelect, hasAutoComplete, fieldName],
   );
 
   useEffect(() => {
@@ -176,13 +251,30 @@ const Input: React.FC<PropsInput> = ({
           // defaultValue={defaultValue}
           onChange={e => handleChange(e.target.value)}
           value={valueForm}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           disabled={disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
           style={styleInput}
           {...rest}
         />
+
+        {hasAutoComplete &&
+          (hasAutoComplete.loading || hasAutoComplete.list.length > 0) && (
+            <AutoComplete loading={Number(hasAutoComplete.loading)}>
+              {hasAutoComplete.loading && <li>Loading...</li>}
+              {hasAutoComplete.list.map(({ name: item }, index) => (
+                <LiAutoComplete
+                  hasSelected={cursor === index}
+                  key={item}
+                  onClick={() => handleClickAutoComplete(item)}
+                  role="presentation"
+                >
+                  {item}
+                </LiAutoComplete>
+              ))}
+            </AutoComplete>
+          )}
       </BoxInput>
       {error && <Error>{error}</Error>}
     </Container>
