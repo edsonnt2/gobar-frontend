@@ -2,7 +2,6 @@ import styled, { css } from 'styled-components';
 
 interface PropsInput {
   isFocused: boolean;
-  isFilled: boolean;
 }
 
 export const Container = styled.div`
@@ -37,14 +36,6 @@ export const BoxInput = styled.div<PropsInput>`
     color: var(--color-gray-primary);
   }
 
-  ${({ isFilled }) =>
-    isFilled &&
-    css`
-      svg {
-        color: var(--color-yellow-primary);
-      }
-    `}
-
   ${({ isFocused }) =>
     isFocused &&
     css`
@@ -54,7 +45,6 @@ export const BoxInput = styled.div<PropsInput>`
         color: var(--color-yellow-primary);
       }
     `}
-
 
   input {
     height: 52px;

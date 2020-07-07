@@ -6,6 +6,7 @@ interface PropsInput {
   isFilled: boolean;
   isError: boolean;
   isDisabled: boolean;
+  isButoonRight?: boolean;
 }
 
 interface PropsAutoComplete {
@@ -92,6 +93,13 @@ export const BoxInput = styled.div<PropsInput>`
   input {
     height: 52px;
     padding: 0 10px;
+
+    ${({ isButoonRight }) =>
+      isButoonRight &&
+      css`
+        padding-right: 62px;
+      `}
+
     border: 0;
     flex: 1;
     background: transparent;
@@ -100,6 +108,24 @@ export const BoxInput = styled.div<PropsInput>`
     &::placeholder {
       color: var(--color-gray-primary);
     }
+  }
+`;
+
+export const ButtonInInput = styled.button`
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  height: 56px;
+  width: 56px;
+  background: #a6a4a2;
+  border: 0;
+  border-radius: 0 6px 6px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    color: #575757;
   }
 `;
 

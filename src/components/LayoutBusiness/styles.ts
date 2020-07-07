@@ -46,6 +46,10 @@ export const LinkMenu = styled(Link)<PropsLinkMenu>`
   margin: 2px 0;
   transition: background-color 0.2s;
 
+  img {
+    margin-right: 10px;
+  }
+
   &:hover {
     background-color: ${shade(0.15, '#2f2f31')};
   }
@@ -59,10 +63,6 @@ export const LinkMenu = styled(Link)<PropsLinkMenu>`
         background-color: ${shade(0.25, '#2f2f31')};
       }
     `}
-
-  img {
-    margin-right: 10px;
-  }
 `;
 
 export const Content = styled.main`

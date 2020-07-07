@@ -104,10 +104,14 @@ const FindCustomer: React.FC = () => {
             .filter(char => Number(char) || char === '0')
             .join('');
 
-        await api.post('customers', {
+        const splitBirth = birthDate.split('/');
+
+        const formattedBirth = `${splitBirth[2]}-${splitBirth[1]}-${splitBirth[0]}`;
+
+        const response = await api.post('customers', {
           customer_id: id,
           name,
-          birthDate,
+          birthDate: formattedBirth,
           gender,
           ...(cell_phone && { cell_phone: formattedCellPhone }),
           ...(email && { email }),
@@ -119,7 +123,7 @@ const FindCustomer: React.FC = () => {
           description: `Novo cliente foi cadastrado no ${business?.name}`,
         });
 
-        history.push('/business');
+        history.push(`/business/customer/${response.data.id}`);
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
@@ -197,7 +201,7 @@ const FindCustomer: React.FC = () => {
               disabled={!!dataCustomer.name}
             />
             <Input
-              mask=""
+              mask="(99) 99999-9999"
               name="cell_phone"
               placeholder="Celular (Opcional)"
               icon={FiSmartphone}

@@ -12,6 +12,7 @@ import RegisterIngressBusiness from '../pages/RegisterIngressBusiness';
 import FindCustomer from '../pages/FindCustomer';
 import RegisterCustomer from '../pages/RegisterCustomer';
 import Customer from '../pages/Customer';
+import RegisterCommandOrTable from '../pages/RegisterCommandOrTable';
 
 const Routes: React.FC = () => {
   return (
@@ -67,6 +68,13 @@ const Routes: React.FC = () => {
       <Route
         path="/business/register-ingress"
         component={RegisterIngressBusiness}
+        isPrivate
+        isBusiness
+      />
+
+      <Route
+        path="/business/register-command-or-table"
+        component={RegisterCommandOrTable}
         isPrivate
         isBusiness
       />

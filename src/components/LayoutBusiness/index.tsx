@@ -20,7 +20,7 @@ interface Props {
   pgActive?:
     | 'find-customer'
     | 'close-command'
-    | 'command-bar'
+    | 'register-command-table'
     | 'customer-account'
     | 'boxfront';
 }
@@ -46,9 +46,12 @@ const LayoutBusiness: React.FC<Props> = ({ children, pgActive }) => {
             <img src={closeCommand} alt="Close Command" />
             Fechar Comanda/Mesa
           </LinkMenu>
-          <LinkMenu to="/business" isshow={Number(pgActive === 'command-bar')}>
+          <LinkMenu
+            to="/business/register-command-or-table"
+            isshow={Number(pgActive === 'register-command-table')}
+          >
             <img src={commandBar} alt="Command Bar" />
-            Comanda Bar
+            Lançar Comanda/Mesa
           </LinkMenu>
           <LinkMenu
             to="/business"

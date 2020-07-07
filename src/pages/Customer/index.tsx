@@ -19,6 +19,7 @@ import {
 import noAvatar from '../../assets/no-avatar.png';
 import api from '../../services/api';
 import { useToast } from '../../hooks/Toast';
+import { useModal } from '../../hooks/Modal';
 
 interface Customer {
   id: string;
@@ -33,6 +34,7 @@ interface Customer {
 
 const Customer: React.FC = () => {
   const { addToast } = useToast();
+  const { addModal, responseModal, resetResponseModal } = useModal();
   const history = useHistory();
   const { id } = useParams();
   const [customer, setCustomer] = useState<Customer>({} as Customer);
@@ -53,6 +55,16 @@ const Customer: React.FC = () => {
     }
     loadCustomer();
   }, [id, addToast]);
+
+  useEffect(() => {
+    if (
+      responseModal.action &&
+      responseModal.action === 'return_find_customer'
+    ) {
+      resetResponseModal();
+      history.push('/business');
+    }
+  }, [responseModal, resetResponseModal, history]);
 
   return (
     <LayoutBusiness pgActive="find-customer">
@@ -93,7 +105,20 @@ const Customer: React.FC = () => {
             </RowCustomer>
 
             <OptionsCustomer>
-              <OptionCustomer>Abrir Comanda</OptionCustomer>
+              <OptionCustomer
+                onClick={() => {
+                  addModal({
+                    customer: {
+                      where: 'customer',
+                      id: customer.id,
+                      name: customer.name,
+                      avatar_url: customer.avatar_url || noAvatar,
+                    },
+                  });
+                }}
+              >
+                Abrir Comanda
+              </OptionCustomer>
               <OptionCustomer>Cliente em Mesa</OptionCustomer>
               <OptionCustomer isOpen>Ver Conta</OptionCustomer>
             </OptionsCustomer>

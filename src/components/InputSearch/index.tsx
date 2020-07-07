@@ -7,7 +7,8 @@ interface PropsInput extends InputHTMLAttributes<HTMLInputElement> {
   hasTitle?: string;
   styleInput?: object;
   inputRef?: React.RefObject<HTMLInputElement>;
-  hasSearch?: (search: string) => void;
+  valueSearch: string;
+  handleSearch: (search: string) => void;
   icon?: React.ComponentType<IconBaseProps>;
 }
 
@@ -15,38 +16,34 @@ const InputSearch: React.FC<PropsInput> = ({
   icon: Icon,
   style,
   hasTitle,
-  hasSearch,
+  valueSearch,
+  handleSearch,
   inputRef,
   styleInput,
   ...rest
 }) => {
   const [isFocused, setIsFocused] = useState(false);
-  const [isFilled, setIsFilled] = useState(false);
-
-  const [valueSearch, setValueSearch] = useState('');
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
   }, []);
 
   const handleBlur = useCallback(() => {
-    setIsFilled(!!valueSearch);
     setIsFocused(false);
-  }, [valueSearch]);
+  }, []);
 
   const handleChange = useCallback(
     (value: string) => {
-      setValueSearch(value);
-      if (hasSearch) hasSearch(value);
+      handleSearch(value);
     },
-    [hasSearch],
+    [handleSearch],
   );
 
   return (
     <Container style={style}>
       {hasTitle && <span>{hasTitle}</span>}
 
-      <BoxInput isFocused={isFocused} isFilled={isFilled}>
+      <BoxInput isFocused={isFocused}>
         {Icon && <Icon size={22} />}
 
         <input

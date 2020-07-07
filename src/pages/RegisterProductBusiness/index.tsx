@@ -21,7 +21,7 @@ import {
 } from './styles';
 import Input from '../../components/Input';
 import FileInput from '../../components/FIleInput';
-import noProduct from '../../assets/no-product.png';
+import noProduct from '../../assets/add-image.png';
 import api from '../../services/api';
 import { useToast } from '../../hooks/Toast';
 import getValidationErrors from '../../utils/getValidationErrors';
@@ -54,15 +54,13 @@ const RegisterProductBusiness: React.FC = () => {
 
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [allCategories, setAllCategories] = useState<CategoryProvider[]>([]);
-  const [findCategories, setFindCategories] = useState<CategoryProvider[]>([]);
+  const [searchCategory, setSearchCategory] = useState('');
 
   const [loadingCategoryProvider, setLoadingCategoryProvider] = useState(false);
   const [allCategoriesProvider, setAllCategoriesProvider] = useState<
     CategoryProvider[]
   >([]);
-  const [findCategoriesProvider, setFindCategoriesProvider] = useState<
-    CategoryProvider[]
-  >([]);
+  const [searchCategoryProvider, setSearchCategoryProvider] = useState('');
 
   const functionThatSubmitsForm = useCallback(() => {
     formRef.current?.submitForm();
@@ -156,12 +154,31 @@ const RegisterProductBusiness: React.FC = () => {
 
           formRef.current?.setErrors(errors);
         } else {
-          addToast({
-            type: 'error',
-            message: 'Erro no cadastro',
-            description:
-              'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
-          });
+          let errorData;
+          const whichError =
+            error.response && error.response.data
+              ? error.response.data.message
+              : 'error';
+
+          switch (whichError) {
+            case 'Internal code already registered':
+              errorData = { internal_code: 'Código interno já cadastrado' };
+              break;
+            default:
+              errorData = undefined;
+              break;
+          }
+
+          if (errorData) {
+            formRef.current?.setErrors(errorData);
+          } else {
+            addToast({
+              type: 'error',
+              message: 'Erro no cadastro',
+              description:
+                'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
+            });
+          }
         }
       } finally {
         setLoading(false);
@@ -170,74 +187,92 @@ const RegisterProductBusiness: React.FC = () => {
     [addToast],
   );
 
-  const loadCategories = useCallback(
-    (search: string, allCat: CategoryProvider[], field: TypeCategoies) => {
-      const matchCategories = search.trim()
-        ? allCat.filter(cat => {
-            return cat.name.toLowerCase().includes(search.toLowerCase().trim());
-          })
-        : [];
-
-      if (field === 'category') setFindCategories(matchCategories);
-      else setFindCategoriesProvider(matchCategories);
-    },
-    [],
-  );
-
   const handleCategory = useCallback((field: string) => {
-    if (field === 'category') setFindCategories([]);
-    else setFindCategoriesProvider([]);
+    if (field === 'category') setAllCategories([]);
+    else setAllCategoriesProvider([]);
 
     formRef.current?.getFieldRef(field).focus();
   }, []);
 
-  const searchAutoComplete = useCallback(
-    async category => {
+  const handleSearchCategory = useCallback((category: string) => {
+    setAllCategories([]);
+    if (category.trim() !== '') {
+      setSearchCategory(category);
       setLoadingCategory(true);
-      if (category.trim() !== '' && findCategories.length === 0) {
-        const getCategories = await api.get<CategoryProvider[]>(
-          'products/categories/search-product',
-          {
-            params: {
-              search: category,
-            },
-          },
-        );
-
-        loadCategories(category, getCategories.data, 'category');
-
-        setAllCategories(getCategories.data);
-      } else {
-        loadCategories(category, allCategories, 'category');
-      }
+    } else {
+      setSearchCategory('');
       setLoadingCategory(false);
-    },
-    [findCategories, allCategories, loadCategories],
-  );
+    }
+  }, []);
 
-  const searchAutoCompleteProvider = useCallback(
-    async category => {
+  const handleSearchCategoryProvider = useCallback((category: string) => {
+    setAllCategoriesProvider([]);
+    if (category.trim() !== '') {
+      setSearchCategoryProvider(category);
       setLoadingCategoryProvider(true);
-      if (category.trim() !== '' && findCategoriesProvider.length === 0) {
-        const getCategoriesProvider = await api.get<CategoryProvider[]>(
-          'products/categories/search-provider',
-          {
-            params: {
-              search: category,
-            },
-          },
-        );
-
-        loadCategories(category, getCategoriesProvider.data, 'provider');
-
-        setAllCategoriesProvider(getCategoriesProvider.data);
-      } else {
-        loadCategories(category, allCategoriesProvider, 'provider');
-      }
+    } else {
+      setSearchCategoryProvider('');
       setLoadingCategoryProvider(false);
-    },
-    [findCategoriesProvider, allCategoriesProvider, loadCategories],
-  );
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchCategoryProvider.trim() !== '') {
+        api
+          .get<CategoryProvider[]>('products/categories/search-provider', {
+            params: {
+              search: searchCategoryProvider,
+            },
+          })
+          .then(({ data }) => {
+            setAllCategoriesProvider(data);
+          })
+          .catch(() => {
+            addToast({
+              type: 'error',
+              message: 'Opss... Encontramos um erro',
+              description: 'Ocorreu um erro ao busca por cliente',
+            });
+          })
+          .finally(() => {
+            setLoadingCategoryProvider(false);
+          });
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchCategoryProvider, addToast]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchCategory.trim() !== '') {
+        api
+          .get<CategoryProvider[]>('products/categories/search-product', {
+            params: {
+              search: searchCategory,
+            },
+          })
+          .then(({ data }) => {
+            setAllCategories(data);
+          })
+          .catch(() => {
+            addToast({
+              type: 'error',
+              message: 'Opss... Encontramos um erro',
+              description: 'Ocorreu um erro ao busca por cliente',
+            });
+          })
+          .finally(() => {
+            setLoadingCategory(false);
+          });
+      }
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchCategory, addToast]);
 
   useEffect(() => {
     formRef.current?.setFieldValue('porcent', '100');
@@ -274,8 +309,8 @@ const RegisterProductBusiness: React.FC = () => {
                 name="category"
                 hasAutoComplete={{
                   loading: loadingCategory,
-                  list: findCategories,
-                  handleChange: searchAutoComplete,
+                  list: allCategories,
+                  handleChange: handleSearchCategory,
                   handleSelect: handleCategory,
                 }}
                 hasTitle="Categoria"
@@ -297,8 +332,8 @@ const RegisterProductBusiness: React.FC = () => {
                   name="provider"
                   hasAutoComplete={{
                     loading: loadingCategoryProvider,
-                    list: findCategoriesProvider,
-                    handleChange: searchAutoCompleteProvider,
+                    list: allCategoriesProvider,
+                    handleChange: handleSearchCategoryProvider,
                     handleSelect: handleCategory,
                   }}
                   hasTitle="Fornecedor"

@@ -1,7 +1,11 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Link } from 'react-router-dom';
 import { shade } from 'polished';
+
+interface PropsButton {
+  isRed?: number;
+}
 
 export const Container = styled.div`
   margin: 100px auto 40px;
@@ -113,25 +117,33 @@ export const LinkH2 = styled(Link)`
 
 export const ButtonOptions = styled.div`
   display: flex;
-  align-items: center;
 `;
 
-export const ButtonSearch = styled.button`
+export const ButtonSearch = styled.button<PropsButton>`
   background: transparent;
+  text-align: center;
+  flex-grow: 1;
   border: 0;
-  font-size: 15px;
-  padding: 0 24px;
+  font-size: 16px;
   transition: color 0.2s;
-
-  color: #31d641;
-
-  &:hover {
-    color: ${shade(0.2, '#31d641')};
-  }
 
   & + button {
     border-left: 1px solid #242426;
   }
+
+  color: #31d641;
+  &:hover {
+    color: ${shade(0.2, '#31d641')};
+  }
+
+  ${({ isRed }) =>
+    isRed &&
+    css`
+      color: #d64531;
+      &:hover {
+        color: ${shade(0.2, '#d64531')};
+      }
+    `}
 `;
 
 export const Separator = styled.div`

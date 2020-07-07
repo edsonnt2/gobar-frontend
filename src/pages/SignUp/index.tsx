@@ -28,7 +28,7 @@ import { useToast } from '../../hooks/Toast';
 import { useAuth } from '../../hooks/Auth';
 
 interface SignInData {
-  full_name: string;
+  name: string;
   cell_phone: string;
   email: string;
   password: string;
@@ -49,7 +49,7 @@ const SignUp: React.FC = () => {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape<SignInData>({
-          full_name: Yup.string().required('Nome é obrigatório'),
+          name: Yup.string().required('Nome é obrigatório'),
           email: Yup.string()
             .email('E-mail inválido')
             .required('E-mail é obrigatório'),
@@ -87,7 +87,7 @@ const SignUp: React.FC = () => {
         addToast({
           type: 'success',
           message: 'Cadastro feito com sucesso',
-          description: `Ola ${user.full_name}, seja bem vindo ao goBar ;)`,
+          description: `Ola ${user.name}, seja bem vindo ao goBar ;)`,
         });
 
         history.push('/dashboard');
@@ -175,7 +175,7 @@ const SignUp: React.FC = () => {
           <Form ref={formRef} onSubmit={handleSubmit}>
             <Input
               mask=""
-              name="full_name"
+              name="name"
               icon={FiUser}
               placeholder="Nome Completo"
             />

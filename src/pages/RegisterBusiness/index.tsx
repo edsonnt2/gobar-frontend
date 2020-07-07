@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { FiArrowLeft, FiCamera } from 'react-icons/fi';
 
 import { FormHandles } from '@unform/core';
@@ -55,13 +55,11 @@ const RegisterBusiness: React.FC = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
-
   const [categories, setCategories] = useState<string[]>([]);
-
-  const [allCategories, setAllCategories] = useState<CategoriesBusiness[]>([]);
-  const [findCategories, setFindCategories] = useState<CategoriesBusiness[]>(
-    [],
-  );
+  const [searchCategories, setSearchCategories] = useState<
+    CategoriesBusiness[]
+  >([]);
+  const [searchCategory, setSearchCategory] = useState('');
 
   const functionThatSubmitsForm = useCallback(() => {
     formRef.current?.submitForm();
@@ -74,7 +72,8 @@ const RegisterBusiness: React.FC = () => {
 
         if (!haveSave) setCategories([...categories, saveCategory]);
 
-        setFindCategories([]);
+        setSearchCategory('');
+        setSearchCategories([]);
         formRef.current?.setFieldValue('category', ' ');
         formRef.current?.getFieldRef('category').focus();
       }
@@ -287,50 +286,48 @@ const RegisterBusiness: React.FC = () => {
     [addToast, categories, saveAuth, user, history],
   );
 
-  const loadCategories = useCallback(
-    (search: string, allCat: CategoriesBusiness[]) => {
-      const matchCategories = search.trim()
-        ? allCat.filter(cat => {
-            const haveInCategories = categories.find(
-              getCategory => getCategory === cat.name,
-            );
-
-            return (
-              cat.name.toLowerCase().includes(search.toLowerCase().trim()) &&
-              !haveInCategories
-            );
-          })
-        : [];
-
-      setFindCategories(matchCategories);
+  const handleSearchCategory = useCallback(
+    (category: string) => {
+      setSearchCategories([]);
+      if (category.trim() !== '' && categories.length < 4) {
+        setSearchCategory(category);
+        setLoadingCategory(true);
+      } else {
+        setSearchCategory('');
+        setLoadingCategory(false);
+      }
     },
     [categories],
   );
 
-  const searchAutoComplete = useCallback(
-    async (category: string) => {
-      if (categories.length < 4) {
-        setLoadingCategory(true);
-        if (category.trim() !== '' && findCategories.length === 0) {
-          const getCategories = await api.get<CategoriesBusiness[]>(
-            'business/categories/search',
-            {
-              params: {
-                search: category,
-              },
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchCategory.trim() !== '') {
+        api
+          .get<CategoriesBusiness[]>('business/categories/search', {
+            params: {
+              search: searchCategory,
             },
-          );
-          loadCategories(category, getCategories.data);
-
-          setAllCategories(getCategories.data);
-        } else {
-          loadCategories(category, allCategories);
-        }
-        setLoadingCategory(false);
+          })
+          .then(({ data }) => {
+            setSearchCategories(data);
+          })
+          .catch(() => {
+            addToast({
+              type: 'error',
+              message: 'Opss... Encontramos um erro',
+              description: 'Ocorreu um erro ao busca por cliente',
+            });
+          })
+          .finally(() => {
+            setLoadingCategory(false);
+          });
       }
-    },
-    [findCategories, allCategories, categories, loadCategories],
-  );
+    }, 250);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [searchCategory, addToast]);
 
   return (
     <Container>
@@ -368,8 +365,8 @@ const RegisterBusiness: React.FC = () => {
                 }}
                 hasAutoComplete={{
                   loading: loadingCategory,
-                  list: findCategories,
-                  handleChange: searchAutoComplete,
+                  list: searchCategories,
+                  handleChange: handleSearchCategory,
                 }}
               />
 

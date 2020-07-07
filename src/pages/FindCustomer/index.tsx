@@ -23,6 +23,7 @@ import { useToast } from '../../hooks/Toast';
 
 import noAvatar from '../../assets/no-avatar.png';
 import { useAuth } from '../../hooks/Auth';
+import { useModal } from '../../hooks/Modal';
 
 interface Customer {
   id: string;
@@ -33,17 +34,26 @@ interface Customer {
   gender?: 'M' | 'W';
   cpf_or_cnpj?: number;
   avatar_url?: string;
+  command: {
+    id: string;
+    business_id: string;
+  }[];
+  command_open: boolean;
 }
 
 interface PropsSearch {
   customersInBusiness: Customer[];
-  customersOutherBusiness: Omit<Customer, 'cpf_or_cnpj'>[];
-  users: Omit<Customer, 'cpf_of_cnpj'>[];
+  customersOutherBusiness: Omit<
+    Customer,
+    'cpf_or_cnpj' | 'command' | 'command_open'
+  >[];
+  users: Omit<Customer, 'cpf_of_cnpj' | 'command' | 'command_open'>[];
 }
 
 const FindCustomer: React.FC = () => {
   const { addToast } = useToast();
   const { business } = useAuth();
+  const { addModal, responseModal, resetResponseModal } = useModal();
   const inputRef = useRef<HTMLInputElement>(null);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [search, setSearch] = useState('');
@@ -51,8 +61,29 @@ const FindCustomer: React.FC = () => {
     {} as PropsSearch,
   );
 
-  useEffect(() => {
-    inputRef.current?.focus();
+  const handleCommand = useCallback(
+    ({ id, avatar_url, name }: Customer) => {
+      addModal({
+        customer: {
+          where: 'findCustomer',
+          id,
+          name,
+          avatar_url: avatar_url || noAvatar,
+        },
+      });
+    },
+    [addModal],
+  );
+
+  const handleSearch = useCallback((findCustomer: string) => {
+    if (findCustomer.trim() !== '') {
+      setSearch(findCustomer);
+      setLoadingSearch(true);
+    } else {
+      setSearch('');
+      setLoadingSearch(false);
+      setSearchCustomers({} as PropsSearch);
+    }
   }, []);
 
   useEffect(() => {
@@ -64,8 +95,18 @@ const FindCustomer: React.FC = () => {
               search,
             },
           })
-          .then(response => {
-            setSearchCustomers(response.data);
+          .then(({ data }) => {
+            setSearchCustomers({
+              customersOutherBusiness: data.customersOutherBusiness,
+              users: data.users,
+              customersInBusiness: data.customersInBusiness.map(customer => ({
+                ...customer,
+                command_open:
+                  customer.command.filter(
+                    findCommand => findCommand.business_id === business?.id,
+                  ).length > 0,
+              })),
+            });
           })
           .catch(() => {
             addToast({
@@ -78,22 +119,24 @@ const FindCustomer: React.FC = () => {
             setLoadingSearch(false);
           });
       }
-    }, 300);
+    }, 250);
     return () => {
       clearTimeout(timer);
     };
-  }, [search, addToast]);
+  }, [search, addToast, business]);
 
-  const handleSearch = useCallback(async (findCustomer: string) => {
-    if (findCustomer.trim() !== '') {
-      setSearch(findCustomer);
-      setLoadingSearch(true);
-    } else {
-      setSearch('');
-      setLoadingSearch(false);
-      setSearchCustomers({} as PropsSearch);
-    }
+  useEffect(() => {
+    inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    if (responseModal.action && responseModal.action === 'close_search') {
+      setSearch('');
+      setSearchCustomers({} as PropsSearch);
+      resetResponseModal();
+      inputRef.current?.focus();
+    }
+  }, [responseModal, resetResponseModal]);
 
   return (
     <LayoutBusiness pgActive="find-customer">
@@ -101,10 +144,11 @@ const FindCustomer: React.FC = () => {
         <h1>Buscar por Clientes ou Usuários no goBar</h1>
 
         <InputSearch
-          placeholder="Busque pelo cliente em todo o goBar"
-          hasSearch={handleSearch}
-          inputRef={inputRef}
           icon={FiSearch}
+          inputRef={inputRef}
+          valueSearch={search}
+          handleSearch={handleSearch}
+          placeholder="Busque pelo cliente em todo o goBar"
         />
 
         {loadingSearch ? (
@@ -116,32 +160,39 @@ const FindCustomer: React.FC = () => {
                 <>
                   <h1>Clientes em {business?.name}</h1>
                   <BoxSearch>
-                    {searchCustomers.customersInBusiness.map(
-                      ({ id, name, avatar_url }) => (
-                        <RowSearch key={id}>
-                          <ImgSearch>
-                            <img src={avatar_url || noAvatar} alt={name} />
-                          </ImgSearch>
+                    {searchCustomers.customersInBusiness.map(getCustomer => (
+                      <RowSearch key={getCustomer.id}>
+                        <ImgSearch>
+                          <img
+                            src={getCustomer.avatar_url || noAvatar}
+                            alt={getCustomer.name}
+                          />
+                        </ImgSearch>
 
-                          <InfoSearch>
-                            <LinkH2 to={`/business/customer/${id}`}>
-                              {name}
-                            </LinkH2>
-                            <ButtonOptions>
-                              <ButtonSearch type="button">
-                                Abri Comanda
-                              </ButtonSearch>
-                              <ButtonSearch type="button">
-                                Cliente em Mesa
-                              </ButtonSearch>
-                              <ButtonSearch type="button">
-                                Ver Mesa
-                              </ButtonSearch>
-                            </ButtonOptions>
-                          </InfoSearch>
-                        </RowSearch>
-                      ),
-                    )}
+                        <InfoSearch>
+                          <LinkH2 to={`/business/customer/${getCustomer.id}`}>
+                            {getCustomer.name}
+                          </LinkH2>
+                          <ButtonOptions>
+                            <ButtonSearch
+                              type="button"
+                              isRed={getCustomer.command_open ? 1 : 0}
+                              onClick={() => handleCommand(getCustomer)}
+                            >
+                              {getCustomer.command_open
+                                ? 'Fechar Comanda'
+                                : 'Abrir Comanda'}
+                            </ButtonSearch>
+                            <ButtonSearch type="button">
+                              Cliente em Mesa
+                            </ButtonSearch>
+                            <ButtonSearch type="button">
+                              Abrir Conta
+                            </ButtonSearch>
+                          </ButtonOptions>
+                        </InfoSearch>
+                      </RowSearch>
+                    ))}
                   </BoxSearch>
                   {(searchCustomers.customersOutherBusiness.length > 0 ||
                     searchCustomers.users.length > 0) && <Separator />}

@@ -9,10 +9,11 @@ import React, {
 import { IconBaseProps } from 'react-icons/lib/cjs';
 import ReactInputMask, { Props as InputProps } from 'react-input-mask';
 import { useField } from '@unform/core';
-import { FiXCircle } from 'react-icons/fi';
+import { FiXCircle, FiSearch } from 'react-icons/fi';
 import {
   Container,
   BoxInput,
+  ButtonInInput,
   Error,
   MultSelect,
   AutoComplete,
@@ -30,7 +31,7 @@ interface PropsInput extends InputProps {
     list: {
       name: string;
     }[];
-    handleChange(search: string): Promise<void>;
+    handleChange(search: string): void;
     handleSelect?: (filed: string) => void;
   };
   hasMultSelect?: {
@@ -43,6 +44,11 @@ interface PropsInput extends InputProps {
     handleBlur(): void;
   };
   isCurrency?: boolean;
+  isButtonRight?: {
+    title?: string;
+    handleButton(): void;
+  };
+  hasSubmitDown?: () => void;
 }
 
 const Input: React.FC<PropsInput> = ({
@@ -57,6 +63,8 @@ const Input: React.FC<PropsInput> = ({
   hasUpBlur,
   styleInput,
   isCurrency,
+  isButtonRight,
+  hasSubmitDown,
   ...rest
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -93,13 +101,21 @@ const Input: React.FC<PropsInput> = ({
             hasAutoComplete.handleSelect(fieldName);
           }
         }
+        if (hasSubmitDown) hasSubmitDown();
       } else if (e.keyCode === 38 && cursor >= 0) {
         setCursor(cursor - 1);
       } else if (e.keyCode === 40 && cursor < lengthList - 1) {
         setCursor(cursor + 1);
       }
     },
-    [hasMultSelect, valueForm, hasAutoComplete, cursor, fieldName],
+    [
+      hasMultSelect,
+      valueForm,
+      hasAutoComplete,
+      cursor,
+      fieldName,
+      hasSubmitDown,
+    ],
   );
 
   const handleChange = useCallback(
@@ -182,7 +198,9 @@ const Input: React.FC<PropsInput> = ({
                 .join('');
 
         setValueForm(
-          valueCurrency === '.00' ? '' : formattedValue(Number(valueCurrency)),
+          valueCurrency === '.00' || valueCurrency === ''
+            ? ''
+            : formattedValue(Number(valueCurrency)),
         );
       } else {
         setValueForm(value);
@@ -227,6 +245,7 @@ const Input: React.FC<PropsInput> = ({
         isFilled={isFilled}
         isError={!!error}
         isDisabled={!!disabled}
+        isButoonRight={!!isButtonRight}
       >
         {Icon && <Icon size={20} />}
 
@@ -258,6 +277,15 @@ const Input: React.FC<PropsInput> = ({
           style={styleInput}
           {...rest}
         />
+        {isButtonRight && (
+          <ButtonInInput
+            type="button"
+            title={isButtonRight.title}
+            onClick={isButtonRight.handleButton}
+          >
+            <FiSearch size={26} />
+          </ButtonInInput>
+        )}
 
         {hasAutoComplete &&
           (hasAutoComplete.loading || hasAutoComplete.list.length > 0) && (
