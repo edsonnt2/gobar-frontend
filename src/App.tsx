@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
-import Routes from './routes';
-import GlobalStyle from './styles/global';
-import ContextProvider from './hooks';
+import Routes from '~/shared/routes';
+import GlobalStyle from '~/shared/styles/global';
+import ContextProvider from '~/shared/hooks';
 
 const App: React.FC = () => (
   <Router>
