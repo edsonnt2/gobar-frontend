@@ -28,6 +28,7 @@ import {
   ImageProduct,
   Footer,
 } from './styles';
+import formattedValue from '~/shared/utils/formattedValue';
 
 interface CategoryProvider {
   name: string;
@@ -55,6 +56,9 @@ const RegisterProductBusiness: React.FC = () => {
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [allCategories, setAllCategories] = useState<CategoryProvider[]>([]);
   const [searchCategory, setSearchCategory] = useState('');
+  const [porcentDefault, setPorcentDefault] = useState('100');
+  const [valueSaleDefault, setValueSaleDefault] = useState('');
+  const [valuePushaseDefault, setvaluePushaseDefault] = useState(0);
 
   const [loadingCategoryProvider, setLoadingCategoryProvider] = useState(false);
   const [allCategoriesProvider, setAllCategoriesProvider] = useState<
@@ -216,6 +220,26 @@ const RegisterProductBusiness: React.FC = () => {
     }
   }, []);
 
+  const handleValueWithPorcent = useCallback(
+    ({ value }: { value: number }) => {
+      const result = value / 100;
+      const calcValue = value + Number(porcentDefault) * result;
+      setValueSaleDefault(calcValue > 0 ? formattedValue(calcValue) : ' ');
+      setvaluePushaseDefault(value);
+    },
+    [porcentDefault],
+  );
+
+  const handleChangePorcent = useCallback(
+    ({ value }: { value: number }) => {
+      const result = valuePushaseDefault / 100;
+      const calcValue = valuePushaseDefault + value * result;
+      setValueSaleDefault(calcValue > 0 ? formattedValue(calcValue) : ' ');
+      setPorcentDefault(String(value));
+    },
+    [valuePushaseDefault],
+  );
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchCategoryProvider.trim() !== '') {
@@ -273,10 +297,6 @@ const RegisterProductBusiness: React.FC = () => {
       clearTimeout(timer);
     };
   }, [searchCategory, addToast]);
-
-  useEffect(() => {
-    formRef.current?.setFieldValue('porcent', '100');
-  }, []);
 
   return (
     <Container>
@@ -365,6 +385,9 @@ const RegisterProductBusiness: React.FC = () => {
                   hasTitle="Valor de Compra"
                   style={{ width: 198, flex: 'inherit' }}
                   styleInput={{ width: '100%', flex: 'auto' }}
+                  hasOnChange={{
+                    fnOnChange: handleValueWithPorcent,
+                  }}
                   isCurrency
                 />
                 <SeparateInput />
@@ -375,6 +398,10 @@ const RegisterProductBusiness: React.FC = () => {
                   hasTitle="Margem"
                   style={{ width: 122, flex: 'inherit' }}
                   styleInput={{ width: '100%', flex: 'auto' }}
+                  hasOnChange={{
+                    fnOnChange: handleChangePorcent,
+                  }}
+                  defaultValue={porcentDefault}
                   maxLength={3}
                 />
                 <SeparateInput />
@@ -384,6 +411,7 @@ const RegisterProductBusiness: React.FC = () => {
                   hasTitle="Valor de Venda"
                   style={{ width: 198, flex: 'inherit' }}
                   styleInput={{ width: '100%', flex: 'auto' }}
+                  defaultValue={valueSaleDefault}
                   isCurrency
                 />
               </ContentInput>

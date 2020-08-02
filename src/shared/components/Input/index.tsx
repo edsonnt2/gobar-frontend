@@ -147,6 +147,12 @@ const Input: React.FC<PropsInput> = ({
 
         if (formatField === 'number') {
           setValueForm(valueSplit.join(''));
+          if (hasOnChange) {
+            hasOnChange.fnOnChange({
+              value: Number(valueSplit.join('')),
+              indexRef: hasOnChange.indexRef,
+            });
+          }
         } else {
           const lengthChar = valueSplit.length;
           setValueForm(
