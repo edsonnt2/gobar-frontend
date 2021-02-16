@@ -19,7 +19,7 @@ import { useModal } from '~/shared/hooks/Modal';
 import Input from '~/shared/components/Input';
 import Button from '~/shared/components/Button';
 import api from '~/shared/services/api';
-import formattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 import getValidationErrors from '~/shared/utils/getValidationErrors';
 import { useToast } from '~/shared/hooks/Toast';
 
@@ -209,7 +209,7 @@ const CloseCommandOrTable: React.FC = () => {
       {
         ...rest,
         ...(rest.value_ingress && {
-          ingress_formatted: formattedValue(rest.value_ingress),
+          ingress_formatted: FormattedUtils.formattedValue(rest.value_ingress),
         }),
         ...(customer && {
           customer: {
@@ -221,8 +221,8 @@ const CloseCommandOrTable: React.FC = () => {
         }),
         command_product: command_product.map(({ product, ...restProduct }) => ({
           ...restProduct,
-          value_formatted: formattedValue(restProduct.value),
-          value_total_formatted: formattedValue(
+          value_formatted: FormattedUtils.formattedValue(restProduct.value),
+          value_total_formatted: FormattedUtils.formattedValue(
             Math.fround(restProduct.quantity * restProduct.value),
           ),
           ...(product?.image_url && {
@@ -230,7 +230,7 @@ const CloseCommandOrTable: React.FC = () => {
           }),
         })),
         value_total: valueTotalCommand,
-        value_total_formatted: formattedValue(valueTotalCommand),
+        value_total_formatted: FormattedUtils.formattedValue(valueTotalCommand),
         spotlight: true,
       },
     ]);
@@ -265,8 +265,8 @@ const CloseCommandOrTable: React.FC = () => {
         ...rest,
         table_product: table_product.map(({ product, ...restProduct }) => ({
           ...restProduct,
-          value_formatted: formattedValue(restProduct.value),
-          value_total_formatted: formattedValue(
+          value_formatted: FormattedUtils.formattedValue(restProduct.value),
+          value_total_formatted: FormattedUtils.formattedValue(
             Math.fround(restProduct.quantity * restProduct.value),
           ),
           ...(product?.image_url && {
@@ -274,7 +274,7 @@ const CloseCommandOrTable: React.FC = () => {
           }),
         })),
         value_total: valueTotalTable,
-        value_total_formatted: formattedValue(valueTotalTable),
+        value_total_formatted: FormattedUtils.formattedValue(valueTotalTable),
         ...(table_customer && {
           table_customer: table_customer.map(
             ({ customer, ...restCustomer }) => ({
@@ -483,7 +483,7 @@ const CloseCommandOrTable: React.FC = () => {
                     ({ id }) => id !== item_product_id,
                   ),
                   value_total: getCommand.value_total - valueTotalProduct,
-                  value_total_formatted: formattedValue(
+                  value_total_formatted: FormattedUtils.formattedValue(
                     getCommand.value_total - valueTotalProduct,
                   ),
                 }
@@ -509,7 +509,7 @@ const CloseCommandOrTable: React.FC = () => {
                     ({ id }) => id !== item_product_id,
                   ),
                   value_total: getTable.value_total - valueTotalProduct,
-                  value_total_formatted: formattedValue(
+                  value_total_formatted: FormattedUtils.formattedValue(
                     getTable.value_total - valueTotalProduct,
                   ),
                 }
@@ -643,9 +643,10 @@ const CloseCommandOrTable: React.FC = () => {
     [commandProduct, tableProduct],
   );
 
-  const valueTotalFormatted = useMemo(() => formattedValue(valueTotalItems), [
-    valueTotalItems,
-  ]);
+  const valueTotalFormatted = useMemo(
+    () => FormattedUtils.formattedValue(valueTotalItems),
+    [valueTotalItems],
+  );
 
   useEffect(() => {
     formRefCommand.current?.getFieldRef('command').focus();

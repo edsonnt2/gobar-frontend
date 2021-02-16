@@ -21,7 +21,7 @@ import { CustomerData, useModal } from '~/shared/hooks/Modal';
 import api from '~/shared/services/api';
 import { useToast } from '~/shared/hooks/Toast';
 import getValidationErrors from '~/shared/utils/getValidationErrors';
-import formattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface Props {
   style: React.CSSProperties;
@@ -134,7 +134,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
       setIngress(
         response.data.map(getIngress => ({
           ...getIngress,
-          value_formatted: formattedValue(getIngress.value),
+          value_formatted: FormattedUtils.formattedValue(getIngress.value),
           consume_formatted: getIngress.consume ? '- Consuma' : '',
         })),
       );

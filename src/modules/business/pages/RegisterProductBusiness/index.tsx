@@ -28,7 +28,7 @@ import {
   ImageProduct,
   Footer,
 } from './styles';
-import formattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface CategoryProvider {
   name: string;
@@ -227,7 +227,9 @@ const RegisterProductBusiness: React.FC = () => {
     ({ value }: { value: number }) => {
       const result = value / 100;
       const calcValue = value + Number(porcentDefault) * result;
-      setValueSaleDefault(calcValue > 0 ? formattedValue(calcValue) : ' ');
+      setValueSaleDefault(
+        calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ',
+      );
       setvaluePushaseDefault(value);
     },
     [porcentDefault],
@@ -237,7 +239,9 @@ const RegisterProductBusiness: React.FC = () => {
     ({ value }: { value: number }) => {
       const result = valuePushaseDefault / 100;
       const calcValue = valuePushaseDefault + value * result;
-      setValueSaleDefault(calcValue > 0 ? formattedValue(calcValue) : ' ');
+      setValueSaleDefault(
+        calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ',
+      );
       setPorcentDefault(String(value));
     },
     [valuePushaseDefault],

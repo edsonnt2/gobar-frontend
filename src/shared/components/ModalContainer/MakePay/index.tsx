@@ -28,7 +28,7 @@ import Button from '../../Button';
 import { MakeyPayData, useModal } from '~/shared/hooks/Modal';
 import { useToast } from '~/shared/hooks/Toast';
 import getValidationErrors from '~/shared/utils/getValidationErrors';
-import formattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 import api from '~/shared/services/api';
 
 interface Props {
@@ -79,14 +79,14 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
       type: '',
       subtotal: {
         value: data.value_total,
-        value_formatted: formattedValue(data.value_total),
+        value_formatted: FormattedUtils.formattedValue(data.value_total),
       },
     },
   ]);
 
   const [dataPay, setDataPay] = useState<PayData>({
     ...data,
-    value_formatted: formattedValue(data.value_total),
+    value_formatted: FormattedUtils.formattedValue(data.value_total),
   });
 
   const handleSubmit = useCallback(
@@ -295,14 +295,16 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
               ...prevState[0],
               subtotal: {
                 value: valueWithDescont,
-                value_formatted: formattedValue(valueWithDescont),
+                value_formatted: FormattedUtils.formattedValue(
+                  valueWithDescont,
+                ),
               },
               ...(prevState[0].received && {
                 change_value: {
                   value: prevState[0].received.value - valueWithDescont,
                   value_formatted:
                     prevState[0].received.value - valueWithDescont > 0
-                      ? formattedValue(
+                      ? FormattedUtils.formattedValue(
                           prevState[0].received.value - valueWithDescont,
                         )
                       : ' ',
@@ -318,7 +320,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
             ...prevState[1],
             subtotal: {
               value: valueWithDescont - prevState[0].subtotal.value,
-              value_formatted: formattedValue(
+              value_formatted: FormattedUtils.formattedValue(
                 valueWithDescont - prevState[0].subtotal.value,
               ),
             },
@@ -331,7 +333,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
                   prevState[1].received.value -
                     (valueWithDescont - prevState[0].subtotal.value) >
                   0
-                    ? formattedValue(
+                    ? FormattedUtils.formattedValue(
                         prevState[1].received.value -
                           (valueWithDescont - prevState[0].subtotal.value),
                       )
@@ -362,14 +364,16 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
                 ...prevState[0],
                 subtotal: {
                   value,
-                  value_formatted: formattedValue(value),
+                  value_formatted: FormattedUtils.formattedValue(value),
                 },
                 ...(prevState[0].received && {
                   change_value: {
                     value: prevState[0].received.value - value,
                     value_formatted:
                       prevState[0].received.value - value > 0
-                        ? formattedValue(prevState[0].received.value - value)
+                        ? FormattedUtils.formattedValue(
+                            prevState[0].received.value - value,
+                          )
                         : ' ',
                   },
                 }),
@@ -378,7 +382,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
                 type: '',
                 subtotal: {
                   value: valueSecond,
-                  value_formatted: formattedValue(valueSecond),
+                  value_formatted: FormattedUtils.formattedValue(valueSecond),
                 },
               },
             ]);
@@ -391,14 +395,16 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
                       type: prev.type,
                       subtotal: {
                         value: valueSecond,
-                        value_formatted: formattedValue(valueSecond),
+                        value_formatted: FormattedUtils.formattedValue(
+                          valueSecond,
+                        ),
                       },
                       ...(prev.received && {
                         change_value: {
                           value: prev.received.value - valueSecond,
                           value_formatted:
                             prev.received.value - valueSecond > 0
-                              ? formattedValue(
+                              ? FormattedUtils.formattedValue(
                                   prev.received.value - valueSecond,
                                 )
                               : ' ',
@@ -409,14 +415,16 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
                       ...prev,
                       subtotal: {
                         value,
-                        value_formatted: formattedValue(value),
+                        value_formatted: FormattedUtils.formattedValue(value),
                       },
                       ...(prev.received && {
                         change_value: {
                           value: prev.received.value - value,
                           value_formatted:
                             prev.received.value - value > 0
-                              ? formattedValue(prev.received.value - value)
+                              ? FormattedUtils.formattedValue(
+                                  prev.received.value - value,
+                                )
                               : ' ',
                         },
                       }),
@@ -430,14 +438,16 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
               ...prevState[0],
               subtotal: {
                 value,
-                value_formatted: formattedValue(value),
+                value_formatted: FormattedUtils.formattedValue(value),
               },
               ...(prevState[0].received && {
                 change_value: {
                   value: prevState[0].received.value - value,
                   value_formatted:
                     prevState[0].received.value - value > 0
-                      ? formattedValue(prevState[0].received.value - value)
+                      ? FormattedUtils.formattedValue(
+                          prevState[0].received.value - value,
+                        )
                       : ' ',
                 },
               }),
@@ -468,14 +478,16 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
             ...prevState[1],
             subtotal: {
               value,
-              value_formatted: formattedValue(value),
+              value_formatted: FormattedUtils.formattedValue(value),
             },
             ...(prevState[1].received && {
               change_value: {
                 value: prevState[1].received.value - value,
                 value_formatted:
                   prevState[1].received.value - value > 0
-                    ? formattedValue(prevState[1].received.value - value)
+                    ? FormattedUtils.formattedValue(
+                        prevState[1].received.value - value,
+                      )
                     : ' ',
               },
             }),
@@ -501,12 +513,14 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
             ...prev,
             received: {
               value,
-              value_formatted: formattedValue(value),
+              value_formatted: FormattedUtils.formattedValue(value),
             },
             change_value: {
               value: newChangeValue,
               value_formatted:
-                newChangeValue > 0 ? formattedValue(newChangeValue) : ' ',
+                newChangeValue > 0
+                  ? FormattedUtils.formattedValue(newChangeValue)
+                  : ' ',
             },
           };
         }
