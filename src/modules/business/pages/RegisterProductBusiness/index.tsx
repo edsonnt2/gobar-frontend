@@ -168,6 +168,9 @@ const RegisterProductBusiness: React.FC = () => {
             case 'Internal code already registered':
               errorData = { internal_code: 'Código interno já cadastrado' };
               break;
+            case 'Description already registered':
+              errorData = { description: 'Descrição já cadastrada' };
+              break;
             default:
               errorData = undefined;
               break;

@@ -96,7 +96,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
         formRef.current?.setErrors({});
 
         if (formOfPayment.length > 0) {
-          let errorPays: object | undefined;
+          let errorPays: { [key: string]: string } | undefined;
 
           const sumSubTotal = formOfPayment.reduce((prevValue, subTotal) => {
             return subTotal.type !== ''

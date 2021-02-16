@@ -162,7 +162,7 @@ const RegisterCommandOrTable: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        let errorProducts: object | undefined;
+        let errorProducts: { [key: string]: string } | undefined;
         if (data.command_or_table === '') {
           errorProducts = {
             command: 'Número da Comanda é obrigatório',
