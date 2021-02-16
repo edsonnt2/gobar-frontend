@@ -16,8 +16,8 @@ import { useModal } from '~/shared/hooks/Modal';
 import Input from '~/shared/components/Input';
 import Button from '~/shared/components/Button';
 import api from '~/shared/services/api';
-import formattedValue from '~/shared/utils/formattedValue';
 import { useToast } from '~/shared/hooks/Toast';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 import InputQuantityProduct from '~/modules/commands/components/InputQuantityProduct';
 
@@ -162,7 +162,7 @@ const RegisterCommandOrTable: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        let errorProducts: object | undefined;
+        let errorProducts: { [key: string]: string } | undefined;
         if (data.command_or_table === '') {
           errorProducts = {
             command: 'Número da Comanda é obrigatório',
@@ -301,8 +301,8 @@ const RegisterCommandOrTable: React.FC = () => {
           description,
           quantity: '',
           value: data.sale_value,
-          value_formatted: formattedValue(data.sale_value || 0),
-          value_total: formattedValue(0),
+          value_formatted: FormattedUtils.formattedValue(data.sale_value || 0),
+          value_total: FormattedUtils.formattedValue(0),
           ref_quantity: true,
         },
       ]);
@@ -317,7 +317,7 @@ const RegisterCommandOrTable: React.FC = () => {
         {
           description,
           quantity: '',
-          value_total: formattedValue(0),
+          value_total: FormattedUtils.formattedValue(0),
           ref_value: true,
         },
       ]);
@@ -394,7 +394,9 @@ const RegisterCommandOrTable: React.FC = () => {
             ? {
                 ...prev,
                 quantity: value,
-                value_total: formattedValue(Number(value) * (prev.value || 0)),
+                value_total: FormattedUtils.formattedValue(
+                  Number(value) * (prev.value || 0),
+                ),
                 ref_quantity: undefined,
                 ref_value: undefined,
               }
@@ -412,7 +414,7 @@ const RegisterCommandOrTable: React.FC = () => {
             ? {
                 ...prev,
                 value: value !== '.00' ? Number(value) : undefined,
-                value_total: formattedValue(
+                value_total: FormattedUtils.formattedValue(
                   Number(prev.quantity) * Number(value),
                 ),
               }

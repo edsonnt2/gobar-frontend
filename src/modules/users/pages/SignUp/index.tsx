@@ -50,7 +50,7 @@ const SignUp: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<SignInData>({
+        const schema = Yup.object().shape({
           name: Yup.string().required('Nome é obrigatório'),
           email: Yup.string()
             .email('E-mail inválido')

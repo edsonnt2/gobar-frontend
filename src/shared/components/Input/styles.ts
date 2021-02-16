@@ -41,7 +41,7 @@ export const BoxInput = styled.div<PropsInput>`
   display: flex;
   align-items: center;
   transition: border-color 0.2s;
-  margin-bottom:8px;
+  margin-bottom: 8px;
 
   ${({ hasMultSelect }) =>
     hasMultSelect &&

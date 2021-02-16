@@ -15,7 +15,7 @@ import api from '~/shared/services/api';
 import { useToast } from '~/shared/hooks/Toast';
 import getValidationErrors from '~/shared/utils/getValidationErrors';
 import MenuRegisterPTT from '~/modules/business/components/MenuRegisterPTT';
-import fnFormattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 import {
   Container,
@@ -56,7 +56,7 @@ const RegisterIngressBusiness: React.FC = () => {
       setIngress(
         response.data.map(getIngress => ({
           ...getIngress,
-          formattedValue: fnFormattedValue(getIngress.value),
+          formattedValue: FormattedUtils.formattedValue(getIngress.value),
         })),
       );
     });
@@ -68,7 +68,7 @@ const RegisterIngressBusiness: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<RegisterIngressBusinessData>({
+        const schema = Yup.object().shape({
           description: Yup.string().required('Descrição é obrigatório'),
           value: Yup.string().required('Valor de Entrada é obrigatório'),
           consume: Yup.string().required('Tipo de Entrada é obrigatório'),
@@ -96,7 +96,7 @@ const RegisterIngressBusiness: React.FC = () => {
           ...prevIngress,
           {
             ...response.data,
-            formattedValue: fnFormattedValue(response.data.value),
+            formattedValue: FormattedUtils.formattedValue(response.data.value),
           },
         ]);
 

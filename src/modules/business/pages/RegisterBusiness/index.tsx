@@ -135,7 +135,7 @@ const RegisterBusiness: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<RegisterBusinessData>({
+        const schema = Yup.object().shape({
           name: Yup.string().required('Nome do Negócio é obrigatório'),
           cpf_or_cnpj: Yup.string().required('CNJ/CNPJ é obrigatório'),
           zip_code: Yup.string().required('CEP é obrigatório'),

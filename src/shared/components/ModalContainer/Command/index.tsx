@@ -21,10 +21,10 @@ import { CustomerData, useModal } from '~/shared/hooks/Modal';
 import api from '~/shared/services/api';
 import { useToast } from '~/shared/hooks/Toast';
 import getValidationErrors from '~/shared/utils/getValidationErrors';
-import formattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface Props {
-  style: object;
+  style: React.CSSProperties;
   data: CustomerData;
 }
 
@@ -57,7 +57,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<DataForm>({
+        const schema = Yup.object().shape({
           number: Yup.string().required('Número da comanda é obrigatório'),
           ...(ingress.length > 0 && {
             ingress_id: Yup.string().required('Opção de Entrada é obrigatório'),
@@ -134,7 +134,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
       setIngress(
         response.data.map(getIngress => ({
           ...getIngress,
-          value_formatted: formattedValue(getIngress.value),
+          value_formatted: FormattedUtils.formattedValue(getIngress.value),
           consume_formatted: getIngress.consume ? '- Consuma' : '',
         })),
       );

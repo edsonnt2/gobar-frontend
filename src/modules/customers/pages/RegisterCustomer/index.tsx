@@ -46,7 +46,7 @@ const FindCustomer: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
   const { business } = useAuth();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [dataCustomer, setDataCustomer] = useState<Customer>({} as Customer);
@@ -86,7 +86,7 @@ const FindCustomer: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<CustomerData>({
+        const schema = Yup.object().shape({
           name: Yup.string().required('Nome do Negócio é obrigatório'),
           birthDate: Yup.string().required('Data de nascimento é obrigatório'),
           gender: Yup.string().required('Gênero é obrigatório'),

@@ -13,7 +13,7 @@ import { Container, BoxInput, Error } from './styles';
 interface PropsSelect extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;
   hasTitle?: string;
-  styleInput?: object;
+  styleInput?: React.CSSProperties;
   children: React.ReactNode;
 }
 

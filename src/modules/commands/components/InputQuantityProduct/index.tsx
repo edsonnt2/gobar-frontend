@@ -8,9 +8,10 @@ import React, {
 } from 'react';
 
 import { useField } from '@unform/core';
-import formattedValue from '~/shared/utils/formattedValue';
 
 import { Container, BoxInput, Error } from './styles';
+
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface HasChange {
   value: string;
@@ -114,7 +115,7 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
         setValue =
           valueCurrency === '.00' || valueCurrency === ''
             ? ''
-            : formattedValue(Number(valueCurrency));
+            : FormattedUtils.formattedValue(Number(valueCurrency));
 
         if (isChange)
           isChange({

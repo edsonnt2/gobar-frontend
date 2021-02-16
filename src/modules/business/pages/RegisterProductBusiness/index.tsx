@@ -28,7 +28,7 @@ import {
   ImageProduct,
   Footer,
 } from './styles';
-import formattedValue from '~/shared/utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface CategoryProvider {
   name: string;
@@ -76,7 +76,7 @@ const RegisterProductBusiness: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<RegisterProductBusinessData>({
+        const schema = Yup.object().shape({
           description: Yup.string().required(
             'Descrição do Produto é obrigatório',
           ),
@@ -168,6 +168,9 @@ const RegisterProductBusiness: React.FC = () => {
             case 'Internal code already registered':
               errorData = { internal_code: 'Código interno já cadastrado' };
               break;
+            case 'Description already registered':
+              errorData = { description: 'Descrição já cadastrada' };
+              break;
             default:
               errorData = undefined;
               break;
@@ -224,7 +227,9 @@ const RegisterProductBusiness: React.FC = () => {
     ({ value }: { value: number }) => {
       const result = value / 100;
       const calcValue = value + Number(porcentDefault) * result;
-      setValueSaleDefault(calcValue > 0 ? formattedValue(calcValue) : ' ');
+      setValueSaleDefault(
+        calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ',
+      );
       setvaluePushaseDefault(value);
     },
     [porcentDefault],
@@ -234,7 +239,9 @@ const RegisterProductBusiness: React.FC = () => {
     ({ value }: { value: number }) => {
       const result = valuePushaseDefault / 100;
       const calcValue = valuePushaseDefault + value * result;
-      setValueSaleDefault(calcValue > 0 ? formattedValue(calcValue) : ' ');
+      setValueSaleDefault(
+        calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ',
+      );
       setPorcentDefault(String(value));
     },
     [valuePushaseDefault],
