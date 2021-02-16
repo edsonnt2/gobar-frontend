@@ -19,7 +19,7 @@ import {
   AutoComplete,
   LiAutoComplete,
 } from './styles';
-import formattedValue from '../../utils/formattedValue';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface FnOnChange {
   value: number;
@@ -30,7 +30,7 @@ interface PropsInput extends InputProps {
   hasTitle?: string;
   name: string;
   formatField?: 'cpf-and-cnpj' | 'number';
-  styleInput?: object;
+  styleInput?: React.CSSProperties;
   hasAutoComplete?: {
     loading: boolean;
     list: {
@@ -102,7 +102,7 @@ const Input: React.FC<PropsInput> = ({
     (e: KeyboardEvent<HTMLInputElement>) => {
       const lengthList = hasAutoComplete ? hasAutoComplete.list.length : 0;
 
-      if (e.keyCode === 13) {
+      if (e.key === 'Enter') {
         const saveItem =
           cursor > -1 ? hasAutoComplete?.list[cursor].name : valueForm;
 
@@ -115,9 +115,9 @@ const Input: React.FC<PropsInput> = ({
           }
         }
         if (hasSubmitDown) hasSubmitDown();
-      } else if (e.keyCode === 38 && cursor >= 0) {
+      } else if (e.key === 'ArrowUp' && cursor >= 0) {
         setCursor(cursor - 1);
-      } else if (e.keyCode === 40 && cursor < lengthList - 1) {
+      } else if (e.key === 'ArrrowDown' && cursor < lengthList - 1) {
         setCursor(cursor + 1);
       }
     },
@@ -219,7 +219,7 @@ const Input: React.FC<PropsInput> = ({
         setValueForm(
           valueCurrency === '.00' || valueCurrency === ''
             ? ''
-            : formattedValue(Number(valueCurrency)),
+            : FormattedUtils.formattedValue(Number(valueCurrency)),
         );
         if (hasOnChange) {
           hasOnChange.fnOnChange({

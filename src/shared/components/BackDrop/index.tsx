@@ -4,7 +4,7 @@ import { Container } from './styles';
 
 interface Props {
   show?: boolean;
-  style?: object;
+  style?: React.CSSProperties;
   clicked(): void;
 }
 

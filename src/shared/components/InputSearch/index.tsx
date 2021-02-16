@@ -5,7 +5,7 @@ import { Container, BoxInput } from './styles';
 
 interface PropsInput extends InputHTMLAttributes<HTMLInputElement> {
   hasTitle?: string;
-  styleInput?: object;
+  styleInput?: React.CSSProperties;
   isNumber?: boolean;
   inputRef?: React.RefObject<HTMLInputElement>;
   valueSearch: string;

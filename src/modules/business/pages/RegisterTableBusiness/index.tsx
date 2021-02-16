@@ -46,7 +46,7 @@ const RegisterTableBusiness: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<RegisterTableBusinessData>({
+        const schema = Yup.object().shape({
           table: Yup.string().required('Quantidade de mesas é obrigatório'),
         });
 
