@@ -68,7 +68,7 @@ const RegisterIngressBusiness: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<RegisterIngressBusinessData>({
+        const schema = Yup.object().shape({
           description: Yup.string().required('Descrição é obrigatório'),
           value: Yup.string().required('Valor de Entrada é obrigatório'),
           consume: Yup.string().required('Tipo de Entrada é obrigatório'),

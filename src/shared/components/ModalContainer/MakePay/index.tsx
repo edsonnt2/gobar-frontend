@@ -32,7 +32,7 @@ import formattedValue from '~/shared/utils/formattedValue';
 import api from '~/shared/services/api';
 
 interface Props {
-  style: object;
+  style: React.CSSProperties;
   data: MakeyPayData;
 }
 

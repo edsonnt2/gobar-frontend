@@ -24,7 +24,7 @@ import getValidationErrors from '~/shared/utils/getValidationErrors';
 import formattedValue from '~/shared/utils/formattedValue';
 
 interface Props {
-  style: object;
+  style: React.CSSProperties;
   data: CustomerData;
 }
 
@@ -57,7 +57,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<DataForm>({
+        const schema = Yup.object().shape({
           number: Yup.string().required('Número da comanda é obrigatório'),
           ...(ingress.length > 0 && {
             ingress_id: Yup.string().required('Opção de Entrada é obrigatório'),

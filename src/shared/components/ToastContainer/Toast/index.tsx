@@ -5,13 +5,14 @@ import {
   FiAlertOctagon,
   FiCheckCircle,
 } from 'react-icons/fi';
+import { AnimatedValue } from 'react-spring';
 import { Container } from './styles';
 
 import { ToastMessage, useToast } from '~/shared/hooks/Toast';
 
 interface ToastProps {
   message: ToastMessage;
-  style: object;
+  style: AnimatedValue<React.CSSProperties>;
 }
 
 const Toast: React.FC<ToastProps> = ({

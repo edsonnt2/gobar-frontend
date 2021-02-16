@@ -30,7 +30,7 @@ interface PropsInput extends InputProps {
   hasTitle?: string;
   name: string;
   formatField?: 'cpf-and-cnpj' | 'number';
-  styleInput?: object;
+  styleInput?: React.CSSProperties;
   hasAutoComplete?: {
     loading: boolean;
     list: {

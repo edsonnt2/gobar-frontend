@@ -304,7 +304,7 @@ const CloseCommandOrTable: React.FC = () => {
         formRefCommand.current?.setErrors({});
         formRefTable.current?.setErrors({});
 
-        const schema = Yup.object().shape<Partial<FormData>>({
+        const schema = Yup.object().shape({
           ...(whereSelected === 'command'
             ? {
                 command: Yup.string().required(

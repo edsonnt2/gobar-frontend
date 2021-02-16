@@ -76,7 +76,7 @@ const RegisterProductBusiness: React.FC = () => {
       try {
         formRef.current?.setErrors({});
 
-        const schema = Yup.object().shape<RegisterProductBusinessData>({
+        const schema = Yup.object().shape({
           description: Yup.string().required(
             'Descrição do Produto é obrigatório',
           ),

@@ -20,7 +20,7 @@ import {
 import { useAuth } from '~/shared/hooks/Auth';
 
 interface Props {
-  style: object;
+  style: React.CSSProperties;
   data: CustomerData;
 }
 

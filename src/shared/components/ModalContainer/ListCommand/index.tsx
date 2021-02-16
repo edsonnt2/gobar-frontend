@@ -24,7 +24,7 @@ import InputSearch from '~/shared/components/InputSearch';
 import noAvatar from '../../../assets/no-avatar.png';
 
 interface Props {
-  style: object;
+  style: React.CSSProperties;
 }
 
 interface Customer {

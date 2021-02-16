@@ -36,7 +36,7 @@ const Customer: React.FC = () => {
   const { addToast } = useToast();
   const { addModal, responseModal, resetResponseModal } = useModal();
   const history = useHistory();
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [customer, setCustomer] = useState<Customer>({} as Customer);
 
   useEffect(() => {
