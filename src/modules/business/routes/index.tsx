@@ -1,6 +1,5 @@
-import React from 'react';
 import { Switch } from 'react-router-dom';
-import Route from '~/shared/routes/Route';
+import Route from '@/shared/routes/Route';
 import RegisterBusiness from '../pages/RegisterBusiness';
 import RegisterProductBusiness from '../pages/RegisterProductBusiness';
 import RegisterTableBusiness from '../pages/RegisterTableBusiness';
@@ -13,24 +12,9 @@ const RoutesBusiness: React.FC = () => {
 
       {/* Routes Business */}
 
-      <Route
-        path="/business/register-product"
-        component={RegisterProductBusiness}
-        isPrivate
-        isBusiness
-      />
-      <Route
-        path="/business/register-table"
-        component={RegisterTableBusiness}
-        isPrivate
-        isBusiness
-      />
-      <Route
-        path="/business/register-ingress"
-        component={RegisterIngressBusiness}
-        isPrivate
-        isBusiness
-      />
+      <Route path="/business/register-product" component={RegisterProductBusiness} isPrivate isBusiness />
+      <Route path="/business/register-table" component={RegisterTableBusiness} isPrivate isBusiness />
+      <Route path="/business/register-ingress" component={RegisterIngressBusiness} isPrivate isBusiness />
     </Switch>
   );
 };

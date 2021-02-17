@@ -1,4 +1,4 @@
-import api from '~/shared/services/api';
+import api from '@/shared/services/api';
 import { FormOfPayment, PayData } from '..';
 
 interface SendPayment {
@@ -11,22 +11,16 @@ export default async function sendPayment({
   formOfPayment,
   payData,
   dataForm,
-}: SendPayment): Promise<
-  'discount' | 'payment' | { [key: string]: string } | null
-> {
+}: SendPayment): Promise<'discount' | 'payment' | { [key: string]: string } | null> {
   if (!formOfPayment.length) return null;
 
   let errorPays: { [key: string]: string } | undefined;
 
   const sumSubTotal = formOfPayment.reduce((prevValue, subTotal) => {
-    return subTotal.type !== ''
-      ? prevValue + subTotal.subtotal.value
-      : prevValue;
+    return subTotal.type !== '' ? prevValue + subTotal.subtotal.value : prevValue;
   }, 0);
 
-  const valueTotalPay = payData.value_discont
-    ? payData.value_total - payData.value_discont
-    : payData.value_total;
+  const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
 
   formOfPayment.forEach((formOfPay, index) => {
     if (index === 0) {

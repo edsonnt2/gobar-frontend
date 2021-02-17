@@ -4,8 +4,8 @@ module.exports = override(
   ...addBabelPlugins([
     'babel-plugin-root-import',
     {
-      rootPathPrefix: '~',
-      rootPathSuffix: 'src',
+      rootPathPrefix: '@/',
+      rootPathSuffix: 'src/',
     },
   ]),
 );

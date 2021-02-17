@@ -1,36 +1,21 @@
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useEffect,
-  ChangeEvent,
-  Fragment,
-} from 'react';
+import { useCallback, useRef, useState, useEffect, ChangeEvent, Fragment } from 'react';
 import { FiXCircle, FiScissors } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import { MakeyPayData, useModal } from '~/shared/hooks/Modal';
-import { useToast } from '~/shared/hooks/Toast';
+import { MakeyPayData, useModal } from '@/shared/hooks/Modal';
+import { useToast } from '@/shared/hooks/Toast';
 
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 import Button from '../../Button';
 import Select from '../../Select';
 import Input from '../../Input';
 
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import FormattedUtils from '~/shared/utils/formattedUtils';
 import { onChangeDiscont, onChangePayment, sendPayment } from './Functions';
 
-import {
-  Container,
-  ClosePay,
-  RowHeaderPay,
-  HeaderLeft,
-  HeaderRight,
-  RowInput,
-  SeparateInput,
-} from './styles';
+import { Container, ClosePay, RowHeaderPay, HeaderLeft, HeaderRight, RowInput, SeparateInput } from './styles';
 
 export interface PayData extends MakeyPayData {
   value_formatted: string;
@@ -59,10 +44,7 @@ export interface FormOfPayment {
   };
 }
 
-const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
-  style,
-  data,
-}) => {
+const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({ style, data }) => {
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const formRef = useRef<FormHandles>(null);
@@ -99,8 +81,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           addToast({
             type: 'error',
             message: 'Erro no Cadastro',
-            description:
-              'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+            description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
           });
           return;
         }
@@ -117,12 +98,8 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
             response === 'payment'
               ? `${
                   payData.close_id.length
-                    ? `${
-                        payData.type === 'command' ? 'Comanda' : 'Mesa'
-                      } fechada`
-                    : `${
-                        payData.type === 'command' ? 'Comanda' : 'Mesa'
-                      }s fechadas`
+                    ? `${payData.type === 'command' ? 'Comanda' : 'Mesa'} fechada`
+                    : `${payData.type === 'command' ? 'Comanda' : 'Mesa'}s fechadas`
                 } com sucesso`
               : 'Desconto em comanda feito com sucesso',
         });
@@ -133,10 +110,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           return;
         }
 
-        const whichError =
-          error.response && error.response.data
-            ? error.response.data.message
-            : 'error';
+        const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
         if (whichError === 'Command number already registered') {
           formRef.current?.setErrors({
@@ -146,8 +120,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           addToast({
             type: 'error',
             message: 'Erro no Cadastro',
-            description:
-              'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+            description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
           });
         }
       } finally {
@@ -200,22 +173,14 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
     ({ indexRef, value }: FnOnChange) => {
       formRef.current?.setErrors({});
 
-      const valueTotalPay = payData.value_discont
-        ? payData.value_total - payData.value_discont
-        : payData.value_total;
+      const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
 
       if (indexRef) {
-        const sumSubTotal = formOfPayment.reduce(
-          (prevValue, subTotal, index) => {
-            if (subTotal.type !== '')
-              return index === indexRef
-                ? prevValue + value
-                : prevValue + subTotal.subtotal.value;
+        const sumSubTotal = formOfPayment.reduce((prevValue, subTotal, index) => {
+          if (subTotal.type !== '') return index === indexRef ? prevValue + value : prevValue + subTotal.subtotal.value;
 
-            return prevValue;
-          },
-          0,
-        );
+          return prevValue;
+        }, 0);
 
         if (sumSubTotal > valueTotalPay)
           formRef.current?.setErrors({
@@ -253,10 +218,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
             },
             change_value: {
               value: newChangeValue,
-              value_formatted:
-                newChangeValue > 0
-                  ? FormattedUtils.formattedValue(newChangeValue)
-                  : ' ',
+              value_formatted: newChangeValue > 0 ? FormattedUtils.formattedValue(newChangeValue) : ' ',
             },
           };
         }
@@ -267,19 +229,13 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
 
   useEffect(() => {
     const sumSubTotal = formOfPayment.reduce((prevValue, subTotal) => {
-      return subTotal.type !== ''
-        ? prevValue + subTotal.subtotal.value
-        : prevValue;
+      return subTotal.type !== '' ? prevValue + subTotal.subtotal.value : prevValue;
     }, 0);
 
-    const valueTotalPay = payData.value_discont
-      ? payData.value_total - payData.value_discont
-      : payData.value_total;
+    const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
 
     setTextButton(
-      sumSubTotal !== 0 &&
-        sumSubTotal < valueTotalPay &&
-        payData.close_id.length === 1
+      sumSubTotal !== 0 && sumSubTotal < valueTotalPay && payData.close_id.length === 1
         ? 'Descontar Pagamento'
         : 'Fazer Pagamento',
     );
@@ -371,20 +327,12 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
                     />
                   </>
                 ) : (
-                  <Select
-                    name={`type_card[${index}]`}
-                    hasTitle="Tipo do Cartão"
-                    style={{ flex: 1 }}
-                  >
+                  <Select name={`type_card[${index}]`} hasTitle="Tipo do Cartão" style={{ flex: 1 }}>
                     <option value="">Selecione</option>
                     <option value="visa-debit">Cartão VISA Débito</option>
                     <option value="visa-credit">Cartão VISA Crédito</option>
-                    <option value="master-debit">
-                      Cartão MASTERCARD Débito
-                    </option>
-                    <option value="master-credit">
-                      Cartão MASTERCARD Crédito
-                    </option>
+                    <option value="master-debit">Cartão MASTERCARD Débito</option>
+                    <option value="master-credit">Cartão MASTERCARD Crédito</option>
                     <option value="elo-debit">Cartão ELO Débito</option>
                     <option value="elo-credit">Cartão ELO Crédito</option>
                   </Select>

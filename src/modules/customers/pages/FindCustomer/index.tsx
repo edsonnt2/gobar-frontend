@@ -1,17 +1,17 @@
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 
 import { FiSearch } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
-import LayoutBusiness from '~/shared/components/LayoutBusiness';
+import LayoutBusiness from '@/shared/components/LayoutBusiness';
 
-import InputSearch from '~/shared/components/InputSearch';
-import LinkCustom from '~/shared/components/LinkCustom';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
+import InputSearch from '@/shared/components/InputSearch';
+import LinkCustom from '@/shared/components/LinkCustom';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
 
-import noAvatar from '~/shared/assets/no-avatar.png';
-import { useAuth } from '~/shared/hooks/Auth';
-import { useModal } from '~/shared/hooks/Modal';
+import noAvatar from '@/shared/assets/no-avatar.png';
+import { useAuth } from '@/shared/hooks/Auth';
+import { useModal } from '@/shared/hooks/Modal';
 
 import {
   Container,
@@ -56,10 +56,7 @@ interface Customer {
 
 interface PropsSearch {
   customersInBusiness: Customer[];
-  customersOutherBusiness: Omit<
-    Customer,
-    'cpf_or_cnpj' | 'command' | 'command_open'
-  >[];
+  customersOutherBusiness: Omit<Customer, 'cpf_or_cnpj' | 'command' | 'command_open'>[];
   users: Omit<Customer, 'cpf_of_cnpj' | 'command' | 'command_open'>[];
 }
 
@@ -75,9 +72,7 @@ const FindCustomer: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [search, setSearch] = useState('');
-  const [searchCustomers, setSearchCustomers] = useState<PropsSearch>(
-    {} as PropsSearch,
-  );
+  const [searchCustomers, setSearchCustomers] = useState<PropsSearch>({} as PropsSearch);
 
   const history = useHistory();
 
@@ -88,8 +83,7 @@ const FindCustomer: React.FC = () => {
     }: HandleCommandOrTable) => {
       if (command_open && command_or_table === 'command') {
         const number_command = command.find(
-          ({ business_id, command_closure_id }) =>
-            business_id === business?.id && !command_closure_id,
+          ({ business_id, command_closure_id }) => business_id === business?.id && !command_closure_id,
         );
 
         history.push('business/close-command-or-table', {
@@ -142,22 +136,16 @@ const FindCustomer: React.FC = () => {
               users: data.users,
               customersInBusiness: data.customersInBusiness.map(customer => {
                 const table_open = customer.table_customer.find(
-                  ({ table }) =>
-                    table.business_id === business?.id &&
-                    !table.table_closure_id,
+                  ({ table }) => table.business_id === business?.id && !table.table_closure_id,
                 );
 
-                const table_number = table_open
-                  ? table_open.table.number
-                  : undefined;
+                const table_number = table_open ? table_open.table.number : undefined;
 
                 return {
                   ...customer,
                   command_open:
                     customer.command.filter(
-                      findCommand =>
-                        findCommand.business_id === business?.id &&
-                        !findCommand.command_closure_id,
+                      findCommand => findCommand.business_id === business?.id && !findCommand.command_closure_id,
                     ).length > 0,
                   table_number,
                 };
@@ -211,91 +199,77 @@ const FindCustomer: React.FC = () => {
           <span>searching...</span>
         ) : (
           <ContentSearch>
-            {searchCustomers.customersInBusiness &&
-              searchCustomers.customersInBusiness.length > 0 && (
-                <>
-                  <h1>Clientes em {business?.name}</h1>
-                  <BoxSearch>
-                    {searchCustomers.customersInBusiness.map(getCustomer => (
-                      <RowSearch key={getCustomer.id}>
+            {searchCustomers.customersInBusiness && searchCustomers.customersInBusiness.length > 0 && (
+              <>
+                <h1>Clientes em {business?.name}</h1>
+                <BoxSearch>
+                  {searchCustomers.customersInBusiness.map(getCustomer => (
+                    <RowSearch key={getCustomer.id}>
+                      <ImgSearch>
+                        <img src={getCustomer.avatar_url || noAvatar} alt={getCustomer.name} />
+                      </ImgSearch>
+
+                      <InfoSearch>
+                        <LinkH2 to={`/business/customer/${getCustomer.id}`}>{getCustomer.name}</LinkH2>
+                        <ButtonOptions>
+                          <ButtonSearch
+                            type="button"
+                            isRed={getCustomer.command_open ? 1 : 0}
+                            onClick={() => {
+                              handleCommandOrTable({
+                                customer: getCustomer,
+                                command_or_table: 'command',
+                              });
+                            }}
+                          >
+                            {getCustomer.command_open ? 'Fechar Comanda' : 'Abrir Comanda'}
+                          </ButtonSearch>
+                          <ButtonSearch
+                            type="button"
+                            isRed={getCustomer.table_number ? 1 : 0}
+                            onClick={() => {
+                              handleCommandOrTable({
+                                customer: getCustomer,
+                                command_or_table: 'table',
+                              });
+                            }}
+                          >
+                            {getCustomer.table_number ? `Na mesa ${getCustomer.table_number}` : 'Adicionar em Mesa'}
+                          </ButtonSearch>
+                          <ButtonSearch type="button">Abrir Conta</ButtonSearch>
+                        </ButtonOptions>
+                      </InfoSearch>
+                    </RowSearch>
+                  ))}
+                </BoxSearch>
+                {(searchCustomers.customersOutherBusiness.length > 0 || searchCustomers.users.length > 0) && (
+                  <Separator />
+                )}
+              </>
+            )}
+
+            {searchCustomers.customersOutherBusiness && searchCustomers.customersOutherBusiness.length > 0 && (
+              <>
+                <h1>Clientes em outros negócios</h1>
+                <BoxSearch>
+                  {searchCustomers.customersOutherBusiness.map(({ id, name, avatar_url }) => (
+                    <RowSearch key={id}>
+                      <LinkSearch to={`/business/register-customer/${id}`}>
                         <ImgSearch>
-                          <img
-                            src={getCustomer.avatar_url || noAvatar}
-                            alt={getCustomer.name}
-                          />
+                          <img src={avatar_url || noAvatar} alt={name} />
                         </ImgSearch>
 
                         <InfoSearch>
-                          <LinkH2 to={`/business/customer/${getCustomer.id}`}>
-                            {getCustomer.name}
-                          </LinkH2>
-                          <ButtonOptions>
-                            <ButtonSearch
-                              type="button"
-                              isRed={getCustomer.command_open ? 1 : 0}
-                              onClick={() => {
-                                handleCommandOrTable({
-                                  customer: getCustomer,
-                                  command_or_table: 'command',
-                                });
-                              }}
-                            >
-                              {getCustomer.command_open
-                                ? 'Fechar Comanda'
-                                : 'Abrir Comanda'}
-                            </ButtonSearch>
-                            <ButtonSearch
-                              type="button"
-                              isRed={getCustomer.table_number ? 1 : 0}
-                              onClick={() => {
-                                handleCommandOrTable({
-                                  customer: getCustomer,
-                                  command_or_table: 'table',
-                                });
-                              }}
-                            >
-                              {getCustomer.table_number
-                                ? `Na mesa ${getCustomer.table_number}`
-                                : 'Adicionar em Mesa'}
-                            </ButtonSearch>
-                            <ButtonSearch type="button">
-                              Abrir Conta
-                            </ButtonSearch>
-                          </ButtonOptions>
+                          <h2>{name}</h2>
+                          <span>Vincular cliente com {business?.name}</span>
                         </InfoSearch>
-                      </RowSearch>
-                    ))}
-                  </BoxSearch>
-                  {(searchCustomers.customersOutherBusiness.length > 0 ||
-                    searchCustomers.users.length > 0) && <Separator />}
-                </>
-              )}
-
-            {searchCustomers.customersOutherBusiness &&
-              searchCustomers.customersOutherBusiness.length > 0 && (
-                <>
-                  <h1>Clientes em outros negócios</h1>
-                  <BoxSearch>
-                    {searchCustomers.customersOutherBusiness.map(
-                      ({ id, name, avatar_url }) => (
-                        <RowSearch key={id}>
-                          <LinkSearch to={`/business/register-customer/${id}`}>
-                            <ImgSearch>
-                              <img src={avatar_url || noAvatar} alt={name} />
-                            </ImgSearch>
-
-                            <InfoSearch>
-                              <h2>{name}</h2>
-                              <span>Vincular cliente com {business?.name}</span>
-                            </InfoSearch>
-                          </LinkSearch>
-                        </RowSearch>
-                      ),
-                    )}
-                  </BoxSearch>
-                  {searchCustomers.users.length > 0 && <Separator />}
-                </>
-              )}
+                      </LinkSearch>
+                    </RowSearch>
+                  ))}
+                </BoxSearch>
+                {searchCustomers.users.length > 0 && <Separator />}
+              </>
+            )}
 
             {searchCustomers.users && searchCustomers.users.length > 0 && (
               <>
@@ -321,9 +295,7 @@ const FindCustomer: React.FC = () => {
           </ContentSearch>
         )}
 
-        <LinkCustom to="/business/register-customer">
-          Cadastrar novo Cliente
-        </LinkCustom>
+        <LinkCustom to="/business/register-customer">Cadastrar novo Cliente</LinkCustom>
 
         {!loadingSearch && search === '' && (
           <p>

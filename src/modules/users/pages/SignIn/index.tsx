@@ -1,25 +1,19 @@
-import React, { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { FiUser, FiLock, FiLogIn } from 'react-icons/fi';
 import * as Yup from 'yup';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 
 import { Link, useHistory } from 'react-router-dom';
-import Input from '~/shared/components/Input';
-import Button from '~/shared/components/Button';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import { useToast } from '~/shared/hooks/Toast';
-import { useAuth } from '~/shared/hooks/Auth';
+import Input from '@/shared/components/Input';
+import Button from '@/shared/components/Button';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import { useToast } from '@/shared/hooks/Toast';
+import { useAuth } from '@/shared/hooks/Auth';
 
-import imgLogo from '~/shared/assets/logo.svg';
+import imgLogo from '@/shared/assets/logo.svg';
 
-import {
-  Container,
-  Content,
-  AsideLogin,
-  ContentDescription,
-  Footer,
-} from './styles';
+import { Container, Content, AsideLogin, ContentDescription, Footer } from './styles';
 
 interface SignInData {
   cellPhoneOrEmail: string;
@@ -40,9 +34,7 @@ const SignIn: React.FC = () => {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape({
-          cellPhoneOrEmail: Yup.string().required(
-            'Coloque seu celular ou e-mail',
-          ),
+          cellPhoneOrEmail: Yup.string().required('Coloque seu celular ou e-mail'),
           password: Yup.string().required('Coloque sua senha'),
         });
 
@@ -68,9 +60,7 @@ const SignIn: React.FC = () => {
           formRef.current?.setErrors(errors);
         } else {
           const description =
-            error.response &&
-            error.response.data &&
-            error.response.data.message === 'Credentials is required'
+            error.response && error.response.data && error.response.data.message === 'Credentials is required'
               ? 'Cheque suas credenciais e tente fazer login novamente'
               : 'Ocorreu um erro ao fazer o login, por favor, tente novamente';
 
@@ -94,19 +84,8 @@ const SignIn: React.FC = () => {
 
           <h1>Faça seu Login</h1>
           <Form onSubmit={handleSubmit} ref={formRef}>
-            <Input
-              mask=""
-              icon={FiUser}
-              name="cellPhoneOrEmail"
-              placeholder="Celular ou E-mail"
-            />
-            <Input
-              mask=""
-              icon={FiLock}
-              name="password"
-              placeholder="Senha"
-              type="password"
-            />
+            <Input mask="" icon={FiUser} name="cellPhoneOrEmail" placeholder="Celular ou E-mail" />
+            <Input mask="" icon={FiLock} name="password" placeholder="Senha" type="password" />
             <Button loading={loading} type="submit">
               ENTRAR
             </Button>

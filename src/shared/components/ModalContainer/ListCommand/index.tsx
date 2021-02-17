@@ -1,29 +1,16 @@
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useEffect,
-  KeyboardEvent,
-} from 'react';
+import { useCallback, useRef, useState, useEffect, KeyboardEvent } from 'react';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
 
-import api from '~/shared/services/api';
+import api from '@/shared/services/api';
 
-import { useModal } from '~/shared/hooks/Modal';
-import { useToast } from '~/shared/hooks/Toast';
+import { useModal } from '@/shared/hooks/Modal';
+import { useToast } from '@/shared/hooks/Toast';
 
-import InputSearch from '~/shared/components/InputSearch';
+import InputSearch from '@/shared/components/InputSearch';
 
 import noAvatar from '../../../assets/no-avatar.png';
 
-import {
-  Container,
-  CloseCommand,
-  ImgCustomer,
-  InfoCustomer,
-  ListCommands,
-  RowCommand,
-} from './styles';
+import { Container, CloseCommand, ImgCustomer, InfoCustomer, ListCommands, RowCommand } from './styles';
 
 interface Customer {
   id: string;
@@ -65,8 +52,7 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
       addToast({
         type: 'error',
         message: 'Opss.. Encontramos um erro',
-        description:
-          'Ocorreu um erro ao tentar listar as comandas abertas, por favor, tente novamente !',
+        description: 'Ocorreu um erro ao tentar listar as comandas abertas, por favor, tente novamente !',
       });
     } finally {
       setLoadingSearch(false);
@@ -137,8 +123,7 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description:
-                'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
             });
           })
           .finally(() => {
@@ -175,16 +160,9 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
       ) : (
         <ListCommands>
           {customers.map(({ id, number, customer }, index) => (
-            <RowCommand
-              key={id}
-              onClick={() => handleClick(number)}
-              hasSelected={cursor === index}
-            >
+            <RowCommand key={id} onClick={() => handleClick(number)} hasSelected={cursor === index}>
               <ImgCustomer>
-                <img
-                  src={customer.avatar_url || noAvatar}
-                  alt={customer.name}
-                />
+                <img src={customer.avatar_url || noAvatar} alt={customer.name} />
               </ImgCustomer>
               <InfoCustomer>
                 <h2>{customer.name}</h2>

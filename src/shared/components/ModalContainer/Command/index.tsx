@@ -1,29 +1,23 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiTag, FiXCircle } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
 import { TiTicket } from 'react-icons/ti';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import api from '~/shared/services/api';
+import api from '@/shared/services/api';
 
-import { CustomerData, useModal } from '~/shared/hooks/Modal';
-import { useToast } from '~/shared/hooks/Toast';
+import { CustomerData, useModal } from '@/shared/hooks/Modal';
+import { useToast } from '@/shared/hooks/Toast';
+
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 
 import Button from '../../Button';
 import Select from '../../Select';
 import Input from '../../Input';
 
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import FormattedUtils from '~/shared/utils/formattedUtils';
-
-import {
-  Container,
-  CloseCommand,
-  BoxInfoCustomer,
-  ImgCustomer,
-  InfoCustomer,
-} from './styles';
+import { Container, CloseCommand, BoxInfoCustomer, ImgCustomer, InfoCustomer } from './styles';
 
 interface Props {
   style: React.CSSProperties;
@@ -105,10 +99,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
 
           formRef.current?.setErrors(errors);
         } else {
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           if (whichError === 'Command number already registered') {
             formRef.current?.setErrors({
@@ -118,8 +109,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
             addToast({
               type: 'error',
               message: 'Erro no Cadastro',
-              description:
-                'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
             });
           }
         }
@@ -172,13 +162,11 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           <>
             <Select name="ingress_id" hasTitle="Opções de Entrada">
               <option value="">Selecione</option>
-              {ingress.map(
-                ({ id, description, consume_formatted, value_formatted }) => (
-                  <option key={id} value={id}>
-                    {`${description} ${consume_formatted} - ${value_formatted}`}
-                  </option>
-                ),
-              )}
+              {ingress.map(({ id, description, consume_formatted, value_formatted }) => (
+                <option key={id} value={id}>
+                  {`${description} ${consume_formatted} - ${value_formatted}`}
+                </option>
+              ))}
             </Select>
 
             <Select name="prepaid_ingress" hasTitle="Entrada paga na entrada?">
@@ -189,14 +177,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           </>
         )}
 
-        <Input
-          mask=""
-          name="value_consume"
-          isCurrency
-          icon={FiTag}
-          hasTitle="Vale Consumo"
-          placeholder="(Opcional)"
-        />
+        <Input mask="" name="value_consume" isCurrency icon={FiTag} hasTitle="Vale Consumo" placeholder="(Opcional)" />
 
         <Button type="submit" loading={loading}>
           Criar Comanda

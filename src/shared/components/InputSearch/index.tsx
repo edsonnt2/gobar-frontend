@@ -1,6 +1,6 @@
-import React, { useState, useCallback, InputHTMLAttributes } from 'react';
+import { useState, useCallback, InputHTMLAttributes } from 'react';
 import { IconBaseProps } from 'react-icons/lib/cjs';
-import FormattedUtils from '~/shared/utils/formattedUtils';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 
 import { Container, BoxInput } from './styles';
 

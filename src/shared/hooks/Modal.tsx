@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useState, useContext } from 'react';
+import { createContext, useCallback, useState, useContext } from 'react';
 import ModalContainer from '../components/ModalContainer';
 
 export interface CustomerData {
@@ -38,9 +38,7 @@ interface ModalContextData {
 const ModalContext = createContext<ModalContextData>({} as ModalContextData);
 
 const ModalProvider: React.FC = ({ children }) => {
-  const [dataModal, setDataModal] = useState<ModalRequest | undefined>(
-    undefined,
-  );
+  const [dataModal, setDataModal] = useState<ModalRequest | undefined>(undefined);
   const [responseModal, setResponseModal] = useState<ResponseModel>({});
 
   const addModal = useCallback((data: ModalRequest) => {
@@ -74,9 +72,7 @@ const ModalProvider: React.FC = ({ children }) => {
   }, []);
 
   return (
-    <ModalContext.Provider
-      value={{ addModal, removeModal, responseModal, resetResponseModal }}
-    >
+    <ModalContext.Provider value={{ addModal, removeModal, responseModal, resetResponseModal }}>
       {children}
       <ModalContainer data={dataModal} />
     </ModalContext.Provider>

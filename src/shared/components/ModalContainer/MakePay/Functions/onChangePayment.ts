@@ -1,4 +1,4 @@
-import FormattedUtils from '~/shared/utils/formattedUtils';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 import { FnOnChange, FormOfPayment } from '..';
 
 interface OnChangePayment extends FnOnChange {
@@ -26,9 +26,7 @@ export default function onChangePayment({
             value: formOfPayment[1].received.value - value,
             value_formatted:
               formOfPayment[1].received.value - value > 0
-                ? FormattedUtils.formattedValue(
-                    formOfPayment[1].received.value - value,
-                  )
+                ? FormattedUtils.formattedValue(formOfPayment[1].received.value - value)
                 : ' ',
           },
         }),
@@ -51,9 +49,7 @@ export default function onChangePayment({
               value: formOfPayment[0].received.value - value,
               value_formatted:
                 formOfPayment[0].received.value - value > 0
-                  ? FormattedUtils.formattedValue(
-                      formOfPayment[0].received.value - value,
-                    )
+                  ? FormattedUtils.formattedValue(formOfPayment[0].received.value - value)
                   : ' ',
             },
           }),
@@ -82,9 +78,7 @@ export default function onChangePayment({
                 value: prev.received.value - valueSecond,
                 value_formatted:
                   prev.received.value - valueSecond > 0
-                    ? FormattedUtils.formattedValue(
-                        prev.received.value - valueSecond,
-                      )
+                    ? FormattedUtils.formattedValue(prev.received.value - valueSecond)
                     : ' ',
               },
             }),
@@ -99,9 +93,7 @@ export default function onChangePayment({
               change_value: {
                 value: prev.received.value - value,
                 value_formatted:
-                  prev.received.value - value > 0
-                    ? FormattedUtils.formattedValue(prev.received.value - value)
-                    : ' ',
+                  prev.received.value - value > 0 ? FormattedUtils.formattedValue(prev.received.value - value) : ' ',
               },
             }),
           },
@@ -120,9 +112,7 @@ export default function onChangePayment({
           value: formOfPayment[0].received.value - value,
           value_formatted:
             formOfPayment[0].received.value - value > 0
-              ? FormattedUtils.formattedValue(
-                  formOfPayment[0].received.value - value,
-                )
+              ? FormattedUtils.formattedValue(formOfPayment[0].received.value - value)
               : ' ',
         },
       }),

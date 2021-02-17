@@ -1,17 +1,9 @@
-import React, {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  KeyboardEvent,
-  InputHTMLAttributes,
-} from 'react';
+import { useState, useCallback, useRef, useEffect, KeyboardEvent, InputHTMLAttributes } from 'react';
 
 import { useField } from '@unform/core';
 
+import FormattedUtils from '@/shared/utils/formattedUtils';
 import { Container, BoxInput, Error } from './styles';
-
-import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface HasChange {
   value: string;
@@ -44,13 +36,7 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
   const [valueForm, setValueForm] = useState('');
   const refInput = useRef<HTMLInputElement>(null);
 
-  const {
-    error,
-    fieldName,
-    registerField,
-    defaultValue,
-    clearError,
-  } = useField(name);
+  const { error, fieldName, registerField, defaultValue, clearError } = useField(name);
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -84,9 +70,7 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
     (value: string) => {
       let setValue;
       if (isNumber) {
-        const valueSplit = value
-          .split('')
-          .filter(char => Number(char) || char === '0');
+        const valueSplit = value.split('').filter(char => Number(char) || char === '0');
         setValue = valueSplit.join('');
 
         if (isChange)
@@ -107,15 +91,11 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
             ? `0.0${formatChar}`
             : formatChar
                 .split('')
-                .map((char, index) =>
-                  index + 2 === formatChar.length ? `.${char}` : char,
-                )
+                .map((char, index) => (index + 2 === formatChar.length ? `.${char}` : char))
                 .join('');
 
         setValue =
-          valueCurrency === '.00' || valueCurrency === ''
-            ? ''
-            : FormattedUtils.formattedValue(Number(valueCurrency));
+          valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency));
 
         if (isChange)
           isChange({

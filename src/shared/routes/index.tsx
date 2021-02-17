@@ -1,8 +1,7 @@
-import React from 'react';
-import RoutesUser from '~/modules/users/routes';
-import RoutesBusiness from '~/modules/business/routes';
-import RoutesCustomer from '~/modules/customers/routes';
-import RoutesCommand from '~/modules/commands/routes';
+import RoutesUser from '@/modules/users/routes';
+import RoutesBusiness from '@/modules/business/routes';
+import RoutesCustomer from '@/modules/customers/routes';
+import RoutesCommand from '@/modules/commands/routes';
 
 const Routes: React.FC = () => {
   return (

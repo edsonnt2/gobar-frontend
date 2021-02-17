@@ -1,26 +1,12 @@
-import React, {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  KeyboardEvent,
-} from 'react';
+import { useState, useCallback, useRef, useEffect, KeyboardEvent } from 'react';
 import ReactInputMask, { Props as InputProps } from 'react-input-mask';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
 import { IconBaseProps } from 'react-icons/lib/cjs';
 import { useField } from '@unform/core';
 
-import FormattedUtils from '~/shared/utils/formattedUtils';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 
-import {
-  Container,
-  BoxInput,
-  ButtonInInput,
-  Error,
-  MultSelect,
-  AutoComplete,
-  LiAutoComplete,
-} from './styles';
+import { Container, BoxInput, ButtonInInput, Error, MultSelect, AutoComplete, LiAutoComplete } from './styles';
 
 interface FnOnChange {
   value: number;
@@ -104,8 +90,7 @@ const Input: React.FC<PropsInput> = ({
       const lengthList = hasAutoComplete ? hasAutoComplete.list.length : 0;
 
       if (e.key === 'Enter') {
-        const saveItem =
-          cursor > -1 ? hasAutoComplete?.list[cursor].name : valueForm;
+        const saveItem = cursor > -1 ? hasAutoComplete?.list[cursor].name : valueForm;
 
         if (saveItem) {
           if (hasMultSelect) {
@@ -122,14 +107,7 @@ const Input: React.FC<PropsInput> = ({
         setCursor(cursor + 1);
       }
     },
-    [
-      hasMultSelect,
-      valueForm,
-      hasAutoComplete,
-      cursor,
-      fieldName,
-      hasSubmitDown,
-    ],
+    [hasMultSelect, valueForm, hasAutoComplete, cursor, fieldName, hasSubmitDown],
   );
 
   const handleChange = useCallback(
@@ -167,22 +145,15 @@ const Input: React.FC<PropsInput> = ({
             ? `0.0${formatChar}`
             : formatChar
                 .split('')
-                .map((char, index) =>
-                  index + 2 === formatChar.length ? `.${char}` : char,
-                )
+                .map((char, index) => (index + 2 === formatChar.length ? `.${char}` : char))
                 .join('');
 
         setValueForm(
-          valueCurrency === '.00' || valueCurrency === ''
-            ? ''
-            : FormattedUtils.formattedValue(Number(valueCurrency)),
+          valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency)),
         );
         if (hasOnChange) {
           hasOnChange.fnOnChange({
-            value:
-              valueCurrency === '.00' || valueCurrency === ''
-                ? 0
-                : Number(valueCurrency),
+            value: valueCurrency === '.00' || valueCurrency === '' ? 0 : Number(valueCurrency),
             indexRef: hasOnChange.indexRef,
           });
         }
@@ -199,8 +170,7 @@ const Input: React.FC<PropsInput> = ({
         hasMultSelect.handleSelect(item);
       } else {
         setValueForm(item);
-        if (hasAutoComplete?.handleSelect)
-          hasAutoComplete.handleSelect(fieldName);
+        if (hasAutoComplete?.handleSelect) hasAutoComplete.handleSelect(fieldName);
       }
     },
     [hasMultSelect, hasAutoComplete, fieldName],
@@ -220,10 +190,7 @@ const Input: React.FC<PropsInput> = ({
   }, [fieldName, registerField, handleChange]);
 
   useEffect(() => {
-    if (defaultValue)
-      setValueForm(prevValue =>
-        prevValue !== defaultValue ? defaultValue : prevValue,
-      );
+    if (defaultValue) setValueForm(prevValue => (prevValue !== defaultValue ? defaultValue : prevValue));
   }, [defaultValue]);
 
   return (
@@ -245,10 +212,7 @@ const Input: React.FC<PropsInput> = ({
             {hasMultSelect.items.map(item => (
               <li key={item}>
                 {item}
-                <button
-                  type="button"
-                  onClick={() => hasMultSelect.handleRemove(item)}
-                >
+                <button type="button" onClick={() => hasMultSelect.handleRemove(item)}>
                   <FiXCircle />
                 </button>
               </li>
@@ -280,21 +244,16 @@ const Input: React.FC<PropsInput> = ({
           </ButtonInInput>
         )}
 
-        {hasAutoComplete &&
-          (hasAutoComplete.loading || hasAutoComplete.list.length > 0) && (
-            <AutoComplete loading={Number(hasAutoComplete.loading)}>
-              {hasAutoComplete.loading && <li>Loading...</li>}
-              {hasAutoComplete.list.map(({ name: item }, index) => (
-                <LiAutoComplete
-                  hasSelected={cursor === index}
-                  key={item}
-                  onClick={() => handleClickAutoComplete(item)}
-                >
-                  {item}
-                </LiAutoComplete>
-              ))}
-            </AutoComplete>
-          )}
+        {hasAutoComplete && (hasAutoComplete.loading || hasAutoComplete.list.length > 0) && (
+          <AutoComplete loading={Number(hasAutoComplete.loading)}>
+            {hasAutoComplete.loading && <li>Loading...</li>}
+            {hasAutoComplete.list.map(({ name: item }, index) => (
+              <LiAutoComplete hasSelected={cursor === index} key={item} onClick={() => handleClickAutoComplete(item)}>
+                {item}
+              </LiAutoComplete>
+            ))}
+          </AutoComplete>
+        )}
       </BoxInput>
       {error && <Error>{error}</Error>}
     </Container>

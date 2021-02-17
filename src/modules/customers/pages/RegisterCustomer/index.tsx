@@ -1,25 +1,19 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
-import {
-  FiArrowLeft,
-  FiUser,
-  FiSmartphone,
-  FiMail,
-  FiCalendar,
-} from 'react-icons/fi';
+import { FiArrowLeft, FiUser, FiSmartphone, FiMail, FiCalendar } from 'react-icons/fi';
 import { useHistory, useParams } from 'react-router-dom';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
-import LayoutBusiness from '~/shared/components/LayoutBusiness';
+import LayoutBusiness from '@/shared/components/LayoutBusiness';
 
-import Button from '~/shared/components/Button';
-import Input from '~/shared/components/Input';
-import Select from '~/shared/components/Select';
-import { useToast } from '~/shared/hooks/Toast';
-import api from '~/shared/services/api';
-import { useAuth } from '~/shared/hooks/Auth';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
+import Button from '@/shared/components/Button';
+import Input from '@/shared/components/Input';
+import Select from '@/shared/components/Select';
+import { useToast } from '@/shared/hooks/Toast';
+import api from '@/shared/services/api';
+import { useAuth } from '@/shared/hooks/Auth';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
 
 import { Container, Content, BackPage } from './styles';
 
@@ -71,8 +65,7 @@ const FindCustomer: React.FC = () => {
           addToast({
             type: 'error',
             message: 'Opss... Encontramos um erro',
-            description:
-              'Ocorreu um erro ao carregar os dados do cliente, por favor, tente novamente',
+            description: 'Ocorreu um erro ao carregar os dados do cliente, por favor, tente novamente',
           });
         }
       }
@@ -133,10 +126,7 @@ const FindCustomer: React.FC = () => {
         } else {
           let errorData;
 
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           switch (whichError) {
             case 'Cell phone already registered at another customer':
@@ -172,8 +162,7 @@ const FindCustomer: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Erro no cadastro',
-              description:
-                'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
             });
           }
         }
@@ -194,13 +183,7 @@ const FindCustomer: React.FC = () => {
           <h1>Cadastrar novo cliente no Bar da Léo</h1>
 
           <Form onSubmit={handleSubmit} ref={formRef}>
-            <Input
-              mask=""
-              name="name"
-              placeholder="Nome Completo"
-              icon={FiUser}
-              disabled={!!dataCustomer.name}
-            />
+            <Input mask="" name="name" placeholder="Nome Completo" icon={FiUser} disabled={!!dataCustomer.name} />
             <Input
               mask="(99) 99999-9999"
               name="cell_phone"
@@ -208,13 +191,7 @@ const FindCustomer: React.FC = () => {
               icon={FiSmartphone}
               disabled={!!dataCustomer.cell_phone}
             />
-            <Input
-              mask=""
-              name="email"
-              placeholder="E-mail (Opcional)"
-              icon={FiMail}
-              disabled={!!dataCustomer.email}
-            />
+            <Input mask="" name="email" placeholder="E-mail (Opcional)" icon={FiMail} disabled={!!dataCustomer.email} />
             <Input
               mask="99/99/9999"
               name="birthDate"

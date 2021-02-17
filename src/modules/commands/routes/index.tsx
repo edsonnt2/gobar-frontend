@@ -1,24 +1,13 @@
-import React from 'react';
 import { Switch } from 'react-router-dom';
-import Route from '~/shared/routes/Route';
+import Route from '@/shared/routes/Route';
 import RegisterCommandOrTable from '../pages/RegisterCommandOrTable';
 import CloseCommandOrTable from '../pages/CloseCommandOrTable';
 
 const RoutesCommand: React.FC = () => {
   return (
     <Switch>
-      <Route
-        path="/business/register-command-or-table"
-        component={RegisterCommandOrTable}
-        isPrivate
-        isBusiness
-      />
-      <Route
-        path="/business/close-command-or-table"
-        component={CloseCommandOrTable}
-        isPrivate
-        isBusiness
-      />
+      <Route path="/business/register-command-or-table" component={RegisterCommandOrTable} isPrivate isBusiness />
+      <Route path="/business/close-command-or-table" component={CloseCommandOrTable} isPrivate isBusiness />
     </Switch>
   );
 };

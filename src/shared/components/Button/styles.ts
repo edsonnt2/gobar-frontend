@@ -1,7 +1,11 @@
 import styled, { css } from 'styled-components';
 import { shade } from 'polished';
 
-export const Container = styled.button<{ isFocused: boolean }>`
+interface ButtonProps {
+  isFocused: boolean;
+}
+
+export const Container = styled.button<ButtonProps>`
   width: 100%;
   height: 56px;
   display: flex;

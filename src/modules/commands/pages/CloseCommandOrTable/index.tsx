@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-} from 'react';
+import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 
 import { FiEdit, FiChevronDown, FiXCircle } from 'react-icons/fi';
 import { Form } from '@unform/web';
@@ -14,17 +8,17 @@ import { IoMdTrash } from 'react-icons/io';
 import * as Yup from 'yup';
 import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom';
-import LayoutBusiness from '~/shared/components/LayoutBusiness';
-import { useModal } from '~/shared/hooks/Modal';
-import Input from '~/shared/components/Input';
-import Button from '~/shared/components/Button';
-import api from '~/shared/services/api';
-import FormattedUtils from '~/shared/utils/formattedUtils';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import { useToast } from '~/shared/hooks/Toast';
+import LayoutBusiness from '@/shared/components/LayoutBusiness';
+import { useModal } from '@/shared/hooks/Modal';
+import Input from '@/shared/components/Input';
+import Button from '@/shared/components/Button';
+import api from '@/shared/services/api';
+import FormattedUtils from '@/shared/utils/formattedUtils';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import { useToast } from '@/shared/hooks/Toast';
 
-import noAvatar from '~/shared/assets/no-avatar.png';
-import noProduct from '~/shared/assets/no-product.png';
+import noAvatar from '@/shared/assets/no-avatar.png';
+import noProduct from '@/shared/assets/no-product.png';
 
 import {
   Container,
@@ -103,20 +97,14 @@ interface CommandOrTableData {
   }[];
 }
 
-interface CommandData
-  extends Omit<CommandOrTableData, 'table_customer' | 'products'> {
+interface CommandData extends Omit<CommandOrTableData, 'table_customer' | 'products'> {
   command_product: ProductData[];
 }
 
 interface TableData
   extends Omit<
     CommandOrTableData,
-    | 'value_ingress'
-    | 'prepaid_ingress'
-    | 'ingress_consume'
-    | 'products'
-    | 'customer'
-    | 'ingress_formatted'
+    'value_ingress' | 'prepaid_ingress' | 'ingress_consume' | 'products' | 'customer' | 'ingress_formatted'
   > {
   table_product: ProductData[];
 }
@@ -184,19 +172,14 @@ const CloseCommandOrTable: React.FC = () => {
 
     const { customer, command_product, ...rest } = response.data;
 
-    let valueTotalCommand = command_product.reduce(
-      (prev, { quantity, value }) => {
-        const totalValue = Math.fround(quantity * value);
+    let valueTotalCommand = command_product.reduce((prev, { quantity, value }) => {
+      const totalValue = Math.fround(quantity * value);
 
-        return totalValue + prev;
-      },
-      0,
-    );
+      return totalValue + prev;
+    }, 0);
 
     if (rest.value_ingress) {
-      valueTotalCommand = !rest.prepaid_ingress
-        ? valueTotalCommand + rest.value_ingress
-        : valueTotalCommand;
+      valueTotalCommand = !rest.prepaid_ingress ? valueTotalCommand + rest.value_ingress : valueTotalCommand;
     }
 
     setIdsCommandOrTable(prevState => [...prevState, rest.id]);
@@ -222,9 +205,7 @@ const CloseCommandOrTable: React.FC = () => {
         command_product: command_product.map(({ product, ...restProduct }) => ({
           ...restProduct,
           value_formatted: FormattedUtils.formattedValue(restProduct.value),
-          value_total_formatted: FormattedUtils.formattedValue(
-            Math.fround(restProduct.quantity * restProduct.value),
-          ),
+          value_total_formatted: FormattedUtils.formattedValue(Math.fround(restProduct.quantity * restProduct.value)),
           ...(product?.image_url && {
             image_url: product.image_url,
           }),
@@ -245,14 +226,11 @@ const CloseCommandOrTable: React.FC = () => {
 
     const { table_customer, table_product, ...rest } = response.data;
 
-    const valueTotalTable = table_product.reduce(
-      (prev, { quantity, value }) => {
-        const totalValue = Math.fround(quantity * value);
+    const valueTotalTable = table_product.reduce((prev, { quantity, value }) => {
+      const totalValue = Math.fround(quantity * value);
 
-        return totalValue + prev;
-      },
-      0,
-    );
+      return totalValue + prev;
+    }, 0);
 
     setIdsCommandOrTable(prevState => [...prevState, rest.id]);
 
@@ -266,9 +244,7 @@ const CloseCommandOrTable: React.FC = () => {
         table_product: table_product.map(({ product, ...restProduct }) => ({
           ...restProduct,
           value_formatted: FormattedUtils.formattedValue(restProduct.value),
-          value_total_formatted: FormattedUtils.formattedValue(
-            Math.fround(restProduct.quantity * restProduct.value),
-          ),
+          value_total_formatted: FormattedUtils.formattedValue(Math.fround(restProduct.quantity * restProduct.value)),
           ...(product?.image_url && {
             image_url: product.image_url,
           }),
@@ -276,17 +252,15 @@ const CloseCommandOrTable: React.FC = () => {
         value_total: valueTotalTable,
         value_total_formatted: FormattedUtils.formattedValue(valueTotalTable),
         ...(table_customer && {
-          table_customer: table_customer.map(
-            ({ customer, ...restCustomer }) => ({
-              ...restCustomer,
-              customer: {
-                ...customer,
-                ...(customer.user?.avatar_url && {
-                  avatar_url: customer.user.avatar_url,
-                }),
-              },
-            }),
-          ),
+          table_customer: table_customer.map(({ customer, ...restCustomer }) => ({
+            ...restCustomer,
+            customer: {
+              ...customer,
+              ...(customer.user?.avatar_url && {
+                avatar_url: customer.user.avatar_url,
+              }),
+            },
+          })),
         }),
         spotlight: true,
       },
@@ -297,8 +271,7 @@ const CloseCommandOrTable: React.FC = () => {
     async ({ data, whereSelected }: FormSubmitData) => {
       setLoading(true);
 
-      const whereFormRef =
-        whereSelected === 'command' ? formRefCommand : formRefTable;
+      const whereFormRef = whereSelected === 'command' ? formRefCommand : formRefTable;
 
       try {
         formRefCommand.current?.setErrors({});
@@ -307,17 +280,14 @@ const CloseCommandOrTable: React.FC = () => {
         const schema = Yup.object().shape({
           ...(whereSelected === 'command'
             ? {
-                command: Yup.string().required(
-                  'Número de Comanda é obrigatório',
-                ),
+                command: Yup.string().required('Número de Comanda é obrigatório'),
               }
             : {
                 table: Yup.string().required('Número da Mesa é obrigatório'),
               }),
         });
 
-        const getSelected =
-          whereSelected === 'command' ? data.command : data.table;
+        const getSelected = whereSelected === 'command' ? data.command : data.table;
 
         await schema.validate(
           {
@@ -336,9 +306,7 @@ const CloseCommandOrTable: React.FC = () => {
         );
 
         if (whereSelected === 'command') {
-          const showCommand = commandProduct.some(
-            ({ number }) => Number(number) === formattedNumber,
-          );
+          const showCommand = commandProduct.some(({ number }) => Number(number) === formattedNumber);
 
           if (showCommand) {
             formRefCommand.current?.setErrors({
@@ -354,9 +322,7 @@ const CloseCommandOrTable: React.FC = () => {
 
           await loadingCommand(formattedNumber);
         } else {
-          const showTable = tableProduct.some(
-            ({ number }) => Number(number) === formattedNumber,
-          );
+          const showTable = tableProduct.some(({ number }) => Number(number) === formattedNumber);
 
           if (showTable) {
             formRefTable.current?.setErrors({
@@ -381,10 +347,7 @@ const CloseCommandOrTable: React.FC = () => {
 
           whereFormRef.current?.setErrors(errors);
         } else {
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           if (whichError === 'Command not found at the Business') {
             formRefCommand.current?.setErrors({
@@ -398,8 +361,7 @@ const CloseCommandOrTable: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description:
-                'Ocorreu um erro ao buscar por comanda, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao buscar por comanda, por favor, tente novamente !',
             });
           }
         }
@@ -410,40 +372,37 @@ const CloseCommandOrTable: React.FC = () => {
     [addToast, commandProduct, loadingCommand, tableProduct, loadingTable],
   );
 
-  const handleChangeSpotlight = useCallback(
-    ({ id, where }: HandleChangeSpotlight) => {
-      if (where === 'command') {
-        setCommandProduct(prevState =>
-          prevState.map(getCommand =>
-            getCommand.id === id
-              ? {
-                  ...getCommand,
-                  spotlight: true,
-                }
-              : {
-                  ...getCommand,
-                  spotlight: false,
-                },
-          ),
-        );
-      } else {
-        setTableProduct(prevState =>
-          prevState.map(getCommand =>
-            getCommand.id === id
-              ? {
-                  ...getCommand,
-                  spotlight: true,
-                }
-              : {
-                  ...getCommand,
-                  spotlight: false,
-                },
-          ),
-        );
-      }
-    },
-    [],
-  );
+  const handleChangeSpotlight = useCallback(({ id, where }: HandleChangeSpotlight) => {
+    if (where === 'command') {
+      setCommandProduct(prevState =>
+        prevState.map(getCommand =>
+          getCommand.id === id
+            ? {
+                ...getCommand,
+                spotlight: true,
+              }
+            : {
+                ...getCommand,
+                spotlight: false,
+              },
+        ),
+      );
+    } else {
+      setTableProduct(prevState =>
+        prevState.map(getCommand =>
+          getCommand.id === id
+            ? {
+                ...getCommand,
+                spotlight: true,
+              }
+            : {
+                ...getCommand,
+                spotlight: false,
+              },
+        ),
+      );
+    }
+  }, []);
 
   const handleRemoveProduct = useCallback(
     ({ item_product_id, command_or_table_id, where }: HandleRemoveProduct) => {
@@ -459,16 +418,12 @@ const CloseCommandOrTable: React.FC = () => {
           addToast({
             type: 'error',
             message: 'Opss... Encontramos um erro',
-            description: `Ocorreu um erro ao deletar o produto da ${
-              where === 'command' ? 'Comanda' : 'Mesa'
-            }`,
+            description: `Ocorreu um erro ao deletar o produto da ${where === 'command' ? 'Comanda' : 'Mesa'}`,
           });
         });
       if (where === 'command') {
         commandProduct.forEach(getCommand => {
-          const product = getCommand.command_product.find(
-            ({ id }) => id === item_product_id,
-          );
+          const product = getCommand.command_product.find(({ id }) => id === item_product_id);
           if (product) {
             valueTotalProduct = Math.fround(product.quantity * product.value);
           }
@@ -479,22 +434,16 @@ const CloseCommandOrTable: React.FC = () => {
             getCommand.id === command_or_table_id
               ? {
                   ...getCommand,
-                  command_product: getCommand.command_product.filter(
-                    ({ id }) => id !== item_product_id,
-                  ),
+                  command_product: getCommand.command_product.filter(({ id }) => id !== item_product_id),
                   value_total: getCommand.value_total - valueTotalProduct,
-                  value_total_formatted: FormattedUtils.formattedValue(
-                    getCommand.value_total - valueTotalProduct,
-                  ),
+                  value_total_formatted: FormattedUtils.formattedValue(getCommand.value_total - valueTotalProduct),
                 }
               : getCommand,
           ),
         );
       } else {
         tableProduct.forEach(getTable => {
-          const product = getTable.table_product.find(
-            ({ id }) => id === item_product_id,
-          );
+          const product = getTable.table_product.find(({ id }) => id === item_product_id);
           if (product) {
             valueTotalProduct = Math.fround(product.quantity * product.value);
           }
@@ -505,13 +454,9 @@ const CloseCommandOrTable: React.FC = () => {
             getTable.id === command_or_table_id
               ? {
                   ...getTable,
-                  table_product: getTable.table_product.filter(
-                    ({ id }) => id !== item_product_id,
-                  ),
+                  table_product: getTable.table_product.filter(({ id }) => id !== item_product_id),
                   value_total: getTable.value_total - valueTotalProduct,
-                  value_total_formatted: FormattedUtils.formattedValue(
-                    getTable.value_total - valueTotalProduct,
-                  ),
+                  value_total_formatted: FormattedUtils.formattedValue(getTable.value_total - valueTotalProduct),
                 }
               : getTable,
           ),
@@ -520,53 +465,39 @@ const CloseCommandOrTable: React.FC = () => {
 
       addToast({
         type: 'success',
-        message: `Produto removido da ${
-          where === 'command' ? 'Comanda' : 'Mesa'
-        } com sucesso`,
+        message: `Produto removido da ${where === 'command' ? 'Comanda' : 'Mesa'} com sucesso`,
       });
     },
     [commandProduct, tableProduct, addToast],
   );
 
-  const spotlightTable = useMemo(
-    () => tableProduct.filter(({ spotlight }) => !spotlight),
-    [tableProduct],
-  );
+  const spotlightTable = useMemo(() => tableProduct.filter(({ spotlight }) => !spotlight), [tableProduct]);
 
-  const handleRemoveCommandOrTable = useCallback(
-    ({ remove_id, where }: HandleRemoveCommandOrTable) => {
-      if (where === 'command') {
-        setCommandProduct(prevState => {
-          const filterCommand = prevState.filter(({ id }) => id !== remove_id);
+  const handleRemoveCommandOrTable = useCallback(({ remove_id, where }: HandleRemoveCommandOrTable) => {
+    if (where === 'command') {
+      setCommandProduct(prevState => {
+        const filterCommand = prevState.filter(({ id }) => id !== remove_id);
 
-          if (
-            filterCommand.length > 0 &&
-            !filterCommand.some(({ spotlight }) => spotlight)
-          ) {
-            filterCommand[filterCommand.length - 1].spotlight = true;
-          }
+        if (filterCommand.length > 0 && !filterCommand.some(({ spotlight }) => spotlight)) {
+          filterCommand[filterCommand.length - 1].spotlight = true;
+        }
 
-          return filterCommand;
-        });
-      }
+        return filterCommand;
+      });
+    }
 
-      if (where === 'table') {
-        setTableProduct(prevState => {
-          const filterTables = prevState.filter(({ id }) => id !== remove_id);
+    if (where === 'table') {
+      setTableProduct(prevState => {
+        const filterTables = prevState.filter(({ id }) => id !== remove_id);
 
-          if (
-            filterTables.length > 0 &&
-            !filterTables.some(({ spotlight }) => spotlight)
-          ) {
-            filterTables[filterTables.length - 1].spotlight = true;
-          }
+        if (filterTables.length > 0 && !filterTables.some(({ spotlight }) => spotlight)) {
+          filterTables[filterTables.length - 1].spotlight = true;
+        }
 
-          return filterTables;
-        });
-      }
-    },
-    [],
-  );
+        return filterTables;
+      });
+    }
+  }, []);
 
   const handleRemoveCustomerTable = useCallback(
     ({ table_id, customer_id }: HandleRemoveCustomerTable) => {
@@ -590,9 +521,7 @@ const CloseCommandOrTable: React.FC = () => {
           prev.id === table_id
             ? {
                 ...prev,
-                table_customer: prev.table_customer?.filter(
-                  getCustomer => getCustomer.customer.id !== customer_id,
-                ),
+                table_customer: prev.table_customer?.filter(getCustomer => getCustomer.customer.id !== customer_id),
               }
             : prev,
         ),
@@ -606,9 +535,7 @@ const CloseCommandOrTable: React.FC = () => {
     [addToast],
   );
 
-  const spotlightCommandOrTable = useMemo<
-    CommandOrTableData | undefined
-  >(() => {
+  const spotlightCommandOrTable = useMemo<CommandOrTableData | undefined>(() => {
     const findCommand = commandProduct.find(({ spotlight }) => spotlight);
 
     if (findCommand) {
@@ -635,18 +562,12 @@ const CloseCommandOrTable: React.FC = () => {
   const valueTotalItems = useMemo(
     () =>
       commandProduct.length > 0
-        ? commandProduct.reduce(
-            (prev, { value_total }) => value_total + prev,
-            0,
-          )
+        ? commandProduct.reduce((prev, { value_total }) => value_total + prev, 0)
         : tableProduct.reduce((prev, { value_total }) => value_total + prev, 0),
     [commandProduct, tableProduct],
   );
 
-  const valueTotalFormatted = useMemo(
-    () => FormattedUtils.formattedValue(valueTotalItems),
-    [valueTotalItems],
-  );
+  const valueTotalFormatted = useMemo(() => FormattedUtils.formattedValue(valueTotalItems), [valueTotalItems]);
 
   useEffect(() => {
     formRefCommand.current?.getFieldRef('command').focus();
@@ -666,8 +587,7 @@ const CloseCommandOrTable: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description:
-                'Ocorreu um erro ao carregar comanda, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao carregar comanda, por favor, tente novamente !',
             });
           })
           .finally(() => {
@@ -680,8 +600,7 @@ const CloseCommandOrTable: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description:
-                'Ocorreu um erro ao carregar mesa, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao carregar mesa, por favor, tente novamente !',
             });
           })
           .finally(() => {
@@ -707,10 +626,7 @@ const CloseCommandOrTable: React.FC = () => {
         setTableProduct([]);
         setIdsCommandOrTable([]);
       } else {
-        formRefCommand.current?.setFieldValue(
-          'command',
-          responseModal.response,
-        );
+        formRefCommand.current?.setFieldValue('command', responseModal.response);
       }
 
       formRefCommand.current?.getFieldRef('command').focus();
@@ -723,10 +639,7 @@ const CloseCommandOrTable: React.FC = () => {
       <Container>
         <h1>Encontrar Comanda ou Mesa</h1>
 
-        <Form
-          onSubmit={e => handleSubmit({ data: e, whereSelected: 'command' })}
-          ref={formRefCommand}
-        >
+        <Form onSubmit={e => handleSubmit({ data: e, whereSelected: 'command' })} ref={formRefCommand}>
           <RowForm>
             <Input
               mask=""
@@ -740,19 +653,13 @@ const CloseCommandOrTable: React.FC = () => {
               }}
               style={{ flex: 1 }}
             />
-            <Button
-              type="submit"
-              style={{ width: 170, marginTop: 0, marginLeft: 8 }}
-            >
+            <Button type="submit" style={{ width: 170, marginTop: 0, marginLeft: 8 }}>
               BUSCAR
             </Button>
           </RowForm>
         </Form>
 
-        <Form
-          onSubmit={e => handleSubmit({ data: e, whereSelected: 'table' })}
-          ref={formRefTable}
-        >
+        <Form onSubmit={e => handleSubmit({ data: e, whereSelected: 'table' })} ref={formRefTable}>
           <RowForm>
             <Input
               mask=""
@@ -766,10 +673,7 @@ const CloseCommandOrTable: React.FC = () => {
               }}
               style={{ flex: 1 }}
             />
-            <Button
-              type="submit"
-              style={{ width: 170, marginTop: 0, marginLeft: 8 }}
-            >
+            <Button type="submit" style={{ width: 170, marginTop: 0, marginLeft: 8 }}>
               BUSCAR
             </Button>
           </RowForm>
@@ -777,112 +681,95 @@ const CloseCommandOrTable: React.FC = () => {
 
         {commandProduct.length > 0 && (
           <AllCustomers>
-            {commandProduct.map(
-              ({ spotlight, id, number, customer, value_total_formatted }) => (
-                <DetailCustomer spotlight={spotlight} key={id}>
-                  <ImgCustomer spotlight={spotlight}>
-                    <img
-                      src={customer?.avatar_url || noAvatar}
-                      alt={customer?.name}
-                    />
-                  </ImgCustomer>
-                  <InfoCustomer spotlight={spotlight}>
-                    <h2>{customer?.name}</h2>
-                    <div>
-                      <span>
-                        Comanda Aberta: <strong>{number}</strong>
-                      </span>
-                      <span>
-                        Valor Total: <strong>{value_total_formatted}</strong>
-                      </span>
-                    </div>
-                  </InfoCustomer>
-                  {spotlight ? (
-                    <HasTable>
-                      Cliente em mesa: <strong>10</strong>
-                    </HasTable>
-                  ) : (
-                    <FiChevronDown
-                      size={34}
-                      onClick={() => {
-                        handleChangeSpotlight({ id, where: 'command' });
-                      }}
-                    />
-                  )}
-                  <FiXCircle
-                    size={22}
-                    style={spotlight ? { marginTop: 30 } : {}}
+            {commandProduct.map(({ spotlight, id, number, customer, value_total_formatted }) => (
+              <DetailCustomer spotlight={spotlight} key={id}>
+                <ImgCustomer spotlight={spotlight}>
+                  <img src={customer?.avatar_url || noAvatar} alt={customer?.name} />
+                </ImgCustomer>
+                <InfoCustomer spotlight={spotlight}>
+                  <h2>{customer?.name}</h2>
+                  <div>
+                    <span>
+                      Comanda Aberta: <strong>{number}</strong>
+                    </span>
+                    <span>
+                      Valor Total: <strong>{value_total_formatted}</strong>
+                    </span>
+                  </div>
+                </InfoCustomer>
+                {spotlight ? (
+                  <HasTable>
+                    Cliente em mesa: <strong>10</strong>
+                  </HasTable>
+                ) : (
+                  <FiChevronDown
+                    size={34}
                     onClick={() => {
-                      handleRemoveCommandOrTable({
-                        remove_id: id,
-                        where: 'command',
-                      });
+                      handleChangeSpotlight({ id, where: 'command' });
                     }}
                   />
-                </DetailCustomer>
-              ),
-            )}
+                )}
+                <FiXCircle
+                  size={22}
+                  style={spotlight ? { marginTop: 30 } : {}}
+                  onClick={() => {
+                    handleRemoveCommandOrTable({
+                      remove_id: id,
+                      where: 'command',
+                    });
+                  }}
+                />
+              </DetailCustomer>
+            ))}
           </AllCustomers>
         )}
 
         {tableProduct.length > 0 && (
           <AllTable>
-            {spotlightTable.map(
-              ({ id, number, value_total_formatted, table_customer }) => (
-                <InfoTable key={id}>
-                  <h2>Mesa {number}</h2>
+            {spotlightTable.map(({ id, number, value_total_formatted, table_customer }) => (
+              <InfoTable key={id}>
+                <h2>Mesa {number}</h2>
+                <span>
+                  Valor Total: <strong>{value_total_formatted}</strong>
+                </span>
+                {table_customer && table_customer.length > 0 && (
                   <span>
-                    Valor Total: <strong>{value_total_formatted}</strong>
+                    <strong>{table_customer.length}</strong> {table_customer.length > 1 ? 'Clientes' : 'Cliente'} na
+                    Mesa
                   </span>
-                  {table_customer && table_customer.length > 0 && (
-                    <span>
-                      <strong>{table_customer.length}</strong>{' '}
-                      {table_customer.length > 1 ? 'Clientes' : 'Cliente'} na
-                      Mesa
-                    </span>
-                  )}
-                  <FiChevronDown
-                    size={34}
-                    style={{ marginTop: -5, marginRight: 16 }}
-                    onClick={() => {
-                      handleChangeSpotlight({ id, where: 'table' });
-                    }}
-                  />
-                  <FiXCircle
-                    size={22}
-                    onClick={() => {
-                      handleRemoveCommandOrTable({
-                        remove_id: id,
-                        where: 'table',
-                      });
-                    }}
-                  />
-                </InfoTable>
-              ),
-            )}
+                )}
+                <FiChevronDown
+                  size={34}
+                  style={{ marginTop: -5, marginRight: 16 }}
+                  onClick={() => {
+                    handleChangeSpotlight({ id, where: 'table' });
+                  }}
+                />
+                <FiXCircle
+                  size={22}
+                  onClick={() => {
+                    handleRemoveCommandOrTable({
+                      remove_id: id,
+                      where: 'table',
+                    });
+                  }}
+                />
+              </InfoTable>
+            ))}
 
             {spotlightCommandOrTable && (
               <>
                 <InfoTable spotlight>
                   <h2>Mesa {spotlightCommandOrTable.number} </h2>
                   <span>
-                    Valor Total:{' '}
-                    <strong>
-                      {spotlightCommandOrTable.value_total_formatted}
-                    </strong>
+                    Valor Total: <strong>{spotlightCommandOrTable.value_total_formatted}</strong>
                   </span>
-                  {spotlightCommandOrTable.table_customer &&
-                    spotlightCommandOrTable.table_customer.length > 0 && (
-                      <span>
-                        <strong>
-                          {spotlightCommandOrTable.table_customer.length}
-                        </strong>{' '}
-                        {spotlightCommandOrTable.table_customer.length > 1
-                          ? 'Clientes'
-                          : 'Cliente'}{' '}
-                        na Mesa
-                      </span>
-                    )}
+                  {spotlightCommandOrTable.table_customer && spotlightCommandOrTable.table_customer.length > 0 && (
+                    <span>
+                      <strong>{spotlightCommandOrTable.table_customer.length}</strong>{' '}
+                      {spotlightCommandOrTable.table_customer.length > 1 ? 'Clientes' : 'Cliente'} na Mesa
+                    </span>
+                  )}
                   <FiXCircle
                     size={22}
                     onClick={() => {
@@ -896,32 +783,27 @@ const CloseCommandOrTable: React.FC = () => {
 
                 {spotlightCommandOrTable.table_customer && (
                   <DetailCustomersTable>
-                    {spotlightCommandOrTable.table_customer.map(
-                      ({ id: keyid, customer: { id, avatar_url, name } }) => (
-                        <RowInfoTable key={keyid}>
-                          <ImgCustomerTable>
-                            <img src={avatar_url || noAvatar} alt={name} />
-                          </ImgCustomerTable>
+                    {spotlightCommandOrTable.table_customer.map(({ id: keyid, customer: { id, avatar_url, name } }) => (
+                      <RowInfoTable key={keyid}>
+                        <ImgCustomerTable>
+                          <img src={avatar_url || noAvatar} alt={name} />
+                        </ImgCustomerTable>
 
-                          <h2>{name}</h2>
-                          <Button
-                            type="button"
-                            style={{ height: 42, fontSize: 16, width: 120 }}
-                          >
-                            Pagar Parte
-                          </Button>
-                          <IoMdTrash
-                            size={24}
-                            onClick={() => {
-                              handleRemoveCustomerTable({
-                                table_id: spotlightCommandOrTable.id,
-                                customer_id: id,
-                              });
-                            }}
-                          />
-                        </RowInfoTable>
-                      ),
-                    )}
+                        <h2>{name}</h2>
+                        <Button type="button" style={{ height: 42, fontSize: 16, width: 120 }}>
+                          Pagar Parte
+                        </Button>
+                        <IoMdTrash
+                          size={24}
+                          onClick={() => {
+                            handleRemoveCustomerTable({
+                              table_id: spotlightCommandOrTable.id,
+                              customer_id: id,
+                            });
+                          }}
+                        />
+                      </RowInfoTable>
+                    ))}
                   </DetailCustomersTable>
                 )}
               </>
@@ -933,21 +815,11 @@ const CloseCommandOrTable: React.FC = () => {
 
         {!loading && spotlightCommandOrTable ? (
           <>
-            <H2Description>
-              Descrição da {commandProduct.length > 0 ? 'Comanda' : 'Mesa'}
-            </H2Description>
+            <H2Description>Descrição da {commandProduct.length > 0 ? 'Comanda' : 'Mesa'}</H2Description>
 
             <ListProducts>
               {spotlightCommandOrTable.products.map(
-                ({
-                  id,
-                  description,
-                  image_url,
-                  value_formatted,
-                  quantity,
-                  value_total_formatted,
-                  created_at,
-                }) => (
+                ({ id, description, image_url, value_formatted, quantity, value_total_formatted, created_at }) => (
                   <RowProducts key={id}>
                     <ImgProduct>
                       <img src={image_url || noProduct} alt={description} />
@@ -975,8 +847,7 @@ const CloseCommandOrTable: React.FC = () => {
                           handleRemoveProduct({
                             item_product_id: id,
                             command_or_table_id: spotlightCommandOrTable.id,
-                            where:
-                              commandProduct.length > 0 ? 'command' : 'table',
+                            where: commandProduct.length > 0 ? 'command' : 'table',
                           });
                         }}
                       />
@@ -989,24 +860,15 @@ const CloseCommandOrTable: React.FC = () => {
                   <DescriptionProduct style={{ flex: 1 }}>
                     <ValueProduct>
                       <span>
-                        Valor da Entrada:{' '}
-                        <strong>
-                          {spotlightCommandOrTable.ingress_formatted}
-                        </strong>
+                        Valor da Entrada: <strong>{spotlightCommandOrTable.ingress_formatted}</strong>
                       </span>
                     </ValueProduct>
                     <Operator>Operador: 5</Operator>
                   </DescriptionProduct>
                   <DateProduct>
-                    {format(
-                      new Date(spotlightCommandOrTable.created_at),
-                      'dd/MM/yyyy',
-                    )}
+                    {format(new Date(spotlightCommandOrTable.created_at), 'dd/MM/yyyy')}
                     <br />
-                    {format(
-                      new Date(spotlightCommandOrTable.created_at),
-                      'H:mm:ss',
-                    )}
+                    {format(new Date(spotlightCommandOrTable.created_at), 'H:mm:ss')}
                   </DateProduct>
                   <IconListProduct style={{ justifyContent: 'space-between' }}>
                     <IoMdTrash size={26} />
@@ -1017,10 +879,7 @@ const CloseCommandOrTable: React.FC = () => {
 
               {commandProduct.length > 1 && (
                 <RowProducts>
-                  <TotalCommand>
-                    Valor total da Comanda{' '}
-                    {spotlightCommandOrTable.value_total_formatted}
-                  </TotalCommand>
+                  <TotalCommand>Valor total da Comanda {spotlightCommandOrTable.value_total_formatted}</TotalCommand>
                 </RowProducts>
               )}
 
@@ -1051,10 +910,7 @@ const CloseCommandOrTable: React.FC = () => {
             </BoxButtons>
           </>
         ) : (
-          <p>
-            Informe o número da comanda cadastrada ou o número da mesa ocupada
-            para ver as opções de fechamento.
-          </p>
+          <p>Informe o número da comanda cadastrada ou o número da mesa ocupada para ver as opções de fechamento.</p>
         )}
       </Container>
     </LayoutBusiness>
