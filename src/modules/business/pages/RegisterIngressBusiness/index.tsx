@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 
 import { useHistory } from 'react-router-dom';
@@ -7,15 +7,15 @@ import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
 
-import Header from '~/shared/components/Header';
-import Button from '~/shared/components/Button';
-import Input from '~/shared/components/Input';
-import Select from '~/shared/components/Select';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import MenuRegisterPTT from '~/modules/business/components/MenuRegisterPTT';
-import FormattedUtils from '~/shared/utils/formattedUtils';
+import Header from '@/shared/components/Header';
+import Button from '@/shared/components/Button';
+import Input from '@/shared/components/Input';
+import Select from '@/shared/components/Select';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import MenuRegisterPTT from '@/modules/business/components/MenuRegisterPTT';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 
 import {
   Container,
@@ -121,10 +121,7 @@ const RegisterIngressBusiness: React.FC = () => {
         } else {
           let errorData;
 
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           switch (whichError) {
             case 'Ingress description already registered':
@@ -141,8 +138,7 @@ const RegisterIngressBusiness: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Erro no Cadastro de Entrada',
-              description:
-                'Ocorreu um erro ao fazer o cadastro da entradao produto, tente novamente !',
+              description: 'Ocorreu um erro ao fazer o cadastro da entradao produto, tente novamente !',
             });
           }
         }
@@ -158,9 +154,7 @@ const RegisterIngressBusiness: React.FC = () => {
       try {
         await api.delete(`ingress/${id}`);
 
-        setIngress(prevIngress =>
-          prevIngress.filter(getIngress => getIngress.id !== id),
-        );
+        setIngress(prevIngress => prevIngress.filter(getIngress => getIngress.id !== id));
         addToast({
           type: 'success',
           message: 'Entrada Deletada com sucesso',
@@ -169,8 +163,7 @@ const RegisterIngressBusiness: React.FC = () => {
         addToast({
           type: 'error',
           message: 'Opss... Encontramos um erro',
-          description:
-            'Ocorreu um erro ao tenta deleta entrada, tente novamente',
+          description: 'Ocorreu um erro ao tenta deleta entrada, tente novamente',
         });
       }
     },
@@ -194,11 +187,7 @@ const RegisterIngressBusiness: React.FC = () => {
             <h1>Cadastrar Entrada</h1>
 
             <Form onSubmit={handleSubmit} ref={formRef}>
-              <Input
-                mask=""
-                name="description"
-                hasTitle="Descrição da Entrada"
-              />
+              <Input mask="" name="description" hasTitle="Descrição da Entrada" />
 
               <ContentInput>
                 <Input
@@ -227,16 +216,14 @@ const RegisterIngressBusiness: React.FC = () => {
               <>
                 <h2>Todas as Entradas</h2>
                 <ContentIngress>
-                  {ingress.map(
-                    ({ id, description, formattedValue, consume }) => (
-                      <ListIngress key={id}>
-                        <span>{description}</span>
-                        <span>{formattedValue}</span>
-                        <span>{consume ? 'C/ Consuma' : 'S/ Consuma'}</span>
-                        <IoMdTrash onClick={() => handleDeleteIngress(id)} />
-                      </ListIngress>
-                    ),
-                  )}
+                  {ingress.map(({ id, description, formattedValue, consume }) => (
+                    <ListIngress key={id}>
+                      <span>{description}</span>
+                      <span>{formattedValue}</span>
+                      <span>{consume ? 'C/ Consuma' : 'S/ Consuma'}</span>
+                      <IoMdTrash onClick={() => handleDeleteIngress(id)} />
+                    </ListIngress>
+                  ))}
                 </ContentIngress>
               </>
             )}

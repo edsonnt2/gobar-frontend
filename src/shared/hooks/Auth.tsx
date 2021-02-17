@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useState, useContext } from 'react';
+import { createContext, useCallback, useState, useContext } from 'react';
 import api from '../services/api';
 
 interface SignInData {
@@ -55,24 +55,21 @@ const AuthProvider: React.FC = ({ children }) => {
     return {} as LocalStorageData;
   });
 
-  const signIn = useCallback(
-    async ({ cellPhoneOrEmail, password }: SignInData) => {
-      const {
-        data: { user, token },
-      } = await api.post('sessions', {
-        cellPhoneOrEmail,
-        password,
-      });
+  const signIn = useCallback(async ({ cellPhoneOrEmail, password }: SignInData) => {
+    const {
+      data: { user, token },
+    } = await api.post('sessions', {
+      cellPhoneOrEmail,
+      password,
+    });
 
-      localStorage.setItem('@goBar:token', token);
-      localStorage.setItem('@goBar:user', JSON.stringify(user));
+    localStorage.setItem('@goBar:token', token);
+    localStorage.setItem('@goBar:user', JSON.stringify(user));
 
-      api.defaults.headers.authorization = `Bearer ${token}`;
+    api.defaults.headers.authorization = `Bearer ${token}`;
 
-      setData({ user, token });
-    },
-    [],
-  );
+    setData({ user, token });
+  }, []);
 
   const saveAuth = useCallback(
     ({ user, token, business }: Partial<LocalStorageData>) => {

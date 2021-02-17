@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { FiArrowLeft } from 'react-icons/fi';
 import { useHistory, useParams } from 'react-router-dom';
-import LayoutBusiness from '~/shared/components/LayoutBusiness';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import { useModal } from '~/shared/hooks/Modal';
+import LayoutBusiness from '@/shared/components/LayoutBusiness';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
+import { useModal } from '@/shared/hooks/Modal';
 
-import noAvatar from '~/shared/assets/no-avatar.png';
+import noAvatar from '@/shared/assets/no-avatar.png';
 
 import {
   Container,
@@ -48,8 +48,7 @@ const Customer: React.FC = () => {
         addToast({
           type: 'error',
           message: 'Opss... Encontramos um erro',
-          description:
-            'Ocorreu um erro ao carregar dados do cliente, tente novamente',
+          description: 'Ocorreu um erro ao carregar dados do cliente, tente novamente',
         });
       }
     }
@@ -57,10 +56,7 @@ const Customer: React.FC = () => {
   }, [id, addToast]);
 
   useEffect(() => {
-    if (
-      responseModal.action &&
-      responseModal.action === 'return_find_customer'
-    ) {
+    if (responseModal.action && responseModal.action === 'return_find_customer') {
       resetResponseModal();
       history.push('/business');
     }
@@ -79,10 +75,7 @@ const Customer: React.FC = () => {
           <BoxCustomer>
             <RowCustomer>
               <ImgCustomer>
-                <img
-                  src={customer.avatar_url || noAvatar}
-                  alt={customer.name}
-                />
+                <img src={customer.avatar_url || noAvatar} alt={customer.name} />
               </ImgCustomer>
 
               <InfoCustomer>

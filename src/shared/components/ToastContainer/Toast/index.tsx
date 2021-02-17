@@ -1,24 +1,15 @@
-import React, { useEffect } from 'react';
-import {
-  FiXCircle,
-  FiInfo,
-  FiAlertOctagon,
-  FiCheckCircle,
-} from 'react-icons/fi';
+import { useEffect } from 'react';
+import { FiXCircle, FiInfo, FiAlertOctagon, FiCheckCircle } from 'react-icons/fi';
 import { AnimatedValue } from 'react-spring';
+import { ToastMessage, useToast } from '@/shared/hooks/Toast';
 import { Container } from './styles';
-
-import { ToastMessage, useToast } from '~/shared/hooks/Toast';
 
 interface ToastProps {
   message: ToastMessage;
   style: AnimatedValue<React.CSSProperties>;
 }
 
-const Toast: React.FC<ToastProps> = ({
-  message: { id, message, description, type },
-  style,
-}) => {
+const Toast: React.FC<ToastProps> = ({ message: { id, message, description, type }, style }) => {
   const { removeToast } = useToast();
 
   useEffect(() => {

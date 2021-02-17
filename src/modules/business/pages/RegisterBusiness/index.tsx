@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef, useEffect } from 'react';
+import { useCallback, useState, useRef, useEffect } from 'react';
 import { FiArrowLeft, FiCamera } from 'react-icons/fi';
 
 import { FormHandles } from '@unform/core';
@@ -6,16 +6,16 @@ import { Form } from '@unform/web';
 import * as Yup from 'yup';
 import Cep from 'cep-promise';
 import { useHistory } from 'react-router-dom';
-import Header from '~/shared/components/Header';
-import Input from '~/shared/components/Input';
-import FileInput from '~/shared/components/FIleInput';
-import Button from '~/shared/components/Button';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import { useAuth } from '~/shared/hooks/Auth';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
+import Header from '@/shared/components/Header';
+import Input from '@/shared/components/Input';
+import FileInput from '@/shared/components/FIleInput';
+import Button from '@/shared/components/Button';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
+import { useAuth } from '@/shared/hooks/Auth';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
 
-import imgNoBusiness from '~/modules/business/assets/no-business.png';
+import imgNoBusiness from '@/modules/business/assets/no-business.png';
 
 import {
   Container,
@@ -57,9 +57,7 @@ const RegisterBusiness: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
-  const [searchCategories, setSearchCategories] = useState<
-    CategoriesBusiness[]
-  >([]);
+  const [searchCategories, setSearchCategories] = useState<CategoriesBusiness[]>([]);
   const [searchCategory, setSearchCategory] = useState('');
 
   const functionThatSubmitsForm = useCallback(() => {
@@ -193,8 +191,7 @@ const RegisterBusiness: React.FC = () => {
         formData.append('city', city);
         formData.append('state', state);
         if (complement) formData.append('complement', complement);
-        if (formattedCellPhone)
-          formData.append('cell_phone', formattedCellPhone);
+        if (formattedCellPhone) formData.append('cell_phone', formattedCellPhone);
         if (formattedPhone) formData.append('phone', formattedPhone);
         if (file) formData.append('avatar', file);
 
@@ -221,18 +218,13 @@ const RegisterBusiness: React.FC = () => {
 
           if (categories.length === 0)
             errors.category =
-              data.category === ''
-                ? 'Coloque pelo menos 1 categoria'
-                : 'Salve a categoria colocada com enter';
+              data.category === '' ? 'Coloque pelo menos 1 categoria' : 'Salve a categoria colocada com enter';
 
           formRef.current?.setErrors(errors);
         } else {
           let errorData;
 
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           switch (whichError) {
             case 'Business name already registered':
@@ -251,8 +243,7 @@ const RegisterBusiness: React.FC = () => {
               break;
             case 'CPF registered at another business for another user':
               errorData = {
-                cpf_or_cnpj:
-                  'CPF cadastrado em outro Negócio por outro usuário',
+                cpf_or_cnpj: 'CPF cadastrado em outro Negócio por outro usuário',
               };
               break;
             case 'CNPJ registered at another business':
@@ -267,17 +258,14 @@ const RegisterBusiness: React.FC = () => {
             formRef.current?.setErrors(errorData);
           } else if (categories.length === 0) {
             const erroCategory =
-              data.category === ''
-                ? 'Coloque pelo menos 1 categoria'
-                : 'Salve a categoria colocada com enter';
+              data.category === '' ? 'Coloque pelo menos 1 categoria' : 'Salve a categoria colocada com enter';
 
             formRef.current?.setErrors({ category: erroCategory });
           } else {
             addToast({
               type: 'error',
               message: 'Erro no cadastro',
-              description:
-                'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
             });
           }
         }
@@ -372,27 +360,12 @@ const RegisterBusiness: React.FC = () => {
               />
 
               <ContentInput>
-                <Input
-                  mask="(99) 99999-9999"
-                  name="cell_phone"
-                  hasTitle="Celular/Whatsapp"
-                  placeholder="(Opcional)"
-                />
+                <Input mask="(99) 99999-9999" name="cell_phone" hasTitle="Celular/Whatsapp" placeholder="(Opcional)" />
                 <SeparateInput />
-                <Input
-                  mask="(99) 9999-9999"
-                  name="phone"
-                  hasTitle="Telefone"
-                  placeholder="(Opcional)"
-                />
+                <Input mask="(99) 9999-9999" name="phone" hasTitle="Telefone" placeholder="(Opcional)" />
               </ContentInput>
 
-              <Input
-                mask=""
-                formatField="cpf-and-cnpj"
-                name="cpf_or_cnpj"
-                hasTitle="CPF/CNPJ"
-              />
+              <Input mask="" formatField="cpf-and-cnpj" name="cpf_or_cnpj" hasTitle="CPF/CNPJ" />
 
               <ContentInput>
                 <Input
@@ -414,22 +387,11 @@ const RegisterBusiness: React.FC = () => {
                   styleInput={{ width: '100%', flex: 'auto' }}
                 />
                 <SeparateInput />
-                <Input
-                  mask=""
-                  name="complement"
-                  hasTitle="Complemento"
-                  placeholder="(Opcional)"
-                />
+                <Input mask="" name="complement" hasTitle="Complemento" placeholder="(Opcional)" />
               </ContentInput>
 
               <ContentInput>
-                <Input
-                  mask=""
-                  name="street"
-                  hasTitle="Logradouro"
-                  placeholder="Rua/Avenida"
-                  disabled
-                />
+                <Input mask="" name="street" hasTitle="Logradouro" placeholder="Rua/Avenida" disabled />
                 <SeparateInput />
                 <Input mask="" name="district" hasTitle="Bairro" disabled />
               </ContentInput>
@@ -448,11 +410,7 @@ const RegisterBusiness: React.FC = () => {
                 />
               </ContentInput>
 
-              <Button
-                type="button"
-                loading={loading}
-                onClick={functionThatSubmitsForm}
-              >
+              <Button type="button" loading={loading} onClick={functionThatSubmitsForm}>
                 CONTINUAR
               </Button>
             </Form>

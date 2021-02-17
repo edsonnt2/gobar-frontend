@@ -1,6 +1,7 @@
-import React, { useState, useCallback, InputHTMLAttributes } from 'react';
-
+import { useState, useCallback, InputHTMLAttributes } from 'react';
 import { IconBaseProps } from 'react-icons/lib/cjs';
+import FormattedUtils from '@/shared/utils/formattedUtils';
+
 import { Container, BoxInput } from './styles';
 
 interface PropsInput extends InputHTMLAttributes<HTMLInputElement> {
@@ -36,12 +37,7 @@ const InputSearch: React.FC<PropsInput> = ({
 
   const handleChange = useCallback(
     (value: string) => {
-      const newValue = isNumber
-        ? value
-            .split('')
-            .filter(char => Number(char) || char === '0')
-            .join('')
-        : value;
+      const newValue = isNumber ? FormattedUtils.onlyNumber(value) : value;
 
       handleSearch(newValue);
     },

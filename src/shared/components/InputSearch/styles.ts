@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-interface PropsInput {
+interface InputProps {
   isFocused: boolean;
 }
 
@@ -14,7 +14,7 @@ export const Container = styled.div`
   }
 `;
 
-export const BoxInput = styled.div<PropsInput>`
+export const BoxInput = styled.div<InputProps>`
   position: relative;
   width: 100%;
   border: 2px solid var(--color-input);

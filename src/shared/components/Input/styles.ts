@@ -10,18 +10,6 @@ interface PropsInput {
   hasMultSelect?: boolean;
 }
 
-interface PropsAutoComplete {
-  loading: number;
-}
-
-interface PropsAutoCompleteLi {
-  hasSelected: boolean;
-}
-
-interface PropsButton {
-  isFocusedButton: boolean;
-}
-
 export const Container = styled.div`
   span {
     display: block;
@@ -120,7 +108,7 @@ export const BoxInput = styled.div<PropsInput>`
   }
 `;
 
-export const ButtonInInput = styled.button<PropsButton>`
+export const ButtonInInput = styled.button<{ isFocusedButton: boolean }>`
   position: absolute;
   top: -2px;
   right: -2px;
@@ -225,7 +213,7 @@ export const MultSelect = styled.ul`
   }
 `;
 
-export const AutoComplete = styled.ul<PropsAutoComplete>`
+export const AutoComplete = styled.ul<{ loading: number }>`
   list-style: none;
   position: absolute;
   top: 100%;
@@ -251,7 +239,7 @@ export const AutoComplete = styled.ul<PropsAutoComplete>`
   }
 `;
 
-export const LiAutoComplete = styled.li<PropsAutoCompleteLi>`
+export const LiAutoComplete = styled.li<{ hasSelected: boolean }>`
   display: block;
   padding: 9px 8px;
 

@@ -1,31 +1,16 @@
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useEffect,
-  KeyboardEvent,
-} from 'react';
-
+import { useCallback, useRef, useState, useEffect, KeyboardEvent } from 'react';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
 
-import {
-  Container,
-  CloseCommand,
-  ImgCustomer,
-  InfoCustomer,
-  ListCommands,
-  RowCommand,
-} from './styles';
+import api from '@/shared/services/api';
 
-import { useModal } from '~/shared/hooks/Modal';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import InputSearch from '~/shared/components/InputSearch';
+import { useModal } from '@/shared/hooks/Modal';
+import { useToast } from '@/shared/hooks/Toast';
+
+import InputSearch from '@/shared/components/InputSearch';
+
 import noAvatar from '../../../assets/no-avatar.png';
 
-interface Props {
-  style: React.CSSProperties;
-}
+import { Container, CloseCommand, ImgCustomer, InfoCustomer, ListCommands, RowCommand } from './styles';
 
 interface Customer {
   id: string;
@@ -40,7 +25,7 @@ interface Customer {
   };
 }
 
-const ListCommand: React.FC<Props> = ({ style }) => {
+const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -67,8 +52,7 @@ const ListCommand: React.FC<Props> = ({ style }) => {
       addToast({
         type: 'error',
         message: 'Opss.. Encontramos um erro',
-        description:
-          'Ocorreu um erro ao tentar listar as comandas abertas, por favor, tente novamente !',
+        description: 'Ocorreu um erro ao tentar listar as comandas abertas, por favor, tente novamente !',
       });
     } finally {
       setLoadingSearch(false);
@@ -94,11 +78,11 @@ const ListCommand: React.FC<Props> = ({ style }) => {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.keyCode === 13 && customers.length > 0 && cursor > -1) {
+      if (e.key === 'Enter' && customers.length > 0 && cursor > -1) {
         handleClick(customers[cursor].number);
-      } else if (e.keyCode === 38 && cursor >= 0) {
+      } else if (e.key === 'ArrowUp' && cursor >= 0) {
         setCursor(cursor - 1);
-      } else if (e.keyCode === 40 && cursor < customers.length - 1) {
+      } else if (e.key === 'ArrrowDown' && cursor < customers.length - 1) {
         setCursor(cursor + 1);
       }
     },
@@ -139,8 +123,7 @@ const ListCommand: React.FC<Props> = ({ style }) => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description:
-                'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
             });
           })
           .finally(() => {
@@ -177,16 +160,9 @@ const ListCommand: React.FC<Props> = ({ style }) => {
       ) : (
         <ListCommands>
           {customers.map(({ id, number, customer }, index) => (
-            <RowCommand
-              key={id}
-              onClick={() => handleClick(number)}
-              hasSelected={cursor === index}
-            >
+            <RowCommand key={id} onClick={() => handleClick(number)} hasSelected={cursor === index}>
               <ImgCustomer>
-                <img
-                  src={customer.avatar_url || noAvatar}
-                  alt={customer.name}
-                />
+                <img src={customer.avatar_url || noAvatar} alt={customer.name} />
               </ImgCustomer>
               <InfoCustomer>
                 <h2>{customer.name}</h2>

@@ -1,33 +1,20 @@
-import React, { useRef, useCallback, useState } from 'react';
-import {
-  FiUser,
-  FiSmartphone,
-  FiMail,
-  FiCalendar,
-  FiLock,
-  FiArrowLeft,
-} from 'react-icons/fi';
+import { useRef, useCallback, useState } from 'react';
+import { FiUser, FiSmartphone, FiMail, FiCalendar, FiLock, FiArrowLeft } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import Input from '~/shared/components/Input';
-import Button from '~/shared/components/Button';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import { useAuth } from '~/shared/hooks/Auth';
+import Input from '@/shared/components/Input';
+import Button from '@/shared/components/Button';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
+import { useAuth } from '@/shared/hooks/Auth';
 
-import imgLogo from '~/shared/assets/logo.svg';
+import imgLogo from '@/shared/assets/logo.svg';
 
-import {
-  Container,
-  Content,
-  AsideRegister,
-  ContentDescription,
-  Footer,
-} from './styles';
+import { Container, Content, AsideRegister, ContentDescription, Footer } from './styles';
 
 interface SignInData {
   name: string;
@@ -52,13 +39,9 @@ const SignUp: React.FC = () => {
 
         const schema = Yup.object().shape({
           name: Yup.string().required('Nome é obrigatório'),
-          email: Yup.string()
-            .email('E-mail inválido')
-            .required('E-mail é obrigatório'),
+          email: Yup.string().email('E-mail inválido').required('E-mail é obrigatório'),
           cell_phone: Yup.string().required('Celular é obrigatório'),
-          password: Yup.string()
-            .min(6, 'Senha precisa ter no mínimo 6 caracteres')
-            .required('Senha é obrigatório'),
+          password: Yup.string().min(6, 'Senha precisa ter no mínimo 6 caracteres').required('Senha é obrigatório'),
           birthDate: Yup.string().required('Data de nascimento é obrigatório'),
         });
         await schema.validate(data, {
@@ -100,10 +83,7 @@ const SignUp: React.FC = () => {
         } else {
           let errorData;
 
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           switch (whichError) {
             case 'Email already registered in another account':
@@ -129,8 +109,7 @@ const SignUp: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Erro no cadastro',
-              description:
-                'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+              description: 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
             });
           }
         }
@@ -175,32 +154,11 @@ const SignUp: React.FC = () => {
 
           <h1>Faça seu Cadastro</h1>
           <Form ref={formRef} onSubmit={handleSubmit}>
-            <Input
-              mask=""
-              name="name"
-              icon={FiUser}
-              placeholder="Nome Completo"
-            />
+            <Input mask="" name="name" icon={FiUser} placeholder="Nome Completo" />
             <Input mask="" name="email" icon={FiMail} placeholder="E-mail" />
-            <Input
-              mask="(99) 99999-9999"
-              name="cell_phone"
-              icon={FiSmartphone}
-              placeholder="Celular"
-            />
-            <Input
-              mask=""
-              name="password"
-              icon={FiLock}
-              placeholder="Senha"
-              type="password"
-            />
-            <Input
-              mask="99/99/9999"
-              name="birthDate"
-              icon={FiCalendar}
-              placeholder="Data de Nascimento"
-            />
+            <Input mask="(99) 99999-9999" name="cell_phone" icon={FiSmartphone} placeholder="Celular" />
+            <Input mask="" name="password" icon={FiLock} placeholder="Senha" type="password" />
+            <Input mask="99/99/9999" name="birthDate" icon={FiCalendar} placeholder="Data de Nascimento" />
             <Button loading={loading} type="submit">
               CADASTRAR
             </Button>

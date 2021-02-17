@@ -2,27 +2,19 @@ import styled, { css } from 'styled-components';
 import { Link } from 'react-router-dom';
 import { shade } from 'polished';
 
-interface PropsLinkMenu {
-  isshow: number;
-}
-
 export const Container = styled.div`
   display: grid;
-
   grid-template-columns: 235px auto;
   grid-template-rows: 70px auto 35px;
-
   grid-template-areas:
     'HB HB'
     'NB CB'
     'NB FB';
-
   height: 100vh;
 `;
 
 export const NavBusiness = styled.nav`
   grid-area: NB;
-
   background: var(--color-gray-secondary);
   border-right: 1px solid var(--color-border-gray);
   height: 100vh;
@@ -36,7 +28,7 @@ export const MenuMain = styled.div`
   width: 100%;
 `;
 
-export const LinkMenu = styled(Link)<PropsLinkMenu>`
+export const LinkMenu = styled(Link)<{ isshow: number }>`
   display: flex;
   align-items: center;
   color: var(--color-white-primary);
@@ -71,7 +63,6 @@ export const Content = styled.main`
 
 export const Footer = styled.footer`
   grid-area: FB;
-
   padding-right: 20px;
   text-align: right;
 `;

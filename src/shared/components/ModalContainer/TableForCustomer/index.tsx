@@ -1,23 +1,15 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 
 import { FiXCircle, FiSearch } from 'react-icons/fi';
 
 import { GiTable } from 'react-icons/gi';
-import api from '~/shared/services/api';
-import { CustomerData, useModal } from '~/shared/hooks/Modal';
-import { useToast } from '~/shared/hooks/Toast';
-import InputSearch from '~/shared/components/InputSearch';
+import api from '@/shared/services/api';
+import { CustomerData, useModal } from '@/shared/hooks/Modal';
+import { useToast } from '@/shared/hooks/Toast';
+import InputSearch from '@/shared/components/InputSearch';
 
-import {
-  Container,
-  CloseCommand,
-  BoxInfoCustomer,
-  ImgCustomer,
-  InfoCustomer,
-  ListTable,
-  BoxTable,
-} from './styles';
-import { useAuth } from '~/shared/hooks/Auth';
+import { useAuth } from '@/shared/hooks/Auth';
+import { Container, CloseCommand, BoxInfoCustomer, ImgCustomer, InfoCustomer, ListTable, BoxTable } from './styles';
 
 interface Props {
   style: React.CSSProperties;
@@ -47,9 +39,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
     (findTable: string) => {
       if (findTable !== '') {
         setSearch(findTable);
-        setListTable(
-          allTables.filter(({ number }) => String(number).includes(findTable)),
-        );
+        setListTable(allTables.filter(({ number }) => String(number).includes(findTable)));
       } else {
         setSearch('');
         setListTable(allTables);
@@ -69,8 +59,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
           addToast({
             type: 'error',
             message: 'Ops.. Encontramos um erro',
-            description:
-              'Ocorreu um erro ao tentar abrir a mesa, por favor, tente novamente',
+            description: 'Ocorreu um erro ao tentar abrir a mesa, por favor, tente novamente',
           });
         });
 
@@ -96,9 +85,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
             },
             (_, index): ListTableProps => ({
               number: index + 1,
-              isEmpty: !response.data.some(
-                ({ number }) => Number(number) === index + 1,
-              ),
+              isEmpty: !response.data.some(({ number }) => Number(number) === index + 1),
             }),
           );
 
@@ -109,8 +96,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
           addToast({
             type: 'error',
             message: 'Opss.. Encontramos um erro',
-            description:
-              'Ocorreu um erro ao carregar as mesas para esse comércio, por favor, tente novamente',
+            description: 'Ocorreu um erro ao carregar as mesas para esse comércio, por favor, tente novamente',
           });
         })
         .finally(() => {

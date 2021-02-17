@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  SelectHTMLAttributes,
-} from 'react';
+import { useState, useCallback, useRef, useEffect, SelectHTMLAttributes } from 'react';
 
 import { useField } from '@unform/core';
 import { FaChevronDown } from 'react-icons/fa';
@@ -17,26 +11,12 @@ interface PropsSelect extends SelectHTMLAttributes<HTMLSelectElement> {
   children: React.ReactNode;
 }
 
-const Select: React.FC<PropsSelect> = ({
-  name,
-  styleInput,
-  hasTitle,
-  style,
-  disabled,
-  children,
-  ...rest
-}) => {
+const Select: React.FC<PropsSelect> = ({ name, styleInput, hasTitle, style, disabled, children, ...rest }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [isFilled, setIsFilled] = useState(false);
 
   const refInput = useRef<HTMLSelectElement>(null);
-  const {
-    error,
-    fieldName,
-    registerField,
-    defaultValue,
-    clearError,
-  } = useField(name);
+  const { error, fieldName, registerField, defaultValue, clearError } = useField(name);
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -60,12 +40,7 @@ const Select: React.FC<PropsSelect> = ({
     <Container style={style}>
       {hasTitle && <span>{hasTitle}</span>}
 
-      <BoxInput
-        isFocused={isFocused}
-        isFilled={isFilled}
-        isError={!!error}
-        isDisabled={!!disabled}
-      >
+      <BoxInput isFocused={isFocused} isFilled={isFilled} isError={!!error} isDisabled={!!disabled}>
         <select
           ref={refInput}
           defaultValue={defaultValue}

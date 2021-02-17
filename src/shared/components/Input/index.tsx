@@ -1,25 +1,12 @@
-import React, {
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-  KeyboardEvent,
-} from 'react';
-
-import { IconBaseProps } from 'react-icons/lib/cjs';
+import { useState, useCallback, useRef, useEffect, KeyboardEvent } from 'react';
 import ReactInputMask, { Props as InputProps } from 'react-input-mask';
-import { useField } from '@unform/core';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
-import {
-  Container,
-  BoxInput,
-  ButtonInInput,
-  Error,
-  MultSelect,
-  AutoComplete,
-  LiAutoComplete,
-} from './styles';
-import FormattedUtils from '~/shared/utils/formattedUtils';
+import { IconBaseProps } from 'react-icons/lib/cjs';
+import { useField } from '@unform/core';
+
+import FormattedUtils from '@/shared/utils/formattedUtils';
+
+import { Container, BoxInput, ButtonInInput, Error, MultSelect, AutoComplete, LiAutoComplete } from './styles';
 
 interface FnOnChange {
   value: number;
@@ -103,8 +90,7 @@ const Input: React.FC<PropsInput> = ({
       const lengthList = hasAutoComplete ? hasAutoComplete.list.length : 0;
 
       if (e.key === 'Enter') {
-        const saveItem =
-          cursor > -1 ? hasAutoComplete?.list[cursor].name : valueForm;
+        const saveItem = cursor > -1 ? hasAutoComplete?.list[cursor].name : valueForm;
 
         if (saveItem) {
           if (hasMultSelect) {
@@ -121,14 +107,7 @@ const Input: React.FC<PropsInput> = ({
         setCursor(cursor + 1);
       }
     },
-    [
-      hasMultSelect,
-      valueForm,
-      hasAutoComplete,
-      cursor,
-      fieldName,
-      hasSubmitDown,
-    ],
+    [hasMultSelect, valueForm, hasAutoComplete, cursor, fieldName, hasSubmitDown],
   );
 
   const handleChange = useCallback(
@@ -141,63 +120,18 @@ const Input: React.FC<PropsInput> = ({
       setIsFilled(!!value);
 
       if (formatField) {
-        const valueSplit = value
-          .split('')
-          .filter(char => Number(char) || char === '0');
+        const onlyNumber = FormattedUtils.onlyNumber(value);
 
         if (formatField === 'number') {
-          setValueForm(valueSplit.join(''));
+          setValueForm(onlyNumber);
           if (hasOnChange) {
             hasOnChange.fnOnChange({
-              value: Number(valueSplit.join('')),
+              value: Number(onlyNumber),
               indexRef: hasOnChange.indexRef,
             });
           }
         } else {
-          const lengthChar = valueSplit.length;
-          setValueForm(
-            valueSplit
-              .map((char, index) => {
-                let caracter: string;
-                if (lengthChar < 12) {
-                  switch (index) {
-                    case 3:
-                      caracter = '.';
-                      break;
-                    case 6:
-                      caracter = '.';
-                      break;
-                    case 9:
-                      caracter = '-';
-                      break;
-                    default:
-                      caracter = '';
-                      break;
-                  }
-                } else {
-                  switch (index) {
-                    case 2:
-                      caracter = '.';
-                      break;
-                    case 5:
-                      caracter = '.';
-                      break;
-                    case 8:
-                      caracter = '/';
-                      break;
-                    case 12:
-                      caracter = '-';
-                      break;
-                    default:
-                      caracter = '';
-                      break;
-                  }
-                }
-
-                return index < 14 ? caracter + char : '';
-              })
-              .join(''),
-          );
+          setValueForm(FormattedUtils.formattedCpfOrCnpj(onlyNumber));
         }
       } else if (isCurrency) {
         const formatChar = value
@@ -211,22 +145,15 @@ const Input: React.FC<PropsInput> = ({
             ? `0.0${formatChar}`
             : formatChar
                 .split('')
-                .map((char, index) =>
-                  index + 2 === formatChar.length ? `.${char}` : char,
-                )
+                .map((char, index) => (index + 2 === formatChar.length ? `.${char}` : char))
                 .join('');
 
         setValueForm(
-          valueCurrency === '.00' || valueCurrency === ''
-            ? ''
-            : FormattedUtils.formattedValue(Number(valueCurrency)),
+          valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency)),
         );
         if (hasOnChange) {
           hasOnChange.fnOnChange({
-            value:
-              valueCurrency === '.00' || valueCurrency === ''
-                ? 0
-                : Number(valueCurrency),
+            value: valueCurrency === '.00' || valueCurrency === '' ? 0 : Number(valueCurrency),
             indexRef: hasOnChange.indexRef,
           });
         }
@@ -243,8 +170,7 @@ const Input: React.FC<PropsInput> = ({
         hasMultSelect.handleSelect(item);
       } else {
         setValueForm(item);
-        if (hasAutoComplete?.handleSelect)
-          hasAutoComplete.handleSelect(fieldName);
+        if (hasAutoComplete?.handleSelect) hasAutoComplete.handleSelect(fieldName);
       }
     },
     [hasMultSelect, hasAutoComplete, fieldName],
@@ -255,20 +181,16 @@ const Input: React.FC<PropsInput> = ({
       name: fieldName,
       ref: refInput.current,
       path: 'value',
-      setValue(ref, value: string) {
+      setValue(_, value: string) {
         if (value) {
           handleChange(value.trim());
-          // setValueForm(value);
         }
       },
     });
   }, [fieldName, registerField, handleChange]);
 
   useEffect(() => {
-    if (defaultValue)
-      setValueForm(prevValue =>
-        prevValue !== defaultValue ? defaultValue : prevValue,
-      );
+    if (defaultValue) setValueForm(prevValue => (prevValue !== defaultValue ? defaultValue : prevValue));
   }, [defaultValue]);
 
   return (
@@ -290,10 +212,7 @@ const Input: React.FC<PropsInput> = ({
             {hasMultSelect.items.map(item => (
               <li key={item}>
                 {item}
-                <button
-                  type="button"
-                  onClick={() => hasMultSelect.handleRemove(item)}
-                >
+                <button type="button" onClick={() => hasMultSelect.handleRemove(item)}>
                   <FiXCircle />
                 </button>
               </li>
@@ -325,21 +244,16 @@ const Input: React.FC<PropsInput> = ({
           </ButtonInInput>
         )}
 
-        {hasAutoComplete &&
-          (hasAutoComplete.loading || hasAutoComplete.list.length > 0) && (
-            <AutoComplete loading={Number(hasAutoComplete.loading)}>
-              {hasAutoComplete.loading && <li>Loading...</li>}
-              {hasAutoComplete.list.map(({ name: item }, index) => (
-                <LiAutoComplete
-                  hasSelected={cursor === index}
-                  key={item}
-                  onClick={() => handleClickAutoComplete(item)}
-                >
-                  {item}
-                </LiAutoComplete>
-              ))}
-            </AutoComplete>
-          )}
+        {hasAutoComplete && (hasAutoComplete.loading || hasAutoComplete.list.length > 0) && (
+          <AutoComplete loading={Number(hasAutoComplete.loading)}>
+            {hasAutoComplete.loading && <li>Loading...</li>}
+            {hasAutoComplete.list.map(({ name: item }, index) => (
+              <LiAutoComplete hasSelected={cursor === index} key={item} onClick={() => handleClickAutoComplete(item)}>
+                {item}
+              </LiAutoComplete>
+            ))}
+          </AutoComplete>
+        )}
       </BoxInput>
       {error && <Error>{error}</Error>}
     </Container>

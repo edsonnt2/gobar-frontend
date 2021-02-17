@@ -1,27 +1,20 @@
-import React, {
-  useCallback,
-  useState,
-  useEffect,
-  useRef,
-  ChangeEvent,
-  KeyboardEvent,
-} from 'react';
+import { useCallback, useState, useEffect, useRef, ChangeEvent, KeyboardEvent } from 'react';
 
 import { FiXCircle, FiClipboard } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
-import LayoutBusiness from '~/shared/components/LayoutBusiness';
-import { useModal } from '~/shared/hooks/Modal';
-import Input from '~/shared/components/Input';
-import Button from '~/shared/components/Button';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import FormattedUtils from '~/shared/utils/formattedUtils';
+import LayoutBusiness from '@/shared/components/LayoutBusiness';
+import { useModal } from '@/shared/hooks/Modal';
+import Input from '@/shared/components/Input';
+import Button from '@/shared/components/Button';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 
-import InputQuantityProduct from '~/modules/commands/components/InputQuantityProduct';
+import InputQuantityProduct from '@/modules/commands/components/InputQuantityProduct';
 
-import noProduct from '~/shared/assets/no-product.png';
+import noProduct from '@/shared/assets/no-product.png';
 
 import {
   Container,
@@ -85,16 +78,12 @@ const RegisterCommandOrTable: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loadingForm, setLoadingForm] = useState(false);
   const [cursor, setCursor] = useState(-1);
-  const [selectCommandOrTable, setSelectCommandOrTable] = useState<
-    'command' | 'table'
-  >('command');
+  const [selectCommandOrTable, setSelectCommandOrTable] = useState<'command' | 'table'>('command');
 
   const [productSelected, setProductSelected] = useState<SelectedProduct[]>([]);
 
   const handleSelectCommandOrTable = useCallback(() => {
-    setSelectCommandOrTable(prevState =>
-      prevState === 'command' ? 'table' : 'command',
-    );
+    setSelectCommandOrTable(prevState => (prevState === 'command' ? 'table' : 'command'));
     formRef.current?.getFieldRef('command_or_table').focus();
   }, []);
 
@@ -189,14 +178,12 @@ const RegisterCommandOrTable: React.FC = () => {
           return;
         }
 
-        const products = productSelected.map(
-          ({ product_id, quantity, description, value }) => ({
-            product_id,
-            description,
-            value,
-            quantity,
-          }),
-        );
+        const products = productSelected.map(({ product_id, quantity, description, value }) => ({
+          product_id,
+          description,
+          value,
+          quantity,
+        }));
 
         await api.post(`${selectCommandOrTable}s/products`, {
           [selectCommandOrTable]: data.command_or_table,
@@ -207,14 +194,13 @@ const RegisterCommandOrTable: React.FC = () => {
           type: 'success',
           message: 'Produto Cadastrado com Sucesso',
           description:
-            productSelected.length === 1 &&
-            Number(productSelected[0].quantity) <= 1
-              ? `Produto adicionado na ${
-                  selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
-                } ${data.command_or_table}`
-              : `Produtos adicionados na ${
-                  selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
-                } ${data.command_or_table}`,
+            productSelected.length === 1 && Number(productSelected[0].quantity) <= 1
+              ? `Produto adicionado na ${selectCommandOrTable === 'command' ? 'comanda' : 'mesa'} ${
+                  data.command_or_table
+                }`
+              : `Produtos adicionados na ${selectCommandOrTable === 'command' ? 'comanda' : 'mesa'} ${
+                  data.command_or_table
+                }`,
         });
 
         setProductSelected([]);
@@ -222,10 +208,7 @@ const RegisterCommandOrTable: React.FC = () => {
         formRef.current?.getFieldRef('command_or_table').focus();
       } catch (error) {
         let errorData;
-        const whichError: string =
-          error.response && error.response.data
-            ? error.response.data.message
-            : 'error';
+        const whichError: string = error.response && error.response.data ? error.response.data.message : 'error';
 
         if (whichError === 'Command not found at this Business') {
           errorData = { command_or_table: 'Comanda não encontrada' };
@@ -233,9 +216,7 @@ const RegisterCommandOrTable: React.FC = () => {
           errorData = { command_or_table: 'Mesa não encontrada' };
         } else {
           const isIdError = whichError.split('|');
-          const findIndex = productSelected.findIndex(
-            product => isIdError[1] && product.product_id === isIdError[1],
-          );
+          const findIndex = productSelected.findIndex(product => isIdError[1] && product.product_id === isIdError[1]);
 
           errorData =
             findIndex > -1
@@ -264,9 +245,7 @@ const RegisterCommandOrTable: React.FC = () => {
   );
 
   const handleRemoveProduct = useCallback((index: number) => {
-    setProductSelected(prevState =>
-      prevState.filter((_, indexPrev) => indexPrev !== index),
-    );
+    setProductSelected(prevState => prevState.filter((_, indexPrev) => indexPrev !== index));
     inputRef.current?.focus();
   }, []);
 
@@ -345,9 +324,7 @@ const RegisterCommandOrTable: React.FC = () => {
           });
 
           if (response.data) {
-            const isRegisted = productSelected.findIndex(
-              ({ product_id }) => product_id === response.data.id,
-            );
+            const isRegisted = productSelected.findIndex(({ product_id }) => product_id === response.data.id);
 
             if (isRegisted > -1) {
               setProductSelected(prevState => {
@@ -374,14 +351,7 @@ const RegisterCommandOrTable: React.FC = () => {
         setCursor(cursor + 1);
       }
     },
-    [
-      cursor,
-      handleProductSelected,
-      search,
-      searchProducts,
-      productSelected,
-      hasSubmit,
-    ],
+    [cursor, handleProductSelected, search, searchProducts, productSelected, hasSubmit],
   );
 
   const handleChange = useCallback(({ value, index, where }: HandleChange) => {
@@ -394,9 +364,7 @@ const RegisterCommandOrTable: React.FC = () => {
             ? {
                 ...prev,
                 quantity: value,
-                value_total: FormattedUtils.formattedValue(
-                  Number(value) * (prev.value || 0),
-                ),
+                value_total: FormattedUtils.formattedValue(Number(value) * (prev.value || 0)),
                 ref_quantity: undefined,
                 ref_value: undefined,
               }
@@ -414,9 +382,7 @@ const RegisterCommandOrTable: React.FC = () => {
             ? {
                 ...prev,
                 value: value !== '.00' ? Number(value) : undefined,
-                value_total: FormattedUtils.formattedValue(
-                  Number(prev.quantity) * Number(value),
-                ),
+                value_total: FormattedUtils.formattedValue(Number(prev.quantity) * Number(value)),
               }
             : prev,
         ),
@@ -435,10 +401,7 @@ const RegisterCommandOrTable: React.FC = () => {
           })
           .then(response => {
             setSearchProducts(
-              response.data.filter(
-                ({ id }) =>
-                  !productSelected.some(({ product_id }) => product_id === id),
-              ),
+              response.data.filter(({ id }) => !productSelected.some(({ product_id }) => product_id === id)),
             );
           })
           .finally(() => {
@@ -457,10 +420,7 @@ const RegisterCommandOrTable: React.FC = () => {
 
   useEffect(() => {
     if (responseModal.response) {
-      formRef.current?.setFieldValue(
-        'command_or_table',
-        responseModal.response,
-      );
+      formRef.current?.setFieldValue('command_or_table', responseModal.response);
       inputRef.current?.focus();
 
       resetResponseModal();
@@ -478,10 +438,7 @@ const RegisterCommandOrTable: React.FC = () => {
 
         <ContentSelect>
           <ScroolSelectedColor isSelected={selectCommandOrTable} />
-          <ButtonChange
-            isSelected={selectCommandOrTable}
-            onClick={handleSelectCommandOrTable}
-          >
+          <ButtonChange isSelected={selectCommandOrTable} onClick={handleSelectCommandOrTable}>
             <span>Lançamento de Comanda</span>
             <span>Lançamento de Mesa</span>
           </ButtonChange>
@@ -494,33 +451,21 @@ const RegisterCommandOrTable: React.FC = () => {
             name="command_or_table"
             icon={GiTicket}
             formatField="number"
-            placeholder={
-              selectCommandOrTable === 'command'
-                ? 'Número da Camanda'
-                : 'Número da Mesa'
-            }
+            placeholder={selectCommandOrTable === 'command' ? 'Número da Camanda' : 'Número da Mesa'}
             isButtonRight={{
-              title:
-                selectCommandOrTable === 'command'
-                  ? 'Encontrar Comanda'
-                  : 'Encontrar Mesa',
+              title: selectCommandOrTable === 'command' ? 'Encontrar Comanda' : 'Encontrar Mesa',
               handleButton: handleModal,
             }}
             hasSubmitDown={hasSubmit}
           />
 
-          {productSelected.length > 0 && (
-            <h2>Produto{productSelected.length > 1 && 's'}</h2>
-          )}
+          {productSelected.length > 0 && <h2>Produto{productSelected.length > 1 && 's'}</h2>}
 
           <BoxProduct>
             {productSelected.map((product, index) => (
               <LiProduct key={String(index)}>
                 <ImgProduct>
-                  <img
-                    src={product.image_url || noProduct}
-                    alt={product.description}
-                  />
+                  <img src={product.image_url || noProduct} alt={product.description} />
                 </ImgProduct>
 
                 <InfoProduct>
@@ -552,10 +497,7 @@ const RegisterCommandOrTable: React.FC = () => {
                     <span>{product.value_total}</span>
                   </div>
                 </InfoProduct>
-                <FiXCircle
-                  size={26}
-                  onClick={() => handleRemoveProduct(index)}
-                />
+                <FiXCircle size={26} onClick={() => handleRemoveProduct(index)} />
               </LiProduct>
             ))}
           </BoxProduct>
@@ -579,19 +521,13 @@ const RegisterCommandOrTable: React.FC = () => {
             {search !== '' && searchProducts.length > 0 && (
               <ListSearchProducts>
                 {searchProducts.map((listProduct, index) => (
-                  <RowSearchProduct
-                    key={listProduct.id}
-                    hasSelected={cursor === index}
-                  >
+                  <RowSearchProduct key={listProduct.id} hasSelected={cursor === index}>
                     <SelectSearchProduct
                       hasSelected={cursor === index}
                       onClick={() => handleProductSelected(listProduct)}
                     >
                       <ImgSearchProduct>
-                        <img
-                          src={listProduct.image_url || noProduct}
-                          alt={listProduct.description}
-                        />
+                        <img src={listProduct.image_url || noProduct} alt={listProduct.description} />
                       </ImgSearchProduct>
                       <InfoSearchProduct>
                         <p>{listProduct.description}</p>

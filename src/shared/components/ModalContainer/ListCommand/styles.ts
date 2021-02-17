@@ -1,11 +1,6 @@
 import styled, { css } from 'styled-components';
-
 import { animated } from 'react-spring';
 import { shade } from 'polished';
-
-interface PropsRowCommand {
-  hasSelected: boolean;
-}
 
 export const Container = styled(animated.div)`
   position: fixed;
@@ -47,7 +42,7 @@ export const ListCommands = styled.ul`
   overflow-y: auto;
 `;
 
-export const RowCommand = styled.li<PropsRowCommand>`
+export const RowCommand = styled.li<{ hasSelected: boolean }>`
   display: flex;
   padding: 8px 5px;
   cursor: pointer;

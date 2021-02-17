@@ -1,10 +1,10 @@
 import styled, { css } from 'styled-components';
 
-interface ImgProps {
+interface FileInputProps {
   imgInCircle: number;
 }
 
-export const Container = styled.div<ImgProps>`
+export const Container = styled.div<FileInputProps>`
   position: relative;
   width: 100%;
   height: 100%;

@@ -1,32 +1,40 @@
 {
+  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "target": "es5",
+    "target": "esnext",
+    "outDir": "./dist",
+    "baseUrl": "./src",
     "lib": [
+      "es2015",
       "dom",
       "dom.iterable",
-      "esnext"
+      "es2016.Array.Include",
+      "es2017.Object"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
-    "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react",
     "typeRoots": [
-      "../node_modules/@types",
       "./node_modules/@types",
       "./src/@types"
+    ],
+    "types": [
+      "node",
+      "jest"
     ],
     "noFallthroughCasesInSwitch": true
   },
   "include": [
     "src"
-  ],
-  "extends": "./tsconfig.paths.json"
+  ]
 }

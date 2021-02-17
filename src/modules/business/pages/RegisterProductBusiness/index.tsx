@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { AiOutlineBarcode } from 'react-icons/ai';
 
@@ -6,16 +6,18 @@ import { useHistory } from 'react-router-dom';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
-import Header from '~/shared/components/Header';
-import Button from '~/shared/components/Button';
-import Input from '~/shared/components/Input';
-import FileInput from '~/shared/components/FIleInput';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import MenuRegisterPTT from '~/modules/business/components/MenuRegisterPTT';
+import Header from '@/shared/components/Header';
+import Button from '@/shared/components/Button';
+import Input from '@/shared/components/Input';
+import FileInput from '@/shared/components/FIleInput';
+import api from '@/shared/services/api';
+import { useToast } from '@/shared/hooks/Toast';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import MenuRegisterPTT from '@/modules/business/components/MenuRegisterPTT';
 
-import addImage from '~/modules/business/assets/add-image.png';
+import addImage from '@/modules/business/assets/add-image.png';
+
+import FormattedUtils from '@/shared/utils/formattedUtils';
 
 import {
   Container,
@@ -28,7 +30,6 @@ import {
   ImageProduct,
   Footer,
 } from './styles';
-import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface CategoryProvider {
   name: string;
@@ -61,9 +62,7 @@ const RegisterProductBusiness: React.FC = () => {
   const [valuePushaseDefault, setvaluePushaseDefault] = useState(0);
 
   const [loadingCategoryProvider, setLoadingCategoryProvider] = useState(false);
-  const [allCategoriesProvider, setAllCategoriesProvider] = useState<
-    CategoryProvider[]
-  >([]);
+  const [allCategoriesProvider, setAllCategoriesProvider] = useState<CategoryProvider[]>([]);
   const [searchCategoryProvider, setSearchCategoryProvider] = useState('');
 
   const functionThatSubmitsForm = useCallback(() => {
@@ -77,9 +76,7 @@ const RegisterProductBusiness: React.FC = () => {
         formRef.current?.setErrors({});
 
         const schema = Yup.object().shape({
-          description: Yup.string().required(
-            'Descrição do Produto é obrigatório',
-          ),
+          description: Yup.string().required('Descrição do Produto é obrigatório'),
           category: Yup.string().required('Categoria do produto é obrigatório'),
           quantity: Yup.string().required('Quantidade é obrigatório'),
           provider: Yup.string().required('Fornecedor é obrigatório'),
@@ -159,10 +156,7 @@ const RegisterProductBusiness: React.FC = () => {
           formRef.current?.setErrors(errors);
         } else {
           let errorData;
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
+          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           switch (whichError) {
             case 'Internal code already registered':
@@ -182,8 +176,7 @@ const RegisterProductBusiness: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Erro no cadastro',
-              description:
-                'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
+              description: 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
             });
           }
         }
@@ -227,9 +220,7 @@ const RegisterProductBusiness: React.FC = () => {
     ({ value }: { value: number }) => {
       const result = value / 100;
       const calcValue = value + Number(porcentDefault) * result;
-      setValueSaleDefault(
-        calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ',
-      );
+      setValueSaleDefault(calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ');
       setvaluePushaseDefault(value);
     },
     [porcentDefault],
@@ -239,9 +230,7 @@ const RegisterProductBusiness: React.FC = () => {
     ({ value }: { value: number }) => {
       const result = valuePushaseDefault / 100;
       const calcValue = valuePushaseDefault + value * result;
-      setValueSaleDefault(
-        calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ',
-      );
+      setValueSaleDefault(calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ');
       setPorcentDefault(String(value));
     },
     [valuePushaseDefault],
@@ -326,11 +315,7 @@ const RegisterProductBusiness: React.FC = () => {
                 <FileInput name="image" imgPreview={addImage} />
               </ImageProduct>
 
-              <Input
-                mask=""
-                name="description"
-                hasTitle="Descrição do Produto"
-              />
+              <Input mask="" name="description" hasTitle="Descrição do Produto" />
               <Input
                 mask=""
                 name="category"
@@ -423,11 +408,7 @@ const RegisterProductBusiness: React.FC = () => {
                 />
               </ContentInput>
 
-              <Button
-                type="button"
-                loading={loading}
-                onClick={functionThatSubmitsForm}
-              >
+              <Button type="button" loading={loading} onClick={functionThatSubmitsForm}>
                 CADASTRAR
               </Button>
             </Form>

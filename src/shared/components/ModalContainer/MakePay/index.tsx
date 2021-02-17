@@ -1,58 +1,34 @@
-import React, {
-  useCallback,
-  useRef,
-  useState,
-  useEffect,
-  ChangeEvent,
-  Fragment,
-} from 'react';
-
+import { useCallback, useRef, useState, useEffect, ChangeEvent, Fragment } from 'react';
 import { FiXCircle, FiScissors } from 'react-icons/fi';
-import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
+import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import {
-  Container,
-  ClosePay,
-  RowHeaderPay,
-  HeaderLeft,
-  HeaderRight,
-  RowInput,
-  SeparateInput,
-} from './styles';
+import { MakeyPayData, useModal } from '@/shared/hooks/Modal';
+import { useToast } from '@/shared/hooks/Toast';
 
-import Input from '../../Input';
-import Select from '../../Select';
+import getValidationErrors from '@/shared/utils/getValidationErrors';
+import FormattedUtils from '@/shared/utils/formattedUtils';
 import Button from '../../Button';
-import { MakeyPayData, useModal } from '~/shared/hooks/Modal';
-import { useToast } from '~/shared/hooks/Toast';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import FormattedUtils from '~/shared/utils/formattedUtils';
-import api from '~/shared/services/api';
+import Select from '../../Select';
+import Input from '../../Input';
 
-interface Props {
-  style: React.CSSProperties;
-  data: MakeyPayData;
-}
+import { onChangeDiscont, onChangePayment, sendPayment } from './Functions';
 
-interface PayData extends MakeyPayData {
+import { Container, ClosePay, RowHeaderPay, HeaderLeft, HeaderRight, RowInput, SeparateInput } from './styles';
+
+export interface PayData extends MakeyPayData {
   value_formatted: string;
-  value_descont?: number;
+  value_discont?: number;
 }
-
-type TypeForm = 'money' | 'card' | '';
-
-interface DataForm {
-  type_card?: string[];
-}
-
-interface FnOnChange {
+export interface FnOnChange {
   value: number;
   indexRef: number;
 }
 
-interface FormOfPayment {
+type TypeForm = 'money' | 'card' | '';
+
+export interface FormOfPayment {
   type: TypeForm;
   subtotal: {
     value: number;
@@ -68,7 +44,7 @@ interface FormOfPayment {
   };
 }
 
-const MakePay: React.FC<Props> = ({ style, data }) => {
+const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({ style, data }) => {
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const formRef = useRef<FormHandles>(null);
@@ -84,179 +60,74 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
     },
   ]);
 
-  const [dataPay, setDataPay] = useState<PayData>({
+  const [payData, setPayData] = useState<PayData>({
     ...data,
     value_formatted: FormattedUtils.formattedValue(data.value_total),
   });
 
   const handleSubmit = useCallback(
-    async (dataForm: DataForm) => {
+    async (dataForm: { type_card?: string[] }) => {
       setLoading(true);
       try {
         formRef.current?.setErrors({});
 
-        if (formOfPayment.length > 0) {
-          let errorPays: { [key: string]: string } | undefined;
+        const response = await sendPayment({
+          formOfPayment,
+          payData,
+          dataForm,
+        });
 
-          const sumSubTotal = formOfPayment.reduce((prevValue, subTotal) => {
-            return subTotal.type !== ''
-              ? prevValue + subTotal.subtotal.value
-              : prevValue;
-          }, 0);
-
-          const valueTotalPay = dataPay.value_descont
-            ? dataPay.value_total - dataPay.value_descont
-            : dataPay.value_total;
-
-          formOfPayment.forEach((formOfPay, index) => {
-            if (index === 0) {
-              if (formOfPay.type === '') {
-                errorPays = {
-                  [`form_of_payment[${index}]`]: 'Forma de Pagamento é obrigatório',
-                  ...(errorPays && errorPays),
-                };
-              } else if (
-                formOfPayment.length === 1 &&
-                sumSubTotal > valueTotalPay
-              ) {
-                errorPays = {
-                  [`subtotal[${index}]`]: 'SubTotal maior que valor a se pago',
-                  ...(errorPays && errorPays),
-                };
-              }
-            } else if (dataPay.close_id.length > 1 && formOfPay.type === '') {
-              errorPays = {
-                [`form_of_payment[${index}]`]: 'Forma de Pagamento é obrigatório',
-                ...(errorPays && errorPays),
-              };
-            } else if (
-              dataPay.close_id.length > 1 &&
-              sumSubTotal < valueTotalPay
-            ) {
-              errorPays = {
-                [`subtotal[${index}]`]: 'SubTotal menor que valor a se pago',
-                ...(errorPays && errorPays),
-              };
-            } else if (formOfPay.type !== '' && sumSubTotal > valueTotalPay) {
-              errorPays = {
-                [`subtotal[${index}]`]: 'SubTotal maior que valor a se pago',
-                ...(errorPays && errorPays),
-              };
-            }
-
-            if (formOfPay.type === 'money') {
-              if (!formOfPay.received || formOfPay.received.value === 0) {
-                errorPays = {
-                  [`received[${index}]`]: 'Valor Recebido é obrigatório',
-                  ...(errorPays && errorPays),
-                };
-              } else if (formOfPay.received.value < formOfPay.subtotal.value) {
-                errorPays = {
-                  [`received[${index}]`]: 'Valor Recebido menor que SubTotal',
-                  ...(errorPays && errorPays),
-                };
-              }
-            } else if (formOfPay.type === 'card') {
-              if (dataForm.type_card && dataForm.type_card[index] === '') {
-                errorPays = {
-                  [`type_card[${index}]`]: 'Tipo do Cartão é obrigatório',
-                  ...(errorPays && errorPays),
-                };
-              }
-            }
+        if (!response) {
+          addToast({
+            type: 'error',
+            message: 'Erro no Cadastro',
+            description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
           });
+          return;
+        }
 
-          if (errorPays) {
-            formRef.current?.setErrors(errorPays);
-            return;
-          }
+        if (typeof response === 'object') {
+          formRef.current?.setErrors(response);
+          return;
+        }
 
-          const formattedFormOfPayment = formOfPayment.map(
-            (formOfPay, index) => ({
-              type: formOfPay.type,
-              subtotal: formOfPay.subtotal.value,
-              ...(formOfPay.type === 'card'
-                ? {
-                    type_card: dataForm.type_card
-                      ? dataForm.type_card[index]
-                      : undefined,
-                  }
-                : {
-                    received: formOfPay.received?.value,
-                  }),
-            }),
-          );
+        removeModal(response);
+        addToast({
+          type: 'success',
+          message:
+            response === 'payment'
+              ? `${
+                  payData.close_id.length
+                    ? `${payData.type === 'command' ? 'Comanda' : 'Mesa'} fechada`
+                    : `${payData.type === 'command' ? 'Comanda' : 'Mesa'}s fechadas`
+                } com sucesso`
+              : 'Desconto em comanda feito com sucesso',
+        });
+      } catch (error) {
+        if (error instanceof Yup.ValidationError) {
+          const errors = getValidationErrors(error);
+          formRef.current?.setErrors(errors);
+          return;
+        }
 
-          if (sumSubTotal < valueTotalPay) {
-            api.post('payments/discounts', {
-              value_total: dataPay.value_total,
-              discount: dataPay.value_descont,
-              command_id: dataPay.close_id[0],
-              payment_discount: formattedFormOfPayment,
-            });
+        const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
-            removeModal('discount');
-            addToast({
-              type: 'success',
-              message: 'Desconto em comanda feito com sucesso',
-            });
-          } else {
-            api.post(`payments/${dataPay.type}s`, {
-              value_total: dataPay.value_total,
-              discount: dataPay.value_descont,
-              [`${dataPay.type}_ids`]: dataPay.close_id,
-              [`payment_${dataPay.type}s_closure`]: formattedFormOfPayment,
-            });
-
-            removeModal('payment');
-            addToast({
-              type: 'success',
-              message: `${
-                dataPay.close_id.length === 1
-                  ? `${dataPay.type === 'command' ? 'Comanda' : 'Mesa'} fechada`
-                  : `${
-                      dataPay.type === 'command' ? 'Comanda' : 'Mesa'
-                    }s fechadas`
-              } com sucesso`,
-            });
-          }
+        if (whichError === 'Command number already registered') {
+          formRef.current?.setErrors({
+            number: 'Número de comanda já Cadastrado',
+          });
         } else {
           addToast({
             type: 'error',
             message: 'Erro no Cadastro',
-            description:
-              'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+            description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
           });
-        }
-      } catch (error) {
-        if (error instanceof Yup.ValidationError) {
-          const errors = getValidationErrors(error);
-
-          formRef.current?.setErrors(errors);
-        } else {
-          const whichError =
-            error.response && error.response.data
-              ? error.response.data.message
-              : 'error';
-
-          if (whichError === 'Command number already registered') {
-            formRef.current?.setErrors({
-              number: 'Número de comanda já Cadastrado',
-            });
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no Cadastro',
-              description:
-                'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
-            });
-          }
         }
       } finally {
         setLoading(false);
       }
     },
-    [addToast, formOfPayment, dataPay, removeModal],
+    [addToast, formOfPayment, payData, removeModal],
   );
 
   const handleFormPayment = useCallback(
@@ -280,228 +151,58 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
     [formOfPayment],
   );
 
-  const fnOnChangeDescont = useCallback(
+  const fnOnChangeDiscont = useCallback(
     ({ value }: Omit<FnOnChange, 'indexRef'>) => {
-      setDataPay(prevPay => ({
+      setPayData(prevPay => ({
         ...prevPay,
-        value_descont: value,
+        value_discont: value,
       }));
 
-      setFormOfPayment(prevState => {
-        const valueWithDescont = dataPay.value_total - value;
-        if (prevState.length === 1) {
-          return [
-            {
-              ...prevState[0],
-              subtotal: {
-                value: valueWithDescont,
-                value_formatted: FormattedUtils.formattedValue(
-                  valueWithDescont,
-                ),
-              },
-              ...(prevState[0].received && {
-                change_value: {
-                  value: prevState[0].received.value - valueWithDescont,
-                  value_formatted:
-                    prevState[0].received.value - valueWithDescont > 0
-                      ? FormattedUtils.formattedValue(
-                          prevState[0].received.value - valueWithDescont,
-                        )
-                      : ' ',
-                },
-              }),
-            },
-          ];
-        }
-
-        return [
-          prevState[0],
-          {
-            ...prevState[1],
-            subtotal: {
-              value: valueWithDescont - prevState[0].subtotal.value,
-              value_formatted: FormattedUtils.formattedValue(
-                valueWithDescont - prevState[0].subtotal.value,
-              ),
-            },
-            ...(prevState[1].received && {
-              change_value: {
-                value:
-                  prevState[1].received.value -
-                  (valueWithDescont - prevState[0].subtotal.value),
-                value_formatted:
-                  prevState[1].received.value -
-                    (valueWithDescont - prevState[0].subtotal.value) >
-                  0
-                    ? FormattedUtils.formattedValue(
-                        prevState[1].received.value -
-                          (valueWithDescont - prevState[0].subtotal.value),
-                      )
-                    : ' ',
-              },
-            }),
-          },
-        ];
-      });
+      setFormOfPayment(prevState =>
+        onChangeDiscont({
+          formOfPayment: prevState,
+          payData,
+          value,
+        }),
+      );
     },
-    [dataPay],
+    [payData],
   );
 
   const fnOnChange = useCallback(
     ({ indexRef, value }: FnOnChange) => {
       formRef.current?.setErrors({});
 
-      const valueTotalPay = dataPay.value_descont
-        ? dataPay.value_total - dataPay.value_descont
-        : dataPay.value_total;
+      const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
 
-      if (indexRef === 0) {
-        if (value < valueTotalPay) {
-          const valueSecond = valueTotalPay - value;
-          if (formOfPayment.length === 1) {
-            setFormOfPayment(prevState => [
-              {
-                ...prevState[0],
-                subtotal: {
-                  value,
-                  value_formatted: FormattedUtils.formattedValue(value),
-                },
-                ...(prevState[0].received && {
-                  change_value: {
-                    value: prevState[0].received.value - value,
-                    value_formatted:
-                      prevState[0].received.value - value > 0
-                        ? FormattedUtils.formattedValue(
-                            prevState[0].received.value - value,
-                          )
-                        : ' ',
-                  },
-                }),
-              },
-              {
-                type: '',
-                subtotal: {
-                  value: valueSecond,
-                  value_formatted: FormattedUtils.formattedValue(valueSecond),
-                },
-              },
-            ]);
-          } else {
-            setFormOfPayment(prevState =>
-              prevState.map((prev, index) =>
-                index === 1
-                  ? {
-                      ...prev,
-                      type: prev.type,
-                      subtotal: {
-                        value: valueSecond,
-                        value_formatted: FormattedUtils.formattedValue(
-                          valueSecond,
-                        ),
-                      },
-                      ...(prev.received && {
-                        change_value: {
-                          value: prev.received.value - valueSecond,
-                          value_formatted:
-                            prev.received.value - valueSecond > 0
-                              ? FormattedUtils.formattedValue(
-                                  prev.received.value - valueSecond,
-                                )
-                              : ' ',
-                        },
-                      }),
-                    }
-                  : {
-                      ...prev,
-                      subtotal: {
-                        value,
-                        value_formatted: FormattedUtils.formattedValue(value),
-                      },
-                      ...(prev.received && {
-                        change_value: {
-                          value: prev.received.value - value,
-                          value_formatted:
-                            prev.received.value - value > 0
-                              ? FormattedUtils.formattedValue(
-                                  prev.received.value - value,
-                                )
-                              : ' ',
-                        },
-                      }),
-                    },
-              ),
-            );
-          }
-        } else {
-          setFormOfPayment(prevState => [
-            {
-              ...prevState[0],
-              subtotal: {
-                value,
-                value_formatted: FormattedUtils.formattedValue(value),
-              },
-              ...(prevState[0].received && {
-                change_value: {
-                  value: prevState[0].received.value - value,
-                  value_formatted:
-                    prevState[0].received.value - value > 0
-                      ? FormattedUtils.formattedValue(
-                          prevState[0].received.value - value,
-                        )
-                      : ' ',
-                },
-              }),
-            },
-          ]);
+      if (indexRef) {
+        const sumSubTotal = formOfPayment.reduce((prevValue, subTotal, index) => {
+          if (subTotal.type !== '') return index === indexRef ? prevValue + value : prevValue + subTotal.subtotal.value;
 
-          if (value > valueTotalPay)
-            formRef.current?.setErrors({
-              [`subtotal[${indexRef}]`]: 'Valor maior que total',
-            });
-        }
-      } else {
-        const sumSubTotal = formOfPayment.reduce(
-          (prevValue, subTotal, index) => {
-            if (subTotal.type !== '') {
-              return index === indexRef
-                ? prevValue + value
-                : prevValue + subTotal.subtotal.value;
-            }
-            return prevValue;
-          },
-          0,
-        );
+          return prevValue;
+        }, 0);
 
-        setFormOfPayment(prevState => [
-          prevState[0],
-          {
-            ...prevState[1],
-            subtotal: {
-              value,
-              value_formatted: FormattedUtils.formattedValue(value),
-            },
-            ...(prevState[1].received && {
-              change_value: {
-                value: prevState[1].received.value - value,
-                value_formatted:
-                  prevState[1].received.value - value > 0
-                    ? FormattedUtils.formattedValue(
-                        prevState[1].received.value - value,
-                      )
-                    : ' ',
-              },
-            }),
-          },
-        ]);
-
-        if (sumSubTotal > valueTotalPay) {
+        if (sumSubTotal > valueTotalPay)
           formRef.current?.setErrors({
             [`subtotal[${indexRef}]`]: 'Valor maior que total',
           });
-        }
       }
+
+      setFormOfPayment(
+        onChangePayment({
+          formOfPayment,
+          indexRef,
+          value,
+          valueTotalPay,
+        }),
+      );
+
+      if (!indexRef && valueTotalPay < value)
+        formRef.current?.setErrors({
+          'subtotal[0]': 'Valor maior que total',
+        });
     },
-    [dataPay, formOfPayment],
+    [payData, formOfPayment],
   );
 
   const fnOnChangeValue = useCallback(({ indexRef, value }: FnOnChange) => {
@@ -517,10 +218,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
             },
             change_value: {
               value: newChangeValue,
-              value_formatted:
-                newChangeValue > 0
-                  ? FormattedUtils.formattedValue(newChangeValue)
-                  : ' ',
+              value_formatted: newChangeValue > 0 ? FormattedUtils.formattedValue(newChangeValue) : ' ',
             },
           };
         }
@@ -531,23 +229,17 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
 
   useEffect(() => {
     const sumSubTotal = formOfPayment.reduce((prevValue, subTotal) => {
-      return subTotal.type !== ''
-        ? prevValue + subTotal.subtotal.value
-        : prevValue;
+      return subTotal.type !== '' ? prevValue + subTotal.subtotal.value : prevValue;
     }, 0);
 
-    const valueTotalPay = dataPay.value_descont
-      ? dataPay.value_total - dataPay.value_descont
-      : dataPay.value_total;
+    const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
 
     setTextButton(
-      sumSubTotal !== 0 &&
-        sumSubTotal < valueTotalPay &&
-        dataPay.close_id.length === 1
+      sumSubTotal !== 0 && sumSubTotal < valueTotalPay && payData.close_id.length === 1
         ? 'Descontar Pagamento'
         : 'Fazer Pagamento',
     );
-  }, [formOfPayment, dataPay]);
+  }, [formOfPayment, payData]);
 
   return (
     <Container style={style}>
@@ -558,8 +250,8 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
 
         <RowHeaderPay>
           <HeaderLeft>
-            <h2>Valor Total a se Pago:</h2>
-            <h1>{dataPay.value_formatted}</h1>
+            <h2>VALOR TOTAL A SER PAGO:</h2>
+            <h1>{payData.value_formatted}</h1>
           </HeaderLeft>
 
           <HeaderRight>
@@ -569,7 +261,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
               isCurrency
               placeholder="Desconto"
               hasOnChange={{
-                fnOnChange: fnOnChangeDescont,
+                fnOnChange: fnOnChangeDiscont,
               }}
               icon={FiScissors}
               styleInput={{ width: 124, flex: 'auto' }}
@@ -582,7 +274,7 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
             <Select
               name={`form_of_payment[${index}]`}
               hasTitle={`${index + 1}º Forma de Pagamento${
-                index > 0 && dataPay.close_id.length === 1 ? ' (Opcional)' : ''
+                index > 0 && payData.close_id.length === 1 ? ' (Opcional)' : ''
               }`}
               onChange={e => handleFormPayment(e, index)}
             >
@@ -635,20 +327,12 @@ const MakePay: React.FC<Props> = ({ style, data }) => {
                     />
                   </>
                 ) : (
-                  <Select
-                    name={`type_card[${index}]`}
-                    hasTitle="Tipo do Cartão"
-                    style={{ flex: 1 }}
-                  >
+                  <Select name={`type_card[${index}]`} hasTitle="Tipo do Cartão" style={{ flex: 1 }}>
                     <option value="">Selecione</option>
                     <option value="visa-debit">Cartão VISA Débito</option>
                     <option value="visa-credit">Cartão VISA Crédito</option>
-                    <option value="master-debit">
-                      Cartão MASTERCARD Débito
-                    </option>
-                    <option value="master-credit">
-                      Cartão MASTERCARD Crédito
-                    </option>
+                    <option value="master-debit">Cartão MASTERCARD Débito</option>
+                    <option value="master-credit">Cartão MASTERCARD Crédito</option>
                     <option value="elo-debit">Cartão ELO Débito</option>
                     <option value="elo-credit">Cartão ELO Crédito</option>
                   </Select>

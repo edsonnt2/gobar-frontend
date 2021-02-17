@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { ToastProvider } from './Toast';
 import { AuthProvider } from './Auth';
 import { ModalProvider } from './Modal';

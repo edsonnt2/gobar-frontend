@@ -1,22 +1,17 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
-
-import {
-  FiSearch,
-  FiPower,
-  FiUsers,
-  FiPackage,
-  FiDatabase,
-} from 'react-icons/fi';
+import { useMemo, useState, useEffect, useCallback } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import { MdNotifications } from 'react-icons/md';
 import { GoTriangleDown } from 'react-icons/go';
-import { Link, useHistory } from 'react-router-dom';
-import imgSmallLogo from '../../assets/small-logo.svg';
-import noAvatar from '../../assets/no-avatar.png';
-import { useAuth, Business } from '../../hooks/Auth';
+import { FiSearch, FiPower, FiUsers, FiPackage, FiDatabase } from 'react-icons/fi';
+
+import noBusiness from '@/modules/business/assets/no-business.png';
 import api from '../../services/api';
+
+import { useAuth, Business } from '../../hooks/Auth';
 import { useToast } from '../../hooks/Toast';
 
-import noBusiness from '~/modules/business/assets/no-business.png';
+import imgSmallLogo from '../../assets/small-logo.svg';
+import noAvatar from '../../assets/no-avatar.png';
 
 import {
   Container,
@@ -50,10 +45,9 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
   const [listBusiness, setListBusiness] = useState<Business[]>([]);
 
   useEffect(() => {
+    // Conserta isso aqui para não ficar chamando toda hora
     api.get<Business[]>('business/user').then(response => {
-      const getBusiness = business
-        ? response.data.filter(({ id }) => id !== business.id)
-        : response.data;
+      const getBusiness = business ? response.data.filter(({ id }) => id !== business.id) : response.data;
 
       setListBusiness(getBusiness);
     });
@@ -147,11 +141,7 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
             </ButtonMenu>
 
             <ButtonMenu onClick={() => setShowOptions(!showOptions)}>
-              <GoTriangleDown
-                size={24}
-                color={showOptions ? '#E5A43A' : undefined}
-                style={{ marginTop: 3 }}
-              />
+              <GoTriangleDown size={24} color={showOptions ? '#E5A43A' : undefined} style={{ marginTop: 3 }} />
             </ButtonMenu>
             {showOptions && (
               <BoxMenu>
@@ -190,10 +180,7 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
 
                     <BoxInfoMenu onClick={handleBackUser}>
                       <ImgMenu>
-                        <img
-                          src={user.avatar_url || noAvatar}
-                          alt={user.name}
-                        />
+                        <img src={user.avatar_url || noAvatar} alt={user.name} />
                       </ImgMenu>
 
                       <InfoMenu isTop>
@@ -207,18 +194,11 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
                 {listBusiness.length > 0 && (
                   <>
                     <Separator />
-                    <h2>
-                      {listBusiness.length === 1
-                        ? 'Meu Negócio'
-                        : 'Meus Negócios'}
-                    </h2>
+                    <h2>{listBusiness.length === 1 ? 'Meu Negócio' : 'Meus Negócios'}</h2>
                   </>
                 )}
                 {listBusiness.map(({ name, avatar_url, id }) => (
-                  <BoxInfoMenu
-                    key={id}
-                    onClick={() => handleLoggedBusiness(id)}
-                  >
+                  <BoxInfoMenu key={id} onClick={() => handleLoggedBusiness(id)}>
                     <ImgMenu>
                       <img src={avatar_url || noBusiness} alt={name} />
                     </ImgMenu>

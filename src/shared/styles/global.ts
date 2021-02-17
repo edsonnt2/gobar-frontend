@@ -13,7 +13,6 @@ export default createGlobalStyle`
     --color-border-gray: #242426;
 
     --color-gray-tertiary: #2a2a2c;
-
     --color-gray-quaternary: #DEDCD5;
 
     --color-input: #23211f;

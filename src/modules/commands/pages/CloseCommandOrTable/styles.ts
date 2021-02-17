@@ -2,18 +2,6 @@ import styled, { css } from 'styled-components';
 
 import { shade } from 'polished';
 
-interface PropsButton {
-  isSelected: 'command' | 'table';
-}
-
-interface PropsBoxInput {
-  isFocused: boolean;
-}
-
-interface PropsSelectSearch {
-  hasSelected: boolean;
-}
-
 interface PropsSpotlight {
   spotlight: boolean;
 }
