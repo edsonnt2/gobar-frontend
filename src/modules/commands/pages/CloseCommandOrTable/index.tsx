@@ -966,7 +966,7 @@ const CloseCommandOrTable: React.FC = () => {
                     <DateProduct>
                       {format(new Date(created_at), 'dd/MM/yyyy')}
                       <br />
-                      {format(new Date(created_at), 'H:mm:ss')}
+                      {format(new Date(created_at), 'HH:mm:ss')}
                     </DateProduct>
                     <IconListProduct>
                       <IoMdTrash
