@@ -3,8 +3,6 @@
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"]
-      // "@/modules/*": ["./modules/*"],
-      // "@/shared/*": ["./shared/*"]
     }
   }
 }
