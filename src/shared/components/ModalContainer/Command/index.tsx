@@ -1,10 +1,21 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-
-import { TiTicket } from 'react-icons/ti';
 import { FiTag, FiXCircle } from 'react-icons/fi';
-import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
+import { TiTicket } from 'react-icons/ti';
+import { Form } from '@unform/web';
 import * as Yup from 'yup';
+
+import api from '~/shared/services/api';
+
+import { CustomerData, useModal } from '~/shared/hooks/Modal';
+import { useToast } from '~/shared/hooks/Toast';
+
+import Button from '../../Button';
+import Select from '../../Select';
+import Input from '../../Input';
+
+import getValidationErrors from '~/shared/utils/getValidationErrors';
+import FormattedUtils from '~/shared/utils/formattedUtils';
 
 import {
   Container,
@@ -13,15 +24,6 @@ import {
   ImgCustomer,
   InfoCustomer,
 } from './styles';
-
-import Input from '../../Input';
-import Select from '../../Select';
-import Button from '../../Button';
-import { CustomerData, useModal } from '~/shared/hooks/Modal';
-import api from '~/shared/services/api';
-import { useToast } from '~/shared/hooks/Toast';
-import getValidationErrors from '~/shared/utils/getValidationErrors';
-import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface Props {
   style: React.CSSProperties;

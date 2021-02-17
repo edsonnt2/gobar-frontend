@@ -1,5 +1,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-
+import { Link, useHistory } from 'react-router-dom';
+import { MdNotifications } from 'react-icons/md';
+import { GoTriangleDown } from 'react-icons/go';
 import {
   FiSearch,
   FiPower,
@@ -7,15 +9,14 @@ import {
   FiPackage,
   FiDatabase,
 } from 'react-icons/fi';
-import { MdNotifications } from 'react-icons/md';
-import { GoTriangleDown } from 'react-icons/go';
-import { Link, useHistory } from 'react-router-dom';
-import imgSmallLogo from '../../assets/small-logo.svg';
-import noAvatar from '../../assets/no-avatar.png';
-import { useAuth, Business } from '../../hooks/Auth';
+
 import api from '../../services/api';
+
+import { useAuth, Business } from '../../hooks/Auth';
 import { useToast } from '../../hooks/Toast';
 
+import imgSmallLogo from '../../assets/small-logo.svg';
+import noAvatar from '../../assets/no-avatar.png';
 import noBusiness from '~/modules/business/assets/no-business.png';
 
 import {
@@ -50,6 +51,7 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
   const [listBusiness, setListBusiness] = useState<Business[]>([]);
 
   useEffect(() => {
+    // Conserta isso aqui para não ficar chamando toda hora
     api.get<Business[]>('business/user').then(response => {
       const getBusiness = business
         ? response.data.filter(({ id }) => id !== business.id)

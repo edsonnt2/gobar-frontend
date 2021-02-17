@@ -64,7 +64,6 @@ export const InfoCustomer = styled.div`
   }
 
   h1 {
-    /* color: #e5a43a; */
     font-weight: 500;
     font-size: 22px;
   }

@@ -1,9 +1,5 @@
 import styled, { css } from 'styled-components';
 
-interface PropsInput {
-  isFocused: boolean;
-}
-
 export const Container = styled.div`
   span {
     display: block;
@@ -14,7 +10,7 @@ export const Container = styled.div`
   }
 `;
 
-export const BoxInput = styled.div<PropsInput>`
+export const BoxInput = styled.div<{ isFocused: boolean }>`
   position: relative;
   width: 100%;
   border: 2px solid var(--color-input);

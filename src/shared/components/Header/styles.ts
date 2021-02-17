@@ -3,10 +3,6 @@ import { shade } from 'polished';
 import { Link } from 'react-router-dom';
 import { PropsHeader } from '.';
 
-interface PropsInfoMenu {
-  isTop?: boolean;
-}
-
 export const Container = styled.div<PropsHeader>`
   grid-area: HB;
 
@@ -188,7 +184,7 @@ export const ImgMenu = styled.div`
   }
 `;
 
-export const InfoMenu = styled.div<PropsInfoMenu>`
+export const InfoMenu = styled.div<{ isTop?: boolean }>`
   display: flex;
   flex-direction: column;
   margin-left: 10px;

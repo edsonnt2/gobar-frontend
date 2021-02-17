@@ -22,4 +22,49 @@ export default class FormattedUtils {
 
     return newValue;
   }
+
+  public static formattedCpfOrCnpj(value: string): string {
+    return value
+      .split('')
+      .map((char, index) => {
+        let caracter: string;
+        if (value.length < 12) {
+          switch (index) {
+            case 3:
+              caracter = '.';
+              break;
+            case 6:
+              caracter = '.';
+              break;
+            case 9:
+              caracter = '-';
+              break;
+            default:
+              caracter = '';
+              break;
+          }
+        } else {
+          switch (index) {
+            case 2:
+              caracter = '.';
+              break;
+            case 5:
+              caracter = '.';
+              break;
+            case 8:
+              caracter = '/';
+              break;
+            case 12:
+              caracter = '-';
+              break;
+            default:
+              caracter = '';
+              break;
+          }
+        }
+
+        return index < 14 ? caracter + char : '';
+      })
+      .join('');
+  }
 }

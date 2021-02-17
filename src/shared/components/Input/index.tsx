@@ -5,11 +5,13 @@ import React, {
   useEffect,
   KeyboardEvent,
 } from 'react';
-
-import { IconBaseProps } from 'react-icons/lib/cjs';
 import ReactInputMask, { Props as InputProps } from 'react-input-mask';
-import { useField } from '@unform/core';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
+import { IconBaseProps } from 'react-icons/lib/cjs';
+import { useField } from '@unform/core';
+
+import FormattedUtils from '~/shared/utils/formattedUtils';
+
 import {
   Container,
   BoxInput,
@@ -19,7 +21,6 @@ import {
   AutoComplete,
   LiAutoComplete,
 } from './styles';
-import FormattedUtils from '~/shared/utils/formattedUtils';
 
 interface FnOnChange {
   value: number;
@@ -141,63 +142,18 @@ const Input: React.FC<PropsInput> = ({
       setIsFilled(!!value);
 
       if (formatField) {
-        const valueSplit = value
-          .split('')
-          .filter(char => Number(char) || char === '0');
+        const onlyNumber = FormattedUtils.onlyNumber(value);
 
         if (formatField === 'number') {
-          setValueForm(valueSplit.join(''));
+          setValueForm(onlyNumber);
           if (hasOnChange) {
             hasOnChange.fnOnChange({
-              value: Number(valueSplit.join('')),
+              value: Number(onlyNumber),
               indexRef: hasOnChange.indexRef,
             });
           }
         } else {
-          const lengthChar = valueSplit.length;
-          setValueForm(
-            valueSplit
-              .map((char, index) => {
-                let caracter: string;
-                if (lengthChar < 12) {
-                  switch (index) {
-                    case 3:
-                      caracter = '.';
-                      break;
-                    case 6:
-                      caracter = '.';
-                      break;
-                    case 9:
-                      caracter = '-';
-                      break;
-                    default:
-                      caracter = '';
-                      break;
-                  }
-                } else {
-                  switch (index) {
-                    case 2:
-                      caracter = '.';
-                      break;
-                    case 5:
-                      caracter = '.';
-                      break;
-                    case 8:
-                      caracter = '/';
-                      break;
-                    case 12:
-                      caracter = '-';
-                      break;
-                    default:
-                      caracter = '';
-                      break;
-                  }
-                }
-
-                return index < 14 ? caracter + char : '';
-              })
-              .join(''),
-          );
+          setValueForm(FormattedUtils.formattedCpfOrCnpj(onlyNumber));
         }
       } else if (isCurrency) {
         const formatChar = value
@@ -255,10 +211,9 @@ const Input: React.FC<PropsInput> = ({
       name: fieldName,
       ref: refInput.current,
       path: 'value',
-      setValue(ref, value: string) {
+      setValue(_, value: string) {
         if (value) {
           handleChange(value.trim());
-          // setValueForm(value);
         }
       },
     });
