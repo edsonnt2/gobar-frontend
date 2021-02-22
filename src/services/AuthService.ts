@@ -3,6 +3,7 @@ import ApiService from './ApiService';
 interface User {
   id: string;
   name: string;
+  full_name?: string;
   cell_phone: number;
   email: string;
   birthDate: string;
@@ -17,8 +18,9 @@ export interface Business {
 }
 
 interface Authenticate {
-  user: User;
   token: string;
+  user: User;
+  business?: Business;
 }
 
 export default class AuthService {
@@ -27,6 +29,24 @@ export default class AuthService {
     password: string;
   }): Promise<Authenticate | undefined> {
     const response = await ApiService.post<Authenticate>('sessions', data);
+
+    return response?.data;
+  }
+
+  public static async authenticateBusiness(business_id: string): Promise<Authenticate | undefined> {
+    const response = await ApiService.post<Authenticate>('business/sessions', { business_id });
+
+    return response?.data;
+  }
+
+  public static async fecthSession(): Promise<Authenticate | undefined> {
+    const response = await ApiService.get<Authenticate>('sessions');
+
+    return response?.data;
+  }
+
+  public static async fecthBussinessSession(): Promise<Business[] | undefined> {
+    const response = await ApiService.get<Business[]>('business/user');
 
     return response?.data;
   }

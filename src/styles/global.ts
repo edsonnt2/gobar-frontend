@@ -48,4 +48,25 @@ export default createGlobalStyle`
   button{
     cursor:pointer;
   }
+
+  ::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #0f0f0f;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.15);
+
+  transition: background-color 0.6;
+
+  &:hover {
+    background-color: #555555;
+    border-radius: 8px;
+  }
+}
 `;

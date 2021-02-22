@@ -1,23 +1,25 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { AiOutlineBarcode } from 'react-icons/ai';
-
 import { useHistory } from 'react-router-dom';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
+
 import Header from '@/components/Header';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import FileInput from '@/components/FIleInput';
-import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import getValidationErrors from '@/utils/getValidationErrors';
 import MenuRegisterPTT from '@/features/business/components/MenuRegisterPTT';
 
-import addImage from '@/features/business/assets/add-image.png';
+import ApiService from '@/services/ApiService';
 
+import { useToast } from '@/hooks/Toast';
+
+import getValidationErrors from '@/utils/getValidationErrors';
 import FormattedUtils from '@/utils/formattedUtils';
+
+import addImage from '@/features/business/assets/add-image.png';
 
 import {
   Container,
@@ -128,7 +130,7 @@ const RegisterProductBusiness: React.FC = () => {
         if (image) formData.append('image', image);
         if (barcode) formData.append('barcode', barcode);
 
-        await api.post('products', formData);
+        await ApiService.post('products', formData);
 
         addToast({
           type: 'success',
@@ -239,12 +241,11 @@ const RegisterProductBusiness: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchCategoryProvider.trim() !== '') {
-        api
-          .get<CategoryProvider[]>('products/categories/search-provider', {
-            params: {
-              search: searchCategoryProvider,
-            },
-          })
+        ApiService.get<CategoryProvider[]>('products/categories/search-provider', {
+          params: {
+            search: searchCategoryProvider,
+          },
+        })
           .then(({ data }) => {
             setAllCategoriesProvider(data);
           })
@@ -268,12 +269,11 @@ const RegisterProductBusiness: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchCategory.trim() !== '') {
-        api
-          .get<CategoryProvider[]>('products/categories/search-product', {
-            params: {
-              search: searchCategory,
-            },
-          })
+        ApiService.get<CategoryProvider[]>('products/categories/search-product', {
+          params: {
+            search: searchCategory,
+          },
+        })
           .then(({ data }) => {
             setAllCategories(data);
           })
