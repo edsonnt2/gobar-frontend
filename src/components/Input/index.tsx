@@ -148,6 +148,9 @@ const Input: React.FC<PropsInput> = ({
                 .map((char, index) => (index + 2 === formatChar.length ? `.${char}` : char))
                 .join('');
 
+        console.log('valueCurrency ->', valueCurrency);
+        console.log('formato de moeda ->', FormattedUtils.valueDefault(value));
+
         setValueForm(
           valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency)),
         );

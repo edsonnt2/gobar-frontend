@@ -1,18 +1,20 @@
 import { useCallback, useState, useEffect, useRef, ChangeEvent, KeyboardEvent } from 'react';
-
 import { FiXCircle, FiClipboard } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
+
 import LayoutBusiness from '@/components/LayoutBusiness';
-import { useModal } from '@/hooks/Modal';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
-import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import FormattedUtils from '@/utils/formattedUtils';
-
 import InputQuantityProduct from '@/features/commands/components/InputQuantityProduct';
+
+import ApiService from '@/services/ApiService';
+
+import { useModal } from '@/hooks/Modal';
+import { useToast } from '@/hooks/Toast';
+
+import FormattedUtils from '@/utils/formattedUtils';
 
 import noProduct from '@/assets/no-product.png';
 
@@ -138,7 +140,7 @@ const RegisterCommandOrTable: React.FC = () => {
   );
 
   const hasSubmit = useCallback(() => {
-    if (productSelected.length === 0) {
+    if (!productSelected.length) {
       inputRef.current?.focus();
     } else {
       formRef.current?.submitForm();
@@ -152,9 +154,9 @@ const RegisterCommandOrTable: React.FC = () => {
         formRef.current?.setErrors({});
 
         let errorProducts: { [key: string]: string } | undefined;
-        if (data.command_or_table === '') {
+        if (!data.command_or_table) {
           errorProducts = {
-            command: 'Número da Comanda é obrigatório',
+            command_or_table: 'Número da Comanda é obrigatório',
           };
         }
 
@@ -173,6 +175,7 @@ const RegisterCommandOrTable: React.FC = () => {
             };
           }
         });
+
         if (errorProducts) {
           formRef.current?.setErrors(errorProducts);
           return;
@@ -185,7 +188,7 @@ const RegisterCommandOrTable: React.FC = () => {
           quantity,
         }));
 
-        await api.post(`${selectCommandOrTable}s/products`, {
+        await ApiService.post(`${selectCommandOrTable}s/products`, {
           [selectCommandOrTable]: data.command_or_table,
           products,
         });
@@ -309,15 +312,15 @@ const RegisterCommandOrTable: React.FC = () => {
       const lengthList = searchProducts.length;
 
       if (search.trim() === '') {
-        if (e.keyCode === 13) hasSubmit();
+        if (e.key === 'Enter') hasSubmit();
         setSearchProducts([]);
-      } else if (e.keyCode === 13) {
+      } else if (e.key === 'Enter') {
         setLoading(true);
         if (cursor > -1) {
           handleProductSelected(searchProducts[cursor]);
           setCursor(-1);
         } else {
-          const response = await api.get<SearchProduct>('products/find', {
+          const response = await ApiService.get<SearchProduct>('products/find', {
             params: {
               internal_code: search,
             },
@@ -345,9 +348,9 @@ const RegisterCommandOrTable: React.FC = () => {
             });
           }
         }
-      } else if (e.keyCode === 38 && cursor >= 0) {
+      } else if (e.key === 'ArrowUp' && cursor >= 0) {
         setCursor(cursor - 1);
-      } else if (e.keyCode === 40 && cursor < lengthList - 1) {
+      } else if (e.key === 'ArrowDown' && cursor < lengthList - 1) {
         setCursor(cursor + 1);
       }
     },
@@ -393,12 +396,11 @@ const RegisterCommandOrTable: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (search.trim() !== '') {
-        api
-          .get<SearchProduct[]>('products/search', {
-            params: {
-              search,
-            },
-          })
+        ApiService.get<SearchProduct[]>('products/search', {
+          params: {
+            search,
+          },
+        })
           .then(response => {
             setSearchProducts(
               response.data.filter(({ id }) => !productSelected.some(({ product_id }) => product_id === id)),

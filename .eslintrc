@@ -27,6 +27,7 @@
   },
   "plugins": ["react", "react-hooks", "@typescript-eslint", "prettier"],
   "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
     "class-methods-use-this": "off",
     "react/react-in-jsx-scope": "off",
     "import/no-extraneous-dependencies": "off",

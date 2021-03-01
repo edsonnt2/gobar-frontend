@@ -32,7 +32,7 @@ export default class ApiService {
 
   public static async post<T>(
     resource: string,
-    data: { [key: string]: string | number },
+    data: any | FormData,
     config: AxiosRequestConfig = {},
     isMultipart = false,
   ): Promise<AxiosResponse<T>> {

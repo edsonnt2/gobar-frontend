@@ -1,13 +1,12 @@
 import { createContext, useCallback, useState, useContext } from 'react';
 import AuthService from '@/services/AuthService';
-import api from '@/services/api';
 
 interface SignInData {
   cellPhoneOrEmail: string;
   password: string;
 }
 
-interface User {
+export interface User {
   id: string;
   name: string;
   cell_phone: number;
@@ -45,15 +44,13 @@ const AuthProvider: React.FC = ({ children }) => {
     const user = localStorage.getItem('@goBar:user');
     const business = localStorage.getItem('@goBar:business');
 
-    if (token && user) {
-      api.defaults.headers.authorization = `Bearer ${token}`;
-      return {
-        user: JSON.parse(user),
-        token,
-        ...(business && { business: JSON.parse(business) }),
-      };
-    }
-    return {} as LocalStorageData;
+    return token && user
+      ? {
+          user: JSON.parse(user),
+          token,
+          ...(business && { business: JSON.parse(business) }),
+        }
+      : ({} as LocalStorageData);
   });
 
   const signIn = useCallback(async ({ cellPhoneOrEmail, password }: SignInData) => {
@@ -69,8 +66,6 @@ const AuthProvider: React.FC = ({ children }) => {
     localStorage.setItem('@goBar:token', token);
     localStorage.setItem('@goBar:user', JSON.stringify(user));
 
-    api.defaults.headers.authorization = `Bearer ${token}`;
-
     setData({ user, token });
   }, []);
 
@@ -80,7 +75,6 @@ const AuthProvider: React.FC = ({ children }) => {
       if (token) {
         newToken = token;
         localStorage.setItem('@goBar:token', token);
-        api.defaults.headers.authorization = `Bearer ${token}`;
       } else {
         newToken = data.token;
       }
