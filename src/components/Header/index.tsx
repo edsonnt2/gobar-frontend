@@ -44,6 +44,7 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [listBusiness, setListBusiness] = useState<Business[]>([]);
 
+  console.log(user, business);
   useEffect(() => {
     // Conserta isso aqui para não ficar chamando toda hora
     api.get<Business[]>('business/user').then(response => {
