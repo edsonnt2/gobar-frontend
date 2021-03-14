@@ -11,10 +11,10 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
 import { useToast } from '@/hooks/Toast';
-import api from '@/services/api';
 import { useAuth } from '@/hooks/Auth';
 import getValidationErrors from '@/utils/getValidationErrors';
 
+import ApiService from '@/services/ApiService';
 import { Container, Content, BackPage } from './styles';
 
 interface Customer {
@@ -51,7 +51,7 @@ const FindCustomer: React.FC = () => {
         formRef.current?.getFieldRef('name').focus();
       } else {
         try {
-          const { data } = await api.get<Customer>(`customers/${id}`);
+          const { data } = await ApiService.get<Customer>(`customers/${id}`);
           setDataCustomer(data);
 
           formRef.current?.setData({
@@ -102,7 +102,7 @@ const FindCustomer: React.FC = () => {
 
         const formattedBirth = `${splitBirth[2]}-${splitBirth[1]}-${splitBirth[0]}`;
 
-        const response = await api.post('customers', {
+        const response = await ApiService.post<{ id: string }>('customers', {
           customer_id: id,
           name,
           birthDate: formattedBirth,
