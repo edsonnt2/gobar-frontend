@@ -5,14 +5,11 @@ import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import getValidationErrors from '@/utils/getValidationErrors';
 import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import { useAuth } from '@/hooks/Auth';
-
-import imgLogo from '@/assets/logo.svg';
+import { Input, Button } from '@/components';
+import { useToast, useAuth } from '@/hooks';
+import { getValidationErrors } from '@/utils';
+import { logo } from '@/assets';
 
 import { Container, Content, AsideRegister, ContentDescription, Footer } from './styles';
 
@@ -150,7 +147,7 @@ const SignUp: React.FC = () => {
           <p>Receber pedidos de clientes para agilizar o atendimento</p>
         </ContentDescription>
         <AsideRegister>
-          <img src={imgLogo} alt="GoBar" />
+          <img src={logo} alt="GoBar" />
 
           <h1>Faça seu Cadastro</h1>
           <Form ref={formRef} onSubmit={handleSubmit}>

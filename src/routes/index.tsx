@@ -1,7 +1,4 @@
-import RoutesUser from '@/features/users/routes';
-import RoutesBusiness from '@/features/business/routes';
-import RoutesCustomer from '@/features/customers/routes';
-import RoutesCommand from '@/features/commands/routes';
+import { RoutesBusiness, RoutesCommand, RoutesCustomer, RoutesUser } from '@/features';
 
 const Routes: React.FC = () => {
   return (

@@ -1,9 +1,8 @@
 import { Switch } from 'react-router-dom';
+
 import Route from '@/routes/Route';
-import RegisterBusiness from '../pages/RegisterBusiness';
-import RegisterProductBusiness from '../pages/RegisterProductBusiness';
-import RegisterTableBusiness from '../pages/RegisterTableBusiness';
-import RegisterIngressBusiness from '../pages/RegisterIngressBusiness';
+
+import { RegisterBusiness, RegisterProductBusiness, RegisterTableBusiness, RegisterEntranceBusiness } from '../pages';
 
 const RoutesBusiness: React.FC = () => {
   return (
@@ -14,7 +13,7 @@ const RoutesBusiness: React.FC = () => {
 
       <Route path="/business/register-product" component={RegisterProductBusiness} isPrivate isBusiness />
       <Route path="/business/register-table" component={RegisterTableBusiness} isPrivate isBusiness />
-      <Route path="/business/register-ingress" component={RegisterIngressBusiness} isPrivate isBusiness />
+      <Route path="/business/register-entrance" component={RegisterEntranceBusiness} isPrivate isBusiness />
     </Switch>
   );
 };

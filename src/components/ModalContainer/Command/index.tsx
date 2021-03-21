@@ -5,17 +5,10 @@ import { TiTicket } from 'react-icons/ti';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import api from '@/services/api';
-
-import { CustomerData, useModal } from '@/hooks/Modal';
-import { useToast } from '@/hooks/Toast';
-
-import getValidationErrors from '@/utils/getValidationErrors';
-import FormattedUtils from '@/utils/formattedUtils';
-
-import Button from '../../Button';
-import Select from '../../Select';
-import Input from '../../Input';
+import { CommandService, EntranceService, Entrance } from '@/services';
+import { CustomerData, useModal, useToast } from '@/hooks';
+import { Button, Select, Input } from '@/components';
+import { getValidationErrors, FormattedUtils } from '@/utils';
 
 import { Container, CloseCommand, BoxInfoCustomer, ImgCustomer, InfoCustomer } from './styles';
 
@@ -26,26 +19,17 @@ interface Props {
 
 interface DataForm {
   number: string;
-  ingress_id?: string;
-  prepaid_ingress?: string;
+  entrance_id?: string;
+  prepaid_entrance?: string;
   value_consume?: string;
 }
-
-type IngressData = {
-  id: string;
-  description: string;
-  value: number;
-  consume: boolean;
-  value_formatted: string;
-  consume_formatted?: string;
-}[];
 
 const Command: React.FC<Props> = ({ style, data: customer }) => {
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const formRef = useRef<FormHandles>(null);
   const [loading, setLoading] = useState(false);
-  const [ingress, setIngress] = useState<IngressData>([]);
+  const [entrance, setEntrance] = useState<Entrance[]>([]);
 
   const handleSubmit = useCallback(
     async (dataForm: DataForm) => {
@@ -55,9 +39,9 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
 
         const schema = Yup.object().shape({
           number: Yup.string().required('Número da comanda é obrigatório'),
-          ...(ingress.length > 0 && {
-            ingress_id: Yup.string().required('Opção de Entrada é obrigatório'),
-            prepaid_ingress: Yup.string().required('Entrada é pré-paga?'),
+          ...(entrance.length > 0 && {
+            entrance_id: Yup.string().required('Opção de Entrada é obrigatório'),
+            prepaid_entrance: Yup.string().required('Entrada é pré-paga?'),
           }),
         });
 
@@ -65,7 +49,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           abortEarly: false,
         });
 
-        const { number, value_consume, prepaid_ingress, ingress_id } = dataForm;
+        const { number, value_consume, prepaid_entrance, entrance_id } = dataForm;
 
         const formattedValueConsume = value_consume
           ? value_consume
@@ -75,12 +59,12 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
               .replace(',', '.')
           : undefined;
 
-        await api.post('commands', {
+        await CommandService.registerCommand({
           customer_id: customer.id,
           number,
-          ...(ingress_id && { ingress_id }),
-          ...(prepaid_ingress && {
-            prepaid_ingress: !!Number(prepaid_ingress),
+          ...(entrance_id && { entrance_id }),
+          ...(prepaid_entrance && {
+            prepaid_entrance: !!Number(prepaid_entrance),
           }),
           ...(formattedValueConsume && {
             value_consume: formattedValueConsume,
@@ -116,18 +100,18 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
         setLoading(false);
       }
     },
-    [addToast, customer, ingress.length, removeModal],
+    [addToast, customer, entrance.length, removeModal],
   );
 
   useEffect(() => {
     formRef.current?.getFieldRef('number').focus();
 
-    api.get<IngressData>('ingress').then(response => {
-      setIngress(
-        response.data.map(getIngress => ({
-          ...getIngress,
-          value_formatted: FormattedUtils.formattedValue(getIngress.value),
-          consume_formatted: getIngress.consume ? '- Consuma' : '',
+    EntranceService.fetchEntrance().then(response => {
+      setEntrance(
+        response.map(getEntrance => ({
+          ...getEntrance,
+          value_formatted: FormattedUtils.formattedValue(getEntrance.value),
+          consume_formatted: getEntrance.consume ? '- Consuma' : '',
         })),
       );
     });
@@ -158,18 +142,18 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           placeholder="Número da Comanda"
         />
 
-        {ingress.length > 0 && (
+        {entrance.length > 0 && (
           <>
-            <Select name="ingress_id" hasTitle="Opções de Entrada">
+            <Select name="entrance_id" hasTitle="Opções de Entrada">
               <option value="">Selecione</option>
-              {ingress.map(({ id, description, consume_formatted, value_formatted }) => (
+              {entrance.map(({ id, description, consume_formatted, value_formatted }) => (
                 <option key={id} value={id}>
                   {`${description} ${consume_formatted} - ${value_formatted}`}
                 </option>
               ))}
             </Select>
 
-            <Select name="prepaid_ingress" hasTitle="Entrada paga na entrada?">
+            <Select name="prepaid_entrance" hasTitle="Entrada paga na entrada?">
               <option value="">Selecione</option>
               <option value="1">Sim</option>
               <option value="0">Não</option>

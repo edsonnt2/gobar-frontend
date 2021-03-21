@@ -1,11 +1,8 @@
-import { Container, NavBusiness, MenuMain, LinkMenu, Content, Footer } from './styles';
-import Header from '../Header';
+import { findCustomer, closeCommand, commandBar, customerAccount, boxFront } from '@/assets';
 
-import findCustomer from '../../assets/findcustomer.svg';
-import closeCommand from '../../assets/closecommand.svg';
-import commandBar from '../../assets/commandbar.svg';
-import customerAccount from '../../assets/customeraccount.svg';
-import boxFront from '../../assets/boxfront.svg';
+import { Container, NavBusiness, MenuMain, LinkMenu, Content, Footer } from './styles';
+
+import { Header } from '../Header';
 
 interface Props {
   pgActive?: 'find-customer' | 'close-command-table' | 'register-command-table' | 'customer-account' | 'boxfront';
@@ -47,4 +44,4 @@ const LayoutBusiness: React.FC<Props> = ({ children, pgActive }) => {
   );
 };
 
-export default LayoutBusiness;
+export { LayoutBusiness };

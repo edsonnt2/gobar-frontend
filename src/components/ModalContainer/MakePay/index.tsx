@@ -4,14 +4,9 @@ import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import { MakeyPayData, useModal } from '@/hooks/Modal';
-import { useToast } from '@/hooks/Toast';
-
-import getValidationErrors from '@/utils/getValidationErrors';
-import FormattedUtils from '@/utils/formattedUtils';
-import Button from '../../Button';
-import Select from '../../Select';
-import Input from '../../Input';
+import { MakeyPayData, useModal, useToast } from '@/hooks';
+import { Button, Select, Input } from '@/components';
+import { getValidationErrors, FormattedUtils } from '@/utils';
 
 import { onChangeDiscont, onChangePayment, sendPayment } from './Functions';
 

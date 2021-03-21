@@ -1,6 +1,6 @@
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export default class InterceptorUtils {
+export class InterceptorUtils {
   async request(request: AxiosRequestConfig): Promise<AxiosRequestConfig> {
     return request;
   }

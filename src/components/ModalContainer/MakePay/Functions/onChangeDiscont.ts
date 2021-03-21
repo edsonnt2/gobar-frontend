@@ -1,4 +1,4 @@
-import FormattedUtils from '@/utils/formattedUtils';
+import { FormattedUtils } from '@/utils';
 import { FormOfPayment, PayData } from '..';
 
 interface OnchangeDiscont {

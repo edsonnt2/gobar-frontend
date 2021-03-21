@@ -1,21 +1,16 @@
 import { useCallback, useState, useRef, useEffect } from 'react';
 import { FiArrowLeft, FiCamera } from 'react-icons/fi';
-
+import { useHistory } from 'react-router-dom';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
-import * as Yup from 'yup';
 import Cep from 'cep-promise';
-import { useHistory } from 'react-router-dom';
-import Header from '@/components/Header';
-import Input from '@/components/Input';
-import FileInput from '@/components/FIleInput';
-import Button from '@/components/Button';
-import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import { useAuth } from '@/hooks/Auth';
-import getValidationErrors from '@/utils/getValidationErrors';
+import * as Yup from 'yup';
 
-import imgNoBusiness from '@/features/business/assets/no-business.png';
+import api from '@/services/api';
+import { Header, Input, FileInput, Button } from '@/components';
+import { useToast, useAuth } from '@/hooks';
+import { getValidationErrors } from '@/utils';
+import { noBusiness } from '@/assets';
 
 import {
   Container,
@@ -35,7 +30,7 @@ interface RegisterBusinessData {
   category?: string;
   cell_phone?: string;
   phone?: string;
-  cpf_or_cnpj: string;
+  taxId: string;
   zip_code: string;
   street: string;
   number: string;
@@ -135,7 +130,7 @@ const RegisterBusiness: React.FC = () => {
 
         const schema = Yup.object().shape({
           name: Yup.string().required('Nome do Negócio é obrigatório'),
-          cpf_or_cnpj: Yup.string().required('CNJ/CNPJ é obrigatório'),
+          taxId: Yup.string().required('CNJ/CNPJ é obrigatório'),
           zip_code: Yup.string().required('CEP é obrigatório'),
           number: Yup.string().required('Número é obrigatório'),
           street: Yup.string().required('Logradouro é obrigatório'),
@@ -155,7 +150,7 @@ const RegisterBusiness: React.FC = () => {
           cell_phone,
           phone,
           city,
-          cpf_or_cnpj,
+          taxId,
           district,
           name,
           number,
@@ -183,7 +178,7 @@ const RegisterBusiness: React.FC = () => {
 
         formData.append('name', name);
         formData.append('categories', categories.join(','));
-        formData.append('cpf_or_cnpj', cpf_or_cnpj);
+        formData.append('taxId', taxId);
         formData.append('zip_code', zip_code);
         formData.append('street', street);
         formData.append('number', number);
@@ -238,16 +233,16 @@ const RegisterBusiness: React.FC = () => {
             case 'Phone already registered with another business':
               errorData = { phone: 'Telefone já cadastrado em outro Negócio' };
               break;
-            case 'Cpf or Cnpf informed is invalid':
-              errorData = { cpf_or_cnpj: 'CPF/CNPJ informado é inválido' };
+            case 'TaxId informed is invalid':
+              errorData = { taxId: 'CPF/CNPJ informado é inválido' };
               break;
             case 'CPF registered at another business for another user':
               errorData = {
-                cpf_or_cnpj: 'CPF cadastrado em outro Negócio por outro usuário',
+                taxId: 'CPF cadastrado em outro Negócio por outro usuário',
               };
               break;
             case 'CNPJ registered at another business':
-              errorData = { cpf_or_cnpj: 'CNPJ cadatrado em outro Negócio' };
+              errorData = { taxId: 'CNPJ cadatrado em outro Negócio' };
               break;
             default:
               errorData = undefined;
@@ -334,7 +329,7 @@ const RegisterBusiness: React.FC = () => {
           <ContentRegister>
             <Form onSubmit={handleSubmit} ref={formRef}>
               <BoxImgBusiness htmlFor="file">
-                <FileInput name="file" imgInCircle imgPreview={imgNoBusiness} />
+                <FileInput name="file" imgInCircle imgPreview={noBusiness} />
 
                 <span>
                   <FiCamera size={20} />
@@ -365,7 +360,7 @@ const RegisterBusiness: React.FC = () => {
                 <Input mask="(99) 9999-9999" name="phone" hasTitle="Telefone" placeholder="(Opcional)" />
               </ContentInput>
 
-              <Input mask="" formatField="cpf-and-cnpj" name="cpf_or_cnpj" hasTitle="CPF/CNPJ" />
+              <Input mask="" formatField="taxId" name="taxId" hasTitle="CPF/CNPJ" />
 
               <ContentInput>
                 <Input

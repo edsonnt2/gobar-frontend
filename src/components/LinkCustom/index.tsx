@@ -13,4 +13,4 @@ const LinkCustom: React.FC<PropsLInk> = ({ children, to, ...rest }) => {
   );
 };
 
-export default LinkCustom;
+export { LinkCustom };

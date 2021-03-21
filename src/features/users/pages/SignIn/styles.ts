@@ -1,13 +1,13 @@
 import styled, { keyframes } from 'styled-components';
 
-import SignInBackground from '../../assets/background-singin.svg';
+import { backgroundSignIn } from '@/assets';
 
 export const Container = styled.div`
   display: flex;
   width: 100%;
   height: 100vh;
   flex-wrap: wrap;
-  background: url(${SignInBackground}) no-repeat center;
+  background: url(${backgroundSignIn}) no-repeat center;
   background-size: cover;
 `;
 

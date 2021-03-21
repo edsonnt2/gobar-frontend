@@ -1,5 +1,6 @@
 import { createContext, useCallback, useState, useContext } from 'react';
-import ModalContainer from '@/components/ModalContainer';
+
+import { ModalContainer } from '@/components';
 
 export interface CustomerData {
   id: string;

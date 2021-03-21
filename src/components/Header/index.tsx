@@ -4,12 +4,9 @@ import { FiSearch } from 'react-icons/fi';
 import { MdNotifications } from 'react-icons/md';
 import { GoTriangleDown } from 'react-icons/go';
 
-import noBusiness from '@/features/business/assets/no-business.png';
+import { noBusiness, smallLogo, noAvatar } from '@/assets';
 
-import { useAuth } from '../../hooks/Auth';
-
-import imgSmallLogo from '../../assets/small-logo.svg';
-import noAvatar from '../../assets/no-avatar.png';
+import { useAuth } from '@/hooks';
 
 import Menu from './Menu';
 
@@ -45,7 +42,7 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
       <div>
         <LogoAndSearch>
           <Link to={business ? '/business' : '/'}>
-            <img src={imgSmallLogo} alt="goBar" />
+            <img src={smallLogo} alt="goBar" />
           </Link>
           <SearchHeader>
             <FiSearch />
@@ -82,4 +79,4 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
   );
 };
 
-export default Header;
+export { Header };

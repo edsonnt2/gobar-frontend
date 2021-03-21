@@ -1,14 +1,11 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
-
 import { FiXCircle, FiSearch } from 'react-icons/fi';
-
 import { GiTable } from 'react-icons/gi';
-import api from '@/services/api';
-import { CustomerData, useModal } from '@/hooks/Modal';
-import { useToast } from '@/hooks/Toast';
-import InputSearch from '@/components/InputSearch';
 
-import { useAuth } from '@/hooks/Auth';
+import { InputSearch } from '@/components';
+import { CustomerData, useModal, useToast, useAuth } from '@/hooks';
+import { TableService } from '@/services';
+
 import { Container, CloseCommand, BoxInfoCustomer, ImgCustomer, InfoCustomer, ListTable, BoxTable } from './styles';
 
 interface Props {
@@ -19,10 +16,6 @@ interface Props {
 interface ListTableProps {
   isEmpty: boolean;
   number: number;
-}
-
-interface RequestTable {
-  number: string;
 }
 
 const TableForCustomer: React.FC<Props> = ({ style, data }) => {
@@ -50,18 +43,16 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
 
   const handleOpenTable = useCallback(
     (number: number) => {
-      api
-        .post('tables', {
-          number,
-          customer_id: data.id,
-        })
-        .catch(() => {
-          addToast({
-            type: 'error',
-            message: 'Ops.. Encontramos um erro',
-            description: 'Ocorreu um erro ao tentar abrir a mesa, por favor, tente novamente',
-          });
+      TableService.registerTable({
+        number,
+        customer_id: data.id,
+      }).catch(() => {
+        addToast({
+          type: 'error',
+          message: 'Ops.. Encontramos um erro',
+          description: 'Ocorreu um erro ao tentar abrir a mesa, por favor, tente novamente',
         });
+      });
 
       addToast({
         type: 'success',
@@ -76,8 +67,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
   useEffect(() => {
     if (business) {
       setLoading(true);
-      api
-        .get<RequestTable[]>('tables')
+      TableService.fecthTables()
         .then(response => {
           const getTables = Array.from(
             {
@@ -85,7 +75,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
             },
             (_, index): ListTableProps => ({
               number: index + 1,
-              isEmpty: !response.data.some(({ number }) => Number(number) === index + 1),
+              isEmpty: !response.some(({ number }) => Number(number) === index + 1),
             }),
           );
 

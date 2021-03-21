@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect, KeyboardEvent, InputHTMLAttributes } from 'react';
-
 import { useField } from '@unform/core';
 
-import FormattedUtils from '@/utils/formattedUtils';
+import { FormattedUtils } from '@/utils';
+
 import { Container, BoxInput, Error } from './styles';
 
 interface HasChange {

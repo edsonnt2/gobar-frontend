@@ -50,4 +50,4 @@ const FileInput: React.FC<InputProps> = ({ name, imgPreview, imgInCircle, ...res
   );
 };
 
-export default FileInput;
+export { FileInput };

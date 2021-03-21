@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { FiXCircle, FiInfo, FiAlertOctagon, FiCheckCircle } from 'react-icons/fi';
 import { AnimatedValue } from 'react-spring';
-import { ToastMessage, useToast } from '@/hooks/Toast';
+
+import { ToastMessage, useToast } from '@/hooks';
+
 import { Container } from './styles';
 
 interface ToastProps {

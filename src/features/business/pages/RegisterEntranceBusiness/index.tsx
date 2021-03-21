@@ -1,21 +1,17 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
-
 import { useHistory } from 'react-router-dom';
 import { IoMdTrash } from 'react-icons/io';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
 
-import Header from '@/components/Header';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import Select from '@/components/Select';
-import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import getValidationErrors from '@/utils/getValidationErrors';
-import MenuRegisterPTT from '@/features/business/components/MenuRegisterPTT';
-import FormattedUtils from '@/utils/formattedUtils';
+import { Entrance, EntranceService } from '@/services';
+import { Header, Button, Input, Select } from '@/components';
+import { useToast } from '@/hooks';
+import { getValidationErrors, FormattedUtils } from '@/utils';
+
+import { MenuRegisterPTT } from '../../components';
 
 import {
   Container,
@@ -25,45 +21,37 @@ import {
   ContentRegister,
   ContentInput,
   SeparateInput,
-  ContentIngress,
-  ListIngress,
+  ContentEntrance,
+  ListEntrance,
   Footer,
 } from './styles';
 
-interface RegisterIngressBusinessData {
+interface RegisterEntranceBusinessData {
   description: string;
   value: string;
   consume: string;
 }
 
-interface Ingress {
-  id: string;
-  description: string;
-  value: number;
-  formattedValue: string;
-  consume: boolean;
-}
-
-const RegisterIngressBusiness: React.FC = () => {
+const RegisterEntranceBusiness: React.FC = () => {
   const { addToast } = useToast();
   const history = useHistory();
   const formRef = useRef<FormHandles>(null);
   const [loading, setLoading] = useState(false);
-  const [ingress, setIngress] = useState<Ingress[]>([]);
+  const [entrance, setEntrance] = useState<Entrance[]>([]);
 
   useEffect(() => {
-    api.get<Ingress[]>('ingress').then(response => {
-      setIngress(
-        response.data.map(getIngress => ({
-          ...getIngress,
-          formattedValue: FormattedUtils.formattedValue(getIngress.value),
+    EntranceService.fetchEntrance().then(response => {
+      setEntrance(
+        response.map(getEntrance => ({
+          ...getEntrance,
+          value_formatted: FormattedUtils.formattedValue(getEntrance.value),
         })),
       );
     });
   }, []);
 
   const handleSubmit = useCallback(
-    async (data: RegisterIngressBusinessData) => {
+    async (data: RegisterEntranceBusinessData) => {
       setLoading(true);
       try {
         formRef.current?.setErrors({});
@@ -80,23 +68,19 @@ const RegisterIngressBusiness: React.FC = () => {
 
         const { description, value, consume } = data;
 
-        const formattedValue = value
-          .split('')
-          .filter(char => Number(char) || char === '0' || char === ',')
-          .join('')
-          .replace(',', '.');
-
-        const response = await api.post<Ingress>('ingress', {
+        const response = await EntranceService.registerEntrance({
           description,
-          value: formattedValue,
+          value: FormattedUtils.valueDefault(value),
           consume: !!Number(consume),
         });
 
-        setIngress(prevIngress => [
-          ...prevIngress,
+        if (!response) return;
+
+        setEntrance(prevEntrance => [
+          ...prevEntrance,
           {
-            ...response.data,
-            formattedValue: FormattedUtils.formattedValue(response.data.value),
+            ...response,
+            value_formatted: FormattedUtils.formattedValue(response.value),
           },
         ]);
 
@@ -124,7 +108,7 @@ const RegisterIngressBusiness: React.FC = () => {
           const whichError = error.response && error.response.data ? error.response.data.message : 'error';
 
           switch (whichError) {
-            case 'Ingress description already registered':
+            case 'Entrance description already registered':
               errorData = { description: 'Descrição de Entrada já cadastrada' };
               break;
             default:
@@ -149,12 +133,12 @@ const RegisterIngressBusiness: React.FC = () => {
     [addToast],
   );
 
-  const handleDeleteIngress = useCallback(
+  const handleDeleteEntrance = useCallback(
     async (id: string) => {
       try {
-        await api.delete(`ingress/${id}`);
+        await EntranceService.removeEntrance(id);
 
-        setIngress(prevIngress => prevIngress.filter(getIngress => getIngress.id !== id));
+        setEntrance(prevEntrance => prevEntrance.filter(getEntrance => getEntrance.id !== id));
         addToast({
           type: 'success',
           message: 'Entrada Deletada com sucesso',
@@ -181,7 +165,7 @@ const RegisterIngressBusiness: React.FC = () => {
         </BackPage>
 
         <Main>
-          <MenuRegisterPTT whoSelected="ingress" />
+          <MenuRegisterPTT whoSelected="entrance" />
 
           <ContentRegister>
             <h1>Cadastrar Entrada</h1>
@@ -212,19 +196,19 @@ const RegisterIngressBusiness: React.FC = () => {
               </Button>
             </Form>
 
-            {ingress.length > 0 && (
+            {entrance.length > 0 && (
               <>
                 <h2>Todas as Entradas</h2>
-                <ContentIngress>
-                  {ingress.map(({ id, description, formattedValue, consume }) => (
-                    <ListIngress key={id}>
+                <ContentEntrance>
+                  {entrance.map(({ id, description, value_formatted, consume }) => (
+                    <ListEntrance key={id}>
                       <span>{description}</span>
-                      <span>{formattedValue}</span>
+                      <span>{value_formatted}</span>
                       <span>{consume ? 'C/ Consuma' : 'S/ Consuma'}</span>
-                      <IoMdTrash onClick={() => handleDeleteIngress(id)} />
-                    </ListIngress>
+                      <IoMdTrash onClick={() => handleDeleteEntrance(id)} />
+                    </ListEntrance>
                   ))}
-                </ContentIngress>
+                </ContentEntrance>
               </>
             )}
           </ContentRegister>
@@ -237,4 +221,4 @@ const RegisterIngressBusiness: React.FC = () => {
   );
 };
 
-export default RegisterIngressBusiness;
+export default RegisterEntranceBusiness;

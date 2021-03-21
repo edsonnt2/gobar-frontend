@@ -2,13 +2,9 @@ import { useCallback, useRef, useState, useEffect, KeyboardEvent } from 'react';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
 
 import api from '@/services/api';
-
-import { useModal } from '@/hooks/Modal';
-import { useToast } from '@/hooks/Toast';
-
-import InputSearch from '@/components/InputSearch';
-
-import noAvatar from '../../../assets/no-avatar.png';
+import { InputSearch } from '@/components';
+import { useModal, useToast } from '@/hooks';
+import { noAvatar } from '@/assets';
 
 import { Container, CloseCommand, ImgCustomer, InfoCustomer, ListCommands, RowCommand } from './styles';
 

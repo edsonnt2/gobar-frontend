@@ -1,8 +1,14 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 import EnvConfig from '@/config/EnvConfig';
 
-export default class ApiService {
+export class ApiService {
+  private static Axios(): AxiosInstance {
+    return axios.create({
+      baseURL: EnvConfig.gobar.baseURL,
+    });
+  }
+
   private static authorizationJsonContentHeaders(): { Authorization: string } | undefined {
     const token = localStorage.getItem('@goBar:token');
     return token
@@ -24,7 +30,7 @@ export default class ApiService {
       ...this.jsonContentHeaders(),
     };
 
-    return axios.get<T>(`${EnvConfig.gobar.baseURL}/${resource}`, {
+    return this.Axios().get<T>(resource, {
       ...config,
       headers: { ...headers, ...(config.headers || true) },
     });
@@ -41,7 +47,24 @@ export default class ApiService {
       ...(!isMultipart ? this.jsonContentHeaders() : {}),
     };
 
-    return axios.post<T>(`${EnvConfig.gobar.baseURL}/${resource}`, data, {
+    return this.Axios().post<T>(resource, data, {
+      ...config,
+      headers: { ...headers, ...(config.headers || true) },
+    });
+  }
+
+  public static async patch<T>(
+    resource: string,
+    data: any | FormData,
+    config: AxiosRequestConfig = {},
+    isMultipart = false,
+  ): Promise<AxiosResponse<T>> {
+    const headers = {
+      ...this.authorizationJsonContentHeaders(),
+      ...(!isMultipart ? this.jsonContentHeaders() : {}),
+    };
+
+    return this.Axios().patch<T>(resource, data, {
       ...config,
       headers: { ...headers, ...(config.headers || true) },
     });
@@ -52,7 +75,7 @@ export default class ApiService {
       ...this.authorizationJsonContentHeaders(),
     };
 
-    return axios.delete<T>(`${EnvConfig.gobar.baseURL}/${resource}`, {
+    return this.Axios().delete<T>(resource, {
       ...config,
       headers: { ...headers, ...(config.headers || true) },
     });

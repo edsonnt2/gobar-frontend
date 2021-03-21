@@ -1,25 +1,18 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
-
 import { useHistory } from 'react-router-dom';
 import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
 
-import Header from '@/components/Header';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import getValidationErrors from '@/utils/getValidationErrors';
-import { useAuth } from '@/hooks/Auth';
-import MenuRegisterPTT from '@/features/business/components/MenuRegisterPTT';
+import { BusinessService } from '@/services';
+import { Header, Button, Input } from '@/components';
+import { useToast, useAuth } from '@/hooks';
+import { getValidationErrors } from '@/utils';
+
+import { MenuRegisterPTT } from '../../components';
 
 import { Container, Content, BackPage, Main, ContentRegister, Footer } from './styles';
-
-interface RegisterTableBusinessData {
-  table: string;
-}
 
 const RegisterTableBusiness: React.FC = () => {
   const { business, saveAuth } = useAuth();
@@ -34,7 +27,7 @@ const RegisterTableBusiness: React.FC = () => {
   }, [business]);
 
   const handleSubmit = useCallback(
-    async (data: RegisterTableBusinessData) => {
+    async ({ table }: { table: string }) => {
       setLoading(true);
       try {
         formRef.current?.setErrors({});
@@ -43,21 +36,23 @@ const RegisterTableBusiness: React.FC = () => {
           table: Yup.string().required('Quantidade de mesas é obrigatório'),
         });
 
-        await schema.validate(data, {
-          abortEarly: false,
-        });
+        await schema.validate(
+          { table },
+          {
+            abortEarly: false,
+          },
+        );
 
-        const response = await api.patch('business/update-table', data);
+        const response = await BusinessService.updateNumberOfTable(table);
 
         saveAuth({
-          business: response.data,
+          business: response,
         });
 
         addToast({
           type: 'success',
           message: 'Cadastro de Mesas',
-          description:
-            Number(data.table) > 1 ? 'Mesas forão cadastradas com sucesso' : 'Mesa foi cadastrada com sucesso',
+          description: Number(table) > 1 ? 'Mesas forão cadastradas com sucesso' : 'Mesa foi cadastrada com sucesso',
         });
       } catch (error) {
         if (error instanceof Yup.ValidationError) {

@@ -1,5 +1,5 @@
 import { createContext, useCallback, useState, useContext } from 'react';
-import AuthService from '@/services/AuthService';
+import { AuthService } from '@/services';
 
 interface SignInData {
   cellPhoneOrEmail: string;

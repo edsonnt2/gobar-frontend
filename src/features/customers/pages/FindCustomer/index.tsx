@@ -1,25 +1,18 @@
 import { useCallback, useState, useEffect, useRef } from 'react';
-
 import { FiSearch } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 
-import LayoutBusiness from '@/components/LayoutBusiness';
-import InputSearch from '@/components/InputSearch';
-import LinkCustom from '@/components/LinkCustom';
+import { CustomerService, CustomerBusiness, SearchCostumer } from '@/services';
+import { LayoutBusiness, InputSearch, LinkCustom } from '@/components';
+import { useAuth, useModal, useToast } from '@/hooks';
+import { noAvatar } from '@/assets';
 
-import { useAuth } from '@/hooks/Auth';
-import { useModal } from '@/hooks/Modal';
-import { useToast } from '@/hooks/Toast';
-
-import noAvatar from '@/assets/no-avatar.png';
-
-import BoxSearch from '../../components/BoxSearch';
+import { BoxSearch } from '../../components';
 
 import { Container, ContentSearch, Separator } from './styles';
-import CustomerService, { Customer, SearchCostumer } from '../../services/CustomerService';
 
 interface HandleCommandOrTable {
-  customer: Customer;
+  customer: CustomerBusiness;
   command_or_table: 'command' | 'table';
 }
 

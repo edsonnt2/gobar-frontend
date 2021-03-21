@@ -2,12 +2,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { FiPower, FiUsers, FiPackage, FiDatabase } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 
-import AuthService from '@/services/AuthService';
-import { useAuth, Business, User } from '@/hooks/Auth';
-import { useToast } from '@/hooks/Toast';
+import { AuthService } from '@/services';
+import { useAuth, Business, User, useToast } from '@/hooks';
 
-import noBusiness from '@/features/business/assets/no-business.png';
-import noAvatar from '@/assets/no-avatar.png';
+import { noAvatar, noBusiness } from '@/assets';
 
 import { Container, BoxInfoMenu, ImgMenu, InfoMenu, LinkOption, Separator, ButtonLogout } from './styles';
 

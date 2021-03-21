@@ -1,11 +1,12 @@
 import { Fragment, useMemo } from 'react';
 import { useTransition } from 'react-spring';
 
-import { ModalRequest, useModal } from '../../hooks/Modal';
+import { ModalRequest, useModal } from '@/hooks';
+
+import { BackDrop } from '@/components';
 
 import TableForCustomer from './TableForCustomer';
 import ListCommand from './ListCommand';
-import BackDrop from '../BackDrop';
 import Command from './Command';
 import MakePay from './MakePay';
 
@@ -42,4 +43,4 @@ const ModalContainer: React.FC<{ data?: ModalRequest }> = ({ data }) => {
   );
 };
 
-export default ModalContainer;
+export { ModalContainer };

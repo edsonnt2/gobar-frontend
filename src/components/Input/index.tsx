@@ -4,7 +4,7 @@ import { FiXCircle, FiSearch } from 'react-icons/fi';
 import { IconBaseProps } from 'react-icons/lib/cjs';
 import { useField } from '@unform/core';
 
-import FormattedUtils from '@/utils/formattedUtils';
+import { FormattedUtils } from '@/utils';
 
 import { Container, BoxInput, ButtonInInput, Error, MultSelect, AutoComplete, LiAutoComplete } from './styles';
 
@@ -16,7 +16,7 @@ interface FnOnChange {
 interface PropsInput extends InputProps {
   hasTitle?: string;
   name: string;
-  formatField?: 'cpf-and-cnpj' | 'number';
+  formatField?: 'taxId' | 'number';
   styleInput?: React.CSSProperties;
   hasAutoComplete?: {
     loading: boolean;
@@ -100,10 +100,11 @@ const Input: React.FC<PropsInput> = ({
             hasAutoComplete.handleSelect(fieldName);
           }
         }
+        setCursor(-1);
         if (hasSubmitDown) hasSubmitDown();
       } else if (e.key === 'ArrowUp' && cursor >= 0) {
         setCursor(cursor - 1);
-      } else if (e.key === 'ArrrowDown' && cursor < lengthList - 1) {
+      } else if (e.key === 'ArrowDown' && cursor < lengthList - 1) {
         setCursor(cursor + 1);
       }
     },
@@ -131,14 +132,10 @@ const Input: React.FC<PropsInput> = ({
             });
           }
         } else {
-          setValueForm(FormattedUtils.formattedCpfOrCnpj(onlyNumber));
+          setValueForm(FormattedUtils.formattedTaxId(onlyNumber));
         }
       } else if (isCurrency) {
-        const formatChar = value
-          .split('')
-          .filter(char => Number(char) || char === '0')
-          .join('')
-          .replace(',', '.');
+        const formatChar = FormattedUtils.onlyNumber(value);
 
         const valueCurrency =
           formatChar.length === 1
@@ -147,9 +144,6 @@ const Input: React.FC<PropsInput> = ({
                 .split('')
                 .map((char, index) => (index + 2 === formatChar.length ? `.${char}` : char))
                 .join('');
-
-        console.log('valueCurrency ->', valueCurrency);
-        console.log('formato de moeda ->', FormattedUtils.valueDefault(value));
 
         setValueForm(
           valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency)),
@@ -263,4 +257,4 @@ const Input: React.FC<PropsInput> = ({
   );
 };
 
-export default Input;
+export { Input };

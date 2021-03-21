@@ -1,24 +1,17 @@
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
-
 import { FiEdit, FiChevronDown, FiXCircle } from 'react-icons/fi';
 import { Form } from '@unform/web';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
 import { IoMdTrash } from 'react-icons/io';
 import * as Yup from 'yup';
-import { format } from 'date-fns';
 import { useLocation } from 'react-router-dom';
-import LayoutBusiness from '@/components/LayoutBusiness';
-import { useModal } from '@/hooks/Modal';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import api from '@/services/api';
-import FormattedUtils from '@/utils/formattedUtils';
-import getValidationErrors from '@/utils/getValidationErrors';
-import { useToast } from '@/hooks/Toast';
 
-import noAvatar from '@/assets/no-avatar.png';
-import noProduct from '@/assets/no-product.png';
+import api from '@/services/api';
+import { LayoutBusiness, Input, Button } from '@/components';
+import { useModal, useToast } from '@/hooks';
+import { DateUtils, FormattedUtils, getValidationErrors } from '@/utils';
+import { noAvatar, noProduct } from '@/assets';
 
 import {
   Container,
@@ -66,9 +59,9 @@ interface ProductData {
 interface CommandOrTableData {
   id: string;
   number: number;
-  value_ingress?: number;
-  prepaid_ingress?: boolean;
-  ingress_consume?: boolean;
+  value_entrance?: number;
+  prepaid_entrance?: boolean;
+  entrance_consume?: boolean;
   value_consume?: number;
   products: ProductData[];
   customer?: {
@@ -79,7 +72,7 @@ interface CommandOrTableData {
     };
     avatar_url?: string;
   };
-  ingress_formatted?: string;
+  entrance_formatted?: string;
   value_total: number;
   value_total_formatted: string;
   created_at: string;
@@ -104,7 +97,7 @@ interface CommandData extends Omit<CommandOrTableData, 'table_customer' | 'produ
 interface TableData
   extends Omit<
     CommandOrTableData,
-    'value_ingress' | 'prepaid_ingress' | 'ingress_consume' | 'products' | 'customer' | 'ingress_formatted'
+    'value_entrance' | 'prepaid_entrance' | 'entrance_consume' | 'products' | 'customer' | 'entrance_formatted'
   > {
   table_product: ProductData[];
 }
@@ -178,8 +171,8 @@ const CloseCommandOrTable: React.FC = () => {
       return totalValue + prev;
     }, 0);
 
-    if (rest.value_ingress) {
-      valueTotalCommand = !rest.prepaid_ingress ? valueTotalCommand + rest.value_ingress : valueTotalCommand;
+    if (rest.value_entrance) {
+      valueTotalCommand = !rest.prepaid_entrance ? valueTotalCommand + rest.value_entrance : valueTotalCommand;
     }
 
     setIdsCommandOrTable(prevState => [...prevState, rest.id]);
@@ -191,8 +184,8 @@ const CloseCommandOrTable: React.FC = () => {
       })),
       {
         ...rest,
-        ...(rest.value_ingress && {
-          ingress_formatted: FormattedUtils.formattedValue(rest.value_ingress),
+        ...(rest.value_entrance && {
+          entrance_formatted: FormattedUtils.formattedValue(rest.value_entrance),
         }),
         ...(customer && {
           customer: {
@@ -836,9 +829,9 @@ const CloseCommandOrTable: React.FC = () => {
                       </DescriptionProduct>
                     </InfoProduct>
                     <DateProduct>
-                      {format(new Date(created_at), 'dd/MM/yyyy')}
+                      {DateUtils.formatDate({ date: created_at, type: 'dd/MM/yyyy' })}
                       <br />
-                      {format(new Date(created_at), 'HH:mm:ss')}
+                      {DateUtils.formatDate({ date: created_at, type: 'HH:mm:ss' })}
                     </DateProduct>
                     <IconListProduct>
                       <IoMdTrash
@@ -855,20 +848,20 @@ const CloseCommandOrTable: React.FC = () => {
                   </RowProducts>
                 ),
               )}
-              {spotlightCommandOrTable.value_ingress && (
+              {spotlightCommandOrTable.value_entrance && (
                 <RowProducts>
                   <DescriptionProduct style={{ flex: 1 }}>
                     <ValueProduct>
                       <span>
-                        Valor da Entrada: <strong>{spotlightCommandOrTable.ingress_formatted}</strong>
+                        Valor da Entrada: <strong>{spotlightCommandOrTable.entrance_formatted}</strong>
                       </span>
                     </ValueProduct>
                     <Operator>Operador: 5</Operator>
                   </DescriptionProduct>
                   <DateProduct>
-                    {format(new Date(spotlightCommandOrTable.created_at), 'dd/MM/yyyy')}
+                    {DateUtils.formatDate({ date: spotlightCommandOrTable.created_at, type: 'dd/MM/yyyy' })}
                     <br />
-                    {format(new Date(spotlightCommandOrTable.created_at), 'H:mm:ss')}
+                    {DateUtils.formatDate({ date: spotlightCommandOrTable.created_at, type: 'HH:mm:ss' })}
                   </DateProduct>
                   <IconListProduct style={{ justifyContent: 'space-between' }}>
                     <IoMdTrash size={26} />

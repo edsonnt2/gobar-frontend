@@ -6,20 +6,13 @@ import { Form } from '@unform/web';
 import { FormHandles } from '@unform/core';
 import * as Yup from 'yup';
 
-import Header from '@/components/Header';
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import FileInput from '@/components/FIleInput';
-import MenuRegisterPTT from '@/features/business/components/MenuRegisterPTT';
+import { ProductService } from '@/services';
+import { Header, Button, Input, FileInput } from '@/components';
+import { useToast } from '@/hooks';
+import { getValidationErrors, FormattedUtils } from '@/utils';
+import { addImage } from '@/assets';
 
-import ApiService from '@/services/ApiService';
-
-import { useToast } from '@/hooks/Toast';
-
-import getValidationErrors from '@/utils/getValidationErrors';
-import FormattedUtils from '@/utils/formattedUtils';
-
-import addImage from '@/features/business/assets/add-image.png';
+import { MenuRegisterPTT } from '../../components';
 
 import {
   Container,
@@ -92,45 +85,11 @@ const RegisterProductBusiness: React.FC = () => {
           abortEarly: false,
         });
 
-        const {
-          image,
-          description,
-          category,
-          quantity,
-          provider,
-          internal_code,
-          barcode,
-          pushase_value,
-          porcent,
-          sale_value,
-        } = data;
-
-        const formattedPushaseValue = pushase_value
-          .split('')
-          .filter(char => Number(char) || char === '0' || char === ',')
-          .join('')
-          .replace(',', '.');
-
-        const formattedSaleValue = sale_value
-          .split('')
-          .filter(char => Number(char) || char === '0' || char === ',')
-          .join('')
-          .replace(',', '.');
-
-        const formData = new FormData();
-
-        formData.append('description', description);
-        formData.append('category', category);
-        formData.append('quantity', quantity);
-        formData.append('provider', provider);
-        formData.append('internal_code', internal_code);
-        formData.append('pushase_value', formattedPushaseValue);
-        formData.append('porcent', porcent);
-        formData.append('sale_value', formattedSaleValue);
-        if (image) formData.append('image', image);
-        if (barcode) formData.append('barcode', barcode);
-
-        await ApiService.post('products', formData);
+        await ProductService.registerProduct({
+          ...data,
+          pushase_value: FormattedUtils.valueDefault(data.pushase_value),
+          sale_value: FormattedUtils.valueDefault(data.sale_value),
+        });
 
         addToast({
           type: 'success',
@@ -241,19 +200,15 @@ const RegisterProductBusiness: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchCategoryProvider.trim() !== '') {
-        ApiService.get<CategoryProvider[]>('products/categories/search-provider', {
-          params: {
-            search: searchCategoryProvider,
-          },
-        })
-          .then(({ data }) => {
-            setAllCategoriesProvider(data);
+        ProductService.fetchCategoryProviders(searchCategoryProvider)
+          .then(response => {
+            setAllCategoriesProvider(response);
           })
           .catch(() => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description: 'Ocorreu um erro ao busca por cliente',
+              description: 'Ocorreu um erro ao buscar lista de fornecedores',
             });
           })
           .finally(() => {
@@ -269,19 +224,15 @@ const RegisterProductBusiness: React.FC = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchCategory.trim() !== '') {
-        ApiService.get<CategoryProvider[]>('products/categories/search-product', {
-          params: {
-            search: searchCategory,
-          },
-        })
-          .then(({ data }) => {
-            setAllCategories(data);
+        ProductService.fetchCategoryProducts(searchCategory)
+          .then(response => {
+            setAllCategories(response);
           })
           .catch(() => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description: 'Ocorreu um erro ao busca por cliente',
+              description: 'Ocorreu um erro ao buscar lista de categorias',
             });
           })
           .finally(() => {

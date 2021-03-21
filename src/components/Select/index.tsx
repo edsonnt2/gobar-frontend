@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, SelectHTMLAttributes } from 'react';
-
 import { useField } from '@unform/core';
 import { FaChevronDown } from 'react-icons/fa';
+
 import { Container, BoxInput, Error } from './styles';
 
 interface PropsSelect extends SelectHTMLAttributes<HTMLSelectElement> {
@@ -59,4 +59,4 @@ const Select: React.FC<PropsSelect> = ({ name, styleInput, hasTitle, style, disa
   );
 };
 
-export default Select;
+export { Select };

@@ -1,41 +1,16 @@
-import noAvatar from '@/assets/no-avatar.png';
+import { noAvatar } from '@/assets';
+
+import { CustomerBusiness } from '@/services';
 
 import { Container, RowSearch, ImgSearch, InfoSearch, LinkH2, ButtonOptions, ButtonSearch, LinkSearch } from './styles';
 
-interface Customer {
-  id: string;
-  name: string;
-  cell_phone: number;
-  email: string;
-  birthDate: string;
-  gender?: 'M' | 'W';
-  taxId?: number;
-  avatar_url?: string;
-  command?: {
-    id: string;
-    business_id: string;
-    number: string;
-    command_closure_id?: string;
-  }[];
-  table_customer: {
-    table: {
-      id: string;
-      business_id: string;
-      number: string;
-      table_closure_id: string;
-    };
-  }[];
-  command_open?: boolean;
-  table_number?: string;
-}
-
 interface HandleCommandOrTable {
-  customer: Customer;
+  customer: Partial<CustomerBusiness>;
   command_or_table: 'command' | 'table';
 }
 
 interface BoxSearchProps {
-  customer: Customer[];
+  customer: Partial<CustomerBusiness>[];
   whichCustumer?: 'inBussiness' | 'otherBusiness' | 'user';
   handleCommandOrTable?(data: HandleCommandOrTable): void;
 }
@@ -75,7 +50,7 @@ const BoxSearch: React.FC<BoxSearchProps> = ({ customer, handleCommandOrTable, w
                     });
                   }}
                 >
-                  {getCustomer.table_number ? `Na mesa ${getCustomer.table_number}` : 'Adicionar em Mesa'}
+                  {getCustomer.table_number ? `Mesa ${getCustomer.table_number}` : 'Adicionar em Mesa'}
                 </ButtonSearch>
                 <ButtonSearch type="button">Abrir Conta</ButtonSearch>
               </ButtonOptions>

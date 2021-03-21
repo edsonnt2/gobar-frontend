@@ -79,14 +79,14 @@ export const SeparateInput = styled.span`
   width: 8px;
 `;
 
-export const ContentIngress = styled.ul`
+export const ContentEntrance = styled.ul`
   list-style: none;
   width: 100%;
   border-radius: 6px;
   border: 1px solid #23211f;
 `;
 
-export const ListIngress = styled.li`
+export const ListEntrance = styled.li`
   position: relative;
   height: 58px;
   display: flex;

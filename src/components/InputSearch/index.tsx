@@ -1,6 +1,6 @@
 import { useState, useCallback, InputHTMLAttributes } from 'react';
 import { IconBaseProps } from 'react-icons/lib/cjs';
-import FormattedUtils from '@/utils/formattedUtils';
+import { FormattedUtils } from '@/utils';
 
 import { Container, BoxInput } from './styles';
 
@@ -65,4 +65,4 @@ const InputSearch: React.FC<PropsInput> = ({
   );
 };
 
-export default InputSearch;
+export { InputSearch };

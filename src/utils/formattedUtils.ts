@@ -1,4 +1,4 @@
-export default class FormattedUtils {
+export class FormattedUtils {
   public static onlyNumber(value: string): string {
     return value
       .split('')
@@ -23,7 +23,7 @@ export default class FormattedUtils {
     return newValue;
   }
 
-  public static formattedCpfOrCnpj(value: string): string {
+  public static formattedTaxId(value: string): string {
     return value
       .split('')
       .map((char, index) => {

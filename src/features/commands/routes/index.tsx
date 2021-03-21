@@ -1,7 +1,8 @@
 import { Switch } from 'react-router-dom';
+
 import Route from '@/routes/Route';
-import RegisterCommandOrTable from '../pages/RegisterCommandOrTable';
-import CloseCommandOrTable from '../pages/CloseCommandOrTable';
+
+import { RegisterCommandOrTable, CloseCommandOrTable } from '../pages';
 
 const RoutesCommand: React.FC = () => {
   return (

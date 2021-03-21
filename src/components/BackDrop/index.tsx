@@ -10,4 +10,4 @@ const BackDrop: React.FC<Props> = ({ show = false, style, clicked }) => {
   return <> {show && <Container style={style} onClick={() => clicked()} />}</>;
 };
 
-export default BackDrop;
+export { BackDrop };

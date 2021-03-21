@@ -1,8 +1,8 @@
 import { Switch } from 'react-router-dom';
+
 import Route from '@/routes/Route';
-import FindCustomer from '../pages/FindCustomer';
-import RegisterCustomer from '../pages/RegisterCustomer';
-import Customer from '../pages/Customer';
+
+import { FindCustomer, RegisterCustomer, Customer } from '../pages';
 
 const RoutesCustomer: React.FC = () => {
   return (

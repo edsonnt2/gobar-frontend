@@ -1,8 +1,7 @@
 import { FiSearch, FiCrosshair } from 'react-icons/fi';
 
-import Header from '@/components/Header';
-
-import imgLocation from '../../assets/img-location.svg';
+import { Header } from '@/components';
+import { imgLocation } from '@/assets';
 
 import { Container, Content, InputLocation, ButtonLocation, RegisterBusiness, Footer } from './styles';
 

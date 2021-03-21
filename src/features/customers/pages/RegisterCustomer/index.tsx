@@ -1,40 +1,16 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { format } from 'date-fns';
-import { FiArrowLeft, FiUser, FiSmartphone, FiMail, FiCalendar } from 'react-icons/fi';
 import { useHistory, useParams } from 'react-router-dom';
-import { Form } from '@unform/web';
+import { FiArrowLeft, FiUser, FiSmartphone, FiMail, FiCalendar } from 'react-icons/fi';
 import { FormHandles } from '@unform/core';
+import { Form } from '@unform/web';
 import * as Yup from 'yup';
-import LayoutBusiness from '@/components/LayoutBusiness';
 
-import Button from '@/components/Button';
-import Input from '@/components/Input';
-import Select from '@/components/Select';
-import { useToast } from '@/hooks/Toast';
-import { useAuth } from '@/hooks/Auth';
-import getValidationErrors from '@/utils/getValidationErrors';
+import { CustomerService, Customer, RegisterCustomer } from '@/services';
+import { LayoutBusiness, Button, Input, Select } from '@/components';
+import { useToast, useAuth } from '@/hooks';
+import { DateUtils, FormattedUtils, getValidationErrors } from '@/utils';
 
-import ApiService from '@/services/ApiService';
 import { Container, Content, BackPage } from './styles';
-
-interface Customer {
-  id: string;
-  name: string;
-  cell_phone: number;
-  email: string;
-  birthDate: string;
-  gender?: 'M' | 'W';
-  cpf_or_cnpj?: number;
-  avatar_url?: string;
-}
-
-interface CustomerData {
-  name: string;
-  cell_phone?: string;
-  email?: string;
-  birthDate: string;
-  gender: string;
-}
 
 const FindCustomer: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -45,36 +21,36 @@ const FindCustomer: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [dataCustomer, setDataCustomer] = useState<Customer>({} as Customer);
 
-  useEffect(() => {
-    async function loadCustomer(): Promise<void> {
-      if (!id) {
-        formRef.current?.getFieldRef('name').focus();
-      } else {
-        try {
-          const { data } = await ApiService.get<Customer>(`customers/${id}`);
-          setDataCustomer(data);
+  const loadCustomer = useCallback(async () => {
+    if (!id) {
+      formRef.current?.getFieldRef('name').focus();
+    } else {
+      try {
+        const response = await CustomerService.fetchCustomer(id);
 
-          formRef.current?.setData({
-            name: data.name,
-            cell_phone: data.cell_phone,
-            email: data.email,
-            birthDate: format(new Date(data.birthDate), 'dd/MM/yyyy'),
-            gender: data.gender,
-          });
-        } catch (error) {
-          addToast({
-            type: 'error',
-            message: 'Opss... Encontramos um erro',
-            description: 'Ocorreu um erro ao carregar os dados do cliente, por favor, tente novamente',
-          });
-        }
+        if (!response) return;
+
+        setDataCustomer(response);
+
+        formRef.current?.setData({
+          name: response.name,
+          cell_phone: response.cell_phone,
+          email: response.email,
+          birthDate: DateUtils.formatDate({ date: response.birthDate, type: 'dd/MM/yyyy' }),
+          gender: response.gender,
+        });
+      } catch (error) {
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um erro',
+          description: 'Ocorreu um erro ao carregar os dados do cliente, por favor, tente novamente',
+        });
       }
     }
-    loadCustomer();
   }, [id, addToast]);
 
   const handleSubmit = useCallback(
-    async (data: CustomerData) => {
+    async (data: RegisterCustomer) => {
       setLoading(true);
       try {
         formRef.current?.setErrors({});
@@ -91,25 +67,16 @@ const FindCustomer: React.FC = () => {
 
         const { name, cell_phone, email, birthDate, gender } = data;
 
-        const formattedCellPhone =
-          cell_phone &&
-          cell_phone
-            .split('')
-            .filter(char => Number(char) || char === '0')
-            .join('');
-
-        const splitBirth = birthDate.split('/');
-
-        const formattedBirth = `${splitBirth[2]}-${splitBirth[1]}-${splitBirth[0]}`;
-
-        const response = await ApiService.post<{ id: string }>('customers', {
+        const response = await CustomerService.registerCustomer({
           customer_id: id,
           name,
-          birthDate: formattedBirth,
+          birthDate: DateUtils.formattedBirth(birthDate),
           gender,
-          ...(cell_phone && { cell_phone: formattedCellPhone }),
+          ...(cell_phone && { cell_phone: FormattedUtils.onlyNumber(cell_phone) }),
           ...(email && { email }),
         });
+
+        if (!response) return;
 
         addToast({
           type: 'success',
@@ -117,7 +84,7 @@ const FindCustomer: React.FC = () => {
           description: `Novo cliente foi cadastrado no ${business?.name}`,
         });
 
-        history.push(`/business/customer/${response.data.id}`);
+        history.push(`/business/customer/${response.id}`);
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
@@ -171,6 +138,10 @@ const FindCustomer: React.FC = () => {
     },
     [id, addToast, business, history],
   );
+
+  useEffect(() => {
+    loadCustomer();
+  }, [id, addToast, loadCustomer]);
 
   return (
     <LayoutBusiness pgActive="find-customer">

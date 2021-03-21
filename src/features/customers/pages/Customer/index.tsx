@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
-
 import { FiArrowLeft } from 'react-icons/fi';
 import { useHistory, useParams } from 'react-router-dom';
-import LayoutBusiness from '@/components/LayoutBusiness';
-import api from '@/services/api';
-import { useToast } from '@/hooks/Toast';
-import { useModal } from '@/hooks/Modal';
 
-import noAvatar from '@/assets/no-avatar.png';
+import { Customer as CustomerDTO } from '@/services';
+import { LayoutBusiness } from '@/components';
+import { useToast, useModal } from '@/hooks';
+import { noAvatar } from '@/assets';
+
+import api from '@/services/api';
 
 import {
   Container,
@@ -21,28 +21,17 @@ import {
   BackPage,
 } from './styles';
 
-interface Customer {
-  id: string;
-  name: string;
-  cell_phone: number;
-  email: string;
-  birthDate: string;
-  gender?: 'M' | 'W';
-  cpf_or_cnpj?: number;
-  avatar_url?: string;
-}
-
 const Customer: React.FC = () => {
   const { addToast } = useToast();
   const { addModal, responseModal, resetResponseModal } = useModal();
   const history = useHistory();
   const { id } = useParams<{ id: string }>();
-  const [customer, setCustomer] = useState<Customer>({} as Customer);
+  const [customer, setCustomer] = useState<CustomerDTO>({} as CustomerDTO);
 
   useEffect(() => {
     async function loadCustomer(): Promise<void> {
       try {
-        const response = await api.get<Customer>(`customers/${id}`);
+        const response = await api.get<CustomerDTO>(`customers/${id}`);
         setCustomer(response.data);
       } catch (error) {
         addToast({
@@ -93,7 +82,7 @@ const Customer: React.FC = () => {
 
               <InfoCustomer>
                 <h3>CPF/CNPJ</h3>
-                <span>{customer.cpf_or_cnpj}</span>
+                <span>{customer.taxId}</span>
               </InfoCustomer>
             </RowCustomer>
 

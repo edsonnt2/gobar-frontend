@@ -3,15 +3,12 @@ import { FiUser, FiLock, FiLogIn } from 'react-icons/fi';
 import * as Yup from 'yup';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
-
 import { Link, useHistory } from 'react-router-dom';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import getValidationErrors from '@/utils/getValidationErrors';
-import { useToast } from '@/hooks/Toast';
-import { useAuth } from '@/hooks/Auth';
 
-import imgLogo from '@/assets/logo.svg';
+import { Input, Button } from '@/components';
+import { useToast, useAuth } from '@/hooks';
+import { getValidationErrors } from '@/utils';
+import { logo } from '@/assets';
 
 import { Container, Content, AsideLogin, ContentDescription, Footer } from './styles';
 
@@ -80,7 +77,7 @@ const SignIn: React.FC = () => {
     <Container>
       <Content>
         <AsideLogin>
-          <img src={imgLogo} alt="GoBar" />
+          <img src={logo} alt="GoBar" />
 
           <h1>Faça seu Login</h1>
           <Form onSubmit={handleSubmit} ref={formRef}>

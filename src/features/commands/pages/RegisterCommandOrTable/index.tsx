@@ -4,19 +4,13 @@ import { Form } from '@unform/web';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
 
-import LayoutBusiness from '@/components/LayoutBusiness';
-import Input from '@/components/Input';
-import Button from '@/components/Button';
-import InputQuantityProduct from '@/features/commands/components/InputQuantityProduct';
+import { ApiService } from '@/services';
+import { LayoutBusiness, Input, Button } from '@/components';
+import { useModal, useToast } from '@/hooks';
+import { FormattedUtils } from '@/utils';
+import { noProduct } from '@/assets';
 
-import ApiService from '@/services/ApiService';
-
-import { useModal } from '@/hooks/Modal';
-import { useToast } from '@/hooks/Toast';
-
-import FormattedUtils from '@/utils/formattedUtils';
-
-import noProduct from '@/assets/no-product.png';
+import { InputQuantityProduct } from '../../components';
 
 import {
   Container,

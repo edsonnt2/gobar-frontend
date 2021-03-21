@@ -1,4 +1,4 @@
-import ApiService from './ApiService';
+import { ApiService } from './ApiService';
 
 interface User {
   id: string;
@@ -23,7 +23,7 @@ interface Authenticate {
   business?: Business;
 }
 
-export default class AuthService {
+export class AuthService {
   public static async authenticate(data: {
     cellPhoneOrEmail: string;
     password: string;
