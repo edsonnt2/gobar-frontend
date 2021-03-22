@@ -9,6 +9,7 @@ export class InterceptorUtils {
     const { data, status } = response;
 
     if (status !== 200) {
+      // eslint-disable-next-line
       console.log(`Your call generated an exception: ${JSON.stringify(data.message)}`);
     }
 
@@ -17,6 +18,7 @@ export class InterceptorUtils {
 
   async error(error: AxiosError): Promise<AxiosError | AxiosResponse | void> {
     if (error.response) {
+      // eslint-disable-next-line
       console.log(`Ocorreu um erro ${error.message}`);
     }
 

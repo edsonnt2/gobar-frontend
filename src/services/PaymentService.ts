@@ -1,7 +1,5 @@
 import { ApiService } from './ApiService';
 
-type TypeForm = 'money' | 'card' | '';
-
 interface PaymentData {
   type_card?: string;
   received?: number;
@@ -38,8 +36,6 @@ export class PaymentService {
       payment_discount,
     });
 
-    console.log(response.data);
-
     return response.data;
   }
 
@@ -50,8 +46,6 @@ export class PaymentService {
       [`${resource}_ids`]: close_id,
       [`payment_${resource}s_closure`]: payments,
     });
-
-    console.log(response.data);
 
     return response.data;
   }
