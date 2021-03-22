@@ -9,15 +9,15 @@ interface OnchangeDiscont {
 
 export default function onChangeDiscont({ formOfPayment, payData, value }: OnchangeDiscont): FormOfPayment[] {
   const valueWithDiscont = payData.value_total - value;
-  if (formOfPayment.length) {
+  if (formOfPayment?.length) {
     return [
       {
-        ...formOfPayment[0],
+        ...formOfPayment?.[0],
         subtotal: {
           value: valueWithDiscont,
           value_formatted: FormattedUtils.formattedValue(valueWithDiscont),
         },
-        ...(formOfPayment[0].received && {
+        ...(formOfPayment?.[0].received && {
           change_value: {
             value: formOfPayment[0].received.value - valueWithDiscont,
             value_formatted:
@@ -31,14 +31,14 @@ export default function onChangeDiscont({ formOfPayment, payData, value }: Oncha
   }
 
   return [
-    formOfPayment[0],
+    formOfPayment?.[0],
     {
-      ...formOfPayment[1],
+      ...formOfPayment?.[1],
       subtotal: {
         value: valueWithDiscont - formOfPayment[0].subtotal.value,
         value_formatted: FormattedUtils.formattedValue(valueWithDiscont - formOfPayment[0].subtotal.value),
       },
-      ...(formOfPayment[1].received && {
+      ...(formOfPayment?.[1].received && {
         change_value: {
           value: formOfPayment[1].received.value - (valueWithDiscont - formOfPayment[0].subtotal.value),
           value_formatted:

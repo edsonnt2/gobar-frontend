@@ -1,4 +1,4 @@
-import api from '@/services/api';
+import { PaymentService } from '@/services';
 import { FormOfPayment, PayData } from '..';
 
 interface SendPayment {
@@ -89,7 +89,7 @@ export default async function sendPayment({
   }));
 
   if (sumSubTotal < valueTotalPay) {
-    api.post('payments/discounts', {
+    PaymentService.sendDiscountPayment({
       value_total: payData.value_total,
       discount: payData.value_discont,
       command_id: payData.close_id[0],
@@ -99,11 +99,12 @@ export default async function sendPayment({
     return 'discount';
   }
 
-  api.post(`payments/${payData.type}s`, {
+  PaymentService.sendPayment({
+    resource: payData.type,
     value_total: payData.value_total,
     discount: payData.value_discont,
-    [`${payData.type}_ids`]: payData.close_id,
-    [`payment_${payData.type}s_closure`]: formattedFormOfPayment,
+    close_id: payData.close_id,
+    payments: formattedFormOfPayment,
   });
 
   return 'payment';

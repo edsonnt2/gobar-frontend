@@ -81,8 +81,8 @@ const SignIn: React.FC = () => {
 
           <h1>Faça seu Login</h1>
           <Form onSubmit={handleSubmit} ref={formRef}>
-            <Input mask="" icon={FiUser} name="cellPhoneOrEmail" placeholder="Celular ou E-mail" />
-            <Input mask="" icon={FiLock} name="password" placeholder="Senha" type="password" />
+            <Input icon={FiUser} name="cellPhoneOrEmail" placeholder="Celular ou E-mail" />
+            <Input icon={FiLock} name="password" placeholder="Senha" type="password" />
             <Button loading={loading} type="submit">
               ENTRAR
             </Button>

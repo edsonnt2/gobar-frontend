@@ -7,3 +7,4 @@ export * from './ProductService';
 export * from './TableService';
 export * from './CustomerService';
 export * from './BusinessService';
+export * from './PaymentService';

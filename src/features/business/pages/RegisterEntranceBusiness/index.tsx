@@ -171,11 +171,10 @@ const RegisterEntranceBusiness: React.FC = () => {
             <h1>Cadastrar Entrada</h1>
 
             <Form onSubmit={handleSubmit} ref={formRef}>
-              <Input mask="" name="description" hasTitle="Descrição da Entrada" />
+              <Input name="description" hasTitle="Descrição da Entrada" />
 
               <ContentInput>
                 <Input
-                  mask=""
                   name="value"
                   hasTitle="Valor da Entrada"
                   style={{ width: 170, flex: 'inherit' }}

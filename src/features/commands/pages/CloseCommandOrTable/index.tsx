@@ -563,7 +563,6 @@ const CloseCommandOrTable: React.FC = () => {
         <Form onSubmit={e => handleSubmit({ data: e, whereSelected: 'command' })} ref={formRefCommand}>
           <RowForm>
             <Input
-              mask=""
               name="command"
               icon={GiTicket}
               formatField="number"
@@ -583,7 +582,6 @@ const CloseCommandOrTable: React.FC = () => {
         <Form onSubmit={e => handleSubmit({ data: e, whereSelected: 'table' })} ref={formRefTable}>
           <RowForm>
             <Input
-              mask=""
               name="table"
               icon={GiTicket}
               formatField="number"

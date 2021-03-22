@@ -151,10 +151,10 @@ const SignUp: React.FC = () => {
 
           <h1>Faça seu Cadastro</h1>
           <Form ref={formRef} onSubmit={handleSubmit}>
-            <Input mask="" name="name" icon={FiUser} placeholder="Nome Completo" />
-            <Input mask="" name="email" icon={FiMail} placeholder="E-mail" />
+            <Input name="name" icon={FiUser} placeholder="Nome Completo" />
+            <Input name="email" icon={FiMail} placeholder="E-mail" />
             <Input mask="(99) 99999-9999" name="cell_phone" icon={FiSmartphone} placeholder="Celular" />
-            <Input mask="" name="password" icon={FiLock} placeholder="Senha" type="password" />
+            <Input name="password" icon={FiLock} placeholder="Senha" type="password" />
             <Input mask="99/99/9999" name="birthDate" icon={FiCalendar} placeholder="Data de Nascimento" />
             <Button loading={loading} type="submit">
               CADASTRAR

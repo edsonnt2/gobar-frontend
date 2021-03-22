@@ -13,7 +13,8 @@ interface FnOnChange {
   indexRef?: number;
 }
 
-interface PropsInput extends InputProps {
+interface PropsInput extends Omit<InputProps, 'mask'> {
+  mask?: string | Array<string | RegExp>;
   hasTitle?: string;
   name: string;
   formatField?: 'taxId' | 'number';
@@ -49,6 +50,7 @@ interface PropsInput extends InputProps {
 
 const Input: React.FC<PropsInput> = ({
   icon: Icon,
+  mask = '',
   name,
   style,
   disabled,
@@ -221,6 +223,7 @@ const Input: React.FC<PropsInput> = ({
 
         <ReactInputMask
           ref={refInput}
+          mask={mask}
           onChange={e => handleChangeFn(e.target.value)}
           value={valueForm}
           onKeyDown={handleKeyDown}

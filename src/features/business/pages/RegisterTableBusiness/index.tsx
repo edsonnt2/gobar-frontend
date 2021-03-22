@@ -90,7 +90,7 @@ const RegisterTableBusiness: React.FC = () => {
             <h1>Adicionar Mesa</h1>
 
             <Form onSubmit={handleSubmit} ref={formRef}>
-              <Input mask="" type="number" name="table" hasTitle="Quantidade de Mesas" formatField="number" />
+              <Input type="number" name="table" hasTitle="Quantidade de Mesas" formatField="number" />
               <Button loading={loading} type="submit">
                 SALVAR
               </Button>

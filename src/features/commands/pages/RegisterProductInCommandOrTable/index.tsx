@@ -424,7 +424,6 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
         <Form onSubmit={handleSubmit} ref={formRef}>
           <Input
-            mask=""
             name="command_or_table"
             icon={GiTicket}
             formatField="number"

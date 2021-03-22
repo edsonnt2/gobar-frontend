@@ -266,9 +266,8 @@ const RegisterProductBusiness: React.FC = () => {
                 <FileInput name="image" imgPreview={addImage} />
               </ImageProduct>
 
-              <Input mask="" name="description" hasTitle="Descrição do Produto" />
+              <Input name="description" hasTitle="Descrição do Produto" />
               <Input
-                mask=""
                 name="category"
                 hasAutoComplete={{
                   loading: loadingCategory,
@@ -281,7 +280,6 @@ const RegisterProductBusiness: React.FC = () => {
 
               <ContentInput>
                 <Input
-                  mask=""
                   formatField="number"
                   name="quantity"
                   hasTitle="Quatidade"
@@ -291,7 +289,6 @@ const RegisterProductBusiness: React.FC = () => {
                 />
                 <SeparateInput />
                 <Input
-                  mask=""
                   name="provider"
                   hasAutoComplete={{
                     loading: loadingCategoryProvider,
@@ -305,25 +302,17 @@ const RegisterProductBusiness: React.FC = () => {
 
               <ContentInput>
                 <Input
-                  mask=""
                   name="internal_code"
                   hasTitle="Código Interno"
                   style={{ width: 152, flex: 'inherit' }}
                   styleInput={{ width: '100%', flex: 'auto' }}
                 />
                 <SeparateInput />
-                <Input
-                  icon={AiOutlineBarcode}
-                  mask=""
-                  name="barcode"
-                  hasTitle="Código de Barra"
-                  placeholder="(Opcional)"
-                />
+                <Input icon={AiOutlineBarcode} name="barcode" hasTitle="Código de Barra" placeholder="(Opcional)" />
               </ContentInput>
 
               <ContentInput>
                 <Input
-                  mask=""
                   name="pushase_value"
                   hasTitle="Valor de Compra"
                   style={{ width: 198, flex: 'inherit' }}
@@ -335,7 +324,6 @@ const RegisterProductBusiness: React.FC = () => {
                 />
                 <SeparateInput />
                 <Input
-                  mask=""
                   name="porcent"
                   formatField="number"
                   hasTitle="Margem"
@@ -349,7 +337,6 @@ const RegisterProductBusiness: React.FC = () => {
                 />
                 <SeparateInput />
                 <Input
-                  mask=""
                   name="sale_value"
                   hasTitle="Valor de Venda"
                   style={{ width: 198, flex: 'inherit' }}

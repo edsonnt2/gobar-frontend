@@ -4,8 +4,8 @@ import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import { MakeyPayData, useModal, useToast } from '@/hooks';
 import { Button, Select, Input } from '@/components';
+import { MakeyPayData, useModal, useToast } from '@/hooks';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 
 import { onChangeDiscont, onChangePayment, sendPayment } from './Functions';
@@ -72,14 +72,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           dataForm,
         });
 
-        if (!response) {
-          addToast({
-            type: 'error',
-            message: 'Erro no Cadastro',
-            description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
-          });
-          return;
-        }
+        if (!response) throw new Error();
 
         if (typeof response === 'object') {
           formRef.current?.setErrors(response);
@@ -105,7 +98,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           return;
         }
 
-        const whichError = error.response && error.response.data ? error.response.data.message : 'error';
+        const whichError = error.response && error.response.data ? error.response.data.message : undefined;
 
         if (whichError === 'Command number already registered') {
           formRef.current?.setErrors({
@@ -114,8 +107,8 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
         } else {
           addToast({
             type: 'error',
-            message: 'Erro no Cadastro',
-            description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+            message: 'Erro no Pagamento',
+            description: whichError || 'Ocorreu um erro ao tentar finalizar o pagamento, por favor, tente novamente !',
           });
         }
       } finally {
@@ -172,7 +165,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
 
       if (indexRef) {
         const sumSubTotal = formOfPayment.reduce((prevValue, subTotal, index) => {
-          if (subTotal.type !== '') return index === indexRef ? prevValue + value : prevValue + subTotal.subtotal.value;
+          if (subTotal?.type) return index === indexRef ? prevValue + value : prevValue + subTotal.subtotal.value;
 
           return prevValue;
         }, 0);
@@ -224,7 +217,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
 
   useEffect(() => {
     const sumSubTotal = formOfPayment.reduce((prevValue, subTotal) => {
-      return subTotal.type !== '' ? prevValue + subTotal.subtotal.value : prevValue;
+      return subTotal?.type ? prevValue + subTotal.subtotal.value : prevValue;
     }, 0);
 
     const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
@@ -251,7 +244,6 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
 
           <HeaderRight>
             <Input
-              mask=""
               name="discount"
               isCurrency
               placeholder="Desconto"
@@ -278,10 +270,9 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
               <option value="card">Cartão</option>
             </Select>
 
-            {formPay.type !== '' && (
+            {formPay?.type && (
               <RowInput>
                 <Input
-                  mask=""
                   name={`subtotal[${index}]`}
                   defaultValue={formPay.subtotal.value_formatted}
                   isCurrency
@@ -297,7 +288,6 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
                 {formPay.type === 'money' ? (
                   <>
                     <Input
-                      mask=""
                       name={`received[${index}]`}
                       hasOnChange={{
                         indexRef: index,
@@ -311,7 +301,6 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
                     />
                     <SeparateInput />
                     <Input
-                      mask=""
                       name={`change_value[${index}]`}
                       defaultValue={formPay.change_value?.value_formatted}
                       isCurrency

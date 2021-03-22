@@ -154,7 +154,7 @@ const FindCustomer: React.FC = () => {
           <h1>Cadastrar novo cliente no Bar da Léo</h1>
 
           <Form onSubmit={handleSubmit} ref={formRef}>
-            <Input mask="" name="name" placeholder="Nome Completo" icon={FiUser} disabled={!!dataCustomer.name} />
+            <Input name="name" placeholder="Nome Completo" icon={FiUser} disabled={!!dataCustomer.name} />
             <Input
               mask="(99) 99999-9999"
               name="cell_phone"
@@ -162,7 +162,7 @@ const FindCustomer: React.FC = () => {
               icon={FiSmartphone}
               disabled={!!dataCustomer.cell_phone}
             />
-            <Input mask="" name="email" placeholder="E-mail (Opcional)" icon={FiMail} disabled={!!dataCustomer.email} />
+            <Input name="email" placeholder="E-mail (Opcional)" icon={FiMail} disabled={!!dataCustomer.email} />
             <Input
               mask="99/99/9999"
               name="birthDate"

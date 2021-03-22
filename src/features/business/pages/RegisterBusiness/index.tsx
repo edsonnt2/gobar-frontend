@@ -262,10 +262,9 @@ const RegisterBusiness: React.FC = () => {
                   <FiCamera size={20} />
                 </span>
               </BoxImgBusiness>
-              <Input mask="" name="name" hasTitle="Nome do seu Negócio" />
+              <Input name="name" hasTitle="Nome do seu Negócio" />
 
               <Input
-                mask=""
                 name="category"
                 hasTitle="Categorias"
                 placeholder="Adicione até 4 categorias"
@@ -287,7 +286,7 @@ const RegisterBusiness: React.FC = () => {
                 <Input mask="(99) 9999-9999" name="phone" hasTitle="Telefone" placeholder="(Opcional)" />
               </ContentInput>
 
-              <Input mask="" formatField="taxId" name="taxId" hasTitle="CPF/CNPJ" />
+              <Input formatField="taxId" name="taxId" hasTitle="CPF/CNPJ" />
 
               <ContentInput>
                 <Input
@@ -300,7 +299,6 @@ const RegisterBusiness: React.FC = () => {
                 />
                 <SeparateInput />
                 <Input
-                  mask=""
                   maxLength={9}
                   formatField="number"
                   name="number"
@@ -309,20 +307,19 @@ const RegisterBusiness: React.FC = () => {
                   styleInput={{ width: '100%', flex: 'auto' }}
                 />
                 <SeparateInput />
-                <Input mask="" name="complement" hasTitle="Complemento" placeholder="(Opcional)" />
+                <Input name="complement" hasTitle="Complemento" placeholder="(Opcional)" />
               </ContentInput>
 
               <ContentInput>
-                <Input mask="" name="street" hasTitle="Logradouro" placeholder="Rua/Avenida" disabled />
+                <Input name="street" hasTitle="Logradouro" placeholder="Rua/Avenida" disabled />
                 <SeparateInput />
-                <Input mask="" name="neighborhood" hasTitle="Bairro" disabled />
+                <Input name="neighborhood" hasTitle="Bairro" disabled />
               </ContentInput>
 
               <ContentInput>
-                <Input mask="" name="city" hasTitle="Cidade" disabled />
+                <Input name="city" hasTitle="Cidade" disabled />
                 <SeparateInput />
                 <Input
-                  mask=""
                   name="state"
                   hasTitle="Estado"
                   maxLength={2}

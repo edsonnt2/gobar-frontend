@@ -133,14 +133,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
       </BoxInfoCustomer>
 
       <Form ref={formRef} onSubmit={handleSubmit}>
-        <Input
-          mask=""
-          name="number"
-          formatField="number"
-          icon={TiTicket}
-          hasTitle="Comanda"
-          placeholder="Número da Comanda"
-        />
+        <Input name="number" formatField="number" icon={TiTicket} hasTitle="Comanda" placeholder="Número da Comanda" />
 
         {entrance.length > 0 && (
           <>
@@ -161,7 +154,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           </>
         )}
 
-        <Input mask="" name="value_consume" isCurrency icon={FiTag} hasTitle="Vale Consumo" placeholder="(Opcional)" />
+        <Input name="value_consume" isCurrency icon={FiTag} hasTitle="Vale Consumo" placeholder="(Opcional)" />
 
         <Button type="submit" loading={loading}>
           Criar Comanda
