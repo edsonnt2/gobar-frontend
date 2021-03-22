@@ -1,25 +1,12 @@
 import { useCallback, useRef, useState, useEffect, KeyboardEvent } from 'react';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
 
-import api from '@/services/api';
+import { Command, CommandService } from '@/services';
 import { InputSearch } from '@/components';
 import { useModal, useToast } from '@/hooks';
 import { noAvatar } from '@/assets';
 
 import { Container, CloseCommand, ImgCustomer, InfoCustomer, ListCommands, RowCommand } from './styles';
-
-interface Customer {
-  id: string;
-  number: number;
-  customer: {
-    id: string;
-    name: string;
-    user?: {
-      avatar_url?: string;
-    };
-    avatar_url?: string;
-  };
-}
 
 const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   const { addToast } = useToast();
@@ -27,19 +14,19 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [LoadingSearch, setLoadingSearch] = useState(false);
   const [search, setSearch] = useState('');
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [commands, setCommands] = useState<Command[]>([]);
   const [cursor, setCursor] = useState(-1);
 
-  const loadCustomers = useCallback(async () => {
+  const loadCommands = useCallback(async () => {
     try {
-      const response = await api.get<Customer[]>('commands');
-      setCustomers(
-        response.data.map(customer => ({
-          ...customer,
-          customer: {
-            ...customer.customer,
-            ...(customer.customer.user?.avatar_url && {
-              avatar_url: customer.customer.user.avatar_url,
+      const response = await CommandService.fetchCommands();
+      setCommands(
+        response.map(command => ({
+          ...command,
+          command: {
+            ...command.customer,
+            ...(command?.customer?.user?.avatar_url && {
+              avatar_url: command.customer.user.avatar_url,
             }),
           },
         })),
@@ -55,13 +42,13 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
     }
   }, [addToast]);
 
-  const handleSearch = useCallback((findCustomer: string) => {
+  const handleSearch = useCallback((valueSearch: string) => {
     setLoadingSearch(true);
-    if (findCustomer.trim() !== '') {
-      setSearch(findCustomer);
+    if (valueSearch?.trim()) {
+      setSearch(valueSearch);
     } else {
       setSearch('');
-      setCustomers([]);
+      setCommands([]);
     }
   }, []);
 
@@ -74,15 +61,15 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && customers.length > 0 && cursor > -1) {
-        handleClick(customers[cursor].number);
+      if (e.key === 'Enter' && commands.length > 0 && cursor > -1) {
+        handleClick(commands[cursor].number);
       } else if (e.key === 'ArrowUp' && cursor >= 0) {
         setCursor(cursor - 1);
-      } else if (e.key === 'ArrrowDown' && cursor < customers.length - 1) {
+      } else if (e.key === 'ArrowDown' && cursor < commands.length - 1) {
         setCursor(cursor + 1);
       }
     },
-    [cursor, customers, handleClick],
+    [cursor, commands, handleClick],
   );
 
   useEffect(() => {
@@ -90,49 +77,44 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   }, []);
 
   useEffect(() => {
-    loadCustomers();
-  }, [loadCustomers]);
+    loadCommands();
+  }, [loadCommands]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (search.trim() !== '') {
-        api
-          .get<Customer[]>('commands/search', {
-            params: {
-              search,
-            },
-          })
-          .then(({ data }) => {
-            setCustomers(
-              data.map(customer => ({
-                ...customer,
-                customer: {
-                  ...customer.customer,
-                  ...(customer.customer.user?.avatar_url && {
-                    avatar_url: customer.customer.user.avatar_url,
-                  }),
-                },
-              })),
-            );
-          })
-          .catch(() => {
-            addToast({
-              type: 'error',
-              message: 'Opss... Encontramos um erro',
-              description: 'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
-            });
-          })
-          .finally(() => {
-            setLoadingSearch(false);
-          });
-      } else {
-        loadCustomers();
+    const timer = setTimeout(async () => {
+      if (!search?.trim()) {
+        loadCommands();
+        return;
       }
-    }, 250);
+
+      try {
+        const response = await CommandService.searchCommands(search);
+
+        setCommands(
+          response.map(command => ({
+            ...command,
+            command: {
+              ...command.customer,
+              ...(command?.customer?.user?.avatar_url && {
+                avatar_url: command.customer.user.avatar_url,
+              }),
+            },
+          })),
+        );
+      } catch {
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um erro',
+          description: 'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
+        });
+      } finally {
+        setLoadingSearch(false);
+      }
+    }, 200);
     return () => {
       clearTimeout(timer);
     };
-  }, [search, addToast, loadCustomers]);
+  }, [search, addToast, loadCommands]);
 
   return (
     <Container style={style}>
@@ -155,13 +137,13 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
         'loading...'
       ) : (
         <ListCommands>
-          {customers.map(({ id, number, customer }, index) => (
+          {commands.map(({ id, number, customer }, index) => (
             <RowCommand key={id} onClick={() => handleClick(number)} hasSelected={cursor === index}>
               <ImgCustomer>
-                <img src={customer.avatar_url || noAvatar} alt={customer.name} />
+                <img src={customer?.avatar_url || noAvatar} alt={customer?.name || 'Usuário sem foto'} />
               </ImgCustomer>
               <InfoCustomer>
-                <h2>{customer.name}</h2>
+                <h2>{customer?.name || 'Usuário sem nome'}</h2>
                 <span>
                   Comanda: <strong>{number}</strong>
                 </span>

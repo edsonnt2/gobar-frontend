@@ -23,19 +23,19 @@ export default async function sendPayment({
   const valueTotalPay = payData.value_discont ? payData.value_total - payData.value_discont : payData.value_total;
 
   formOfPayment.forEach((formOfPay, index) => {
-    if (index === 0) {
-      if (formOfPay.type === '') {
+    if (!index) {
+      if (!formOfPay?.type) {
         errorPays = {
           [`form_of_payment[${index}]`]: 'Forma de Pagamento é obrigatório',
           ...(errorPays && errorPays),
         };
-      } else if (formOfPayment.length === 1 && sumSubTotal > valueTotalPay) {
+      } else if (formOfPayment?.length && sumSubTotal > valueTotalPay) {
         errorPays = {
           [`subtotal[${index}]`]: 'SubTotal maior que valor a se pago',
           ...(errorPays && errorPays),
         };
       }
-    } else if (payData.close_id.length > 1 && formOfPay.type === '') {
+    } else if (payData.close_id.length > 1 && !formOfPay?.type) {
       errorPays = {
         [`form_of_payment[${index}]`]: 'Forma de Pagamento é obrigatório',
         ...(errorPays && errorPays),
@@ -45,7 +45,7 @@ export default async function sendPayment({
         [`subtotal[${index}]`]: 'SubTotal menor que valor a se pago',
         ...(errorPays && errorPays),
       };
-    } else if (formOfPay.type !== '' && sumSubTotal > valueTotalPay) {
+    } else if (formOfPay?.type && sumSubTotal > valueTotalPay) {
       errorPays = {
         [`subtotal[${index}]`]: 'SubTotal maior que valor a se pago',
         ...(errorPays && errorPays),
@@ -53,7 +53,7 @@ export default async function sendPayment({
     }
 
     if (formOfPay.type === 'money') {
-      if (!formOfPay.received || formOfPay.received.value === 0) {
+      if (!formOfPay.received || !formOfPay?.received?.value) {
         errorPays = {
           [`received[${index}]`]: 'Valor Recebido é obrigatório',
           ...(errorPays && errorPays),
@@ -65,7 +65,7 @@ export default async function sendPayment({
         };
       }
     } else if (formOfPay.type === 'card') {
-      if (dataForm.type_card && dataForm.type_card[index] === '') {
+      if (dataForm.type_card && !dataForm?.type_card[index]) {
         errorPays = {
           [`type_card[${index}]`]: 'Tipo do Cartão é obrigatório',
           ...(errorPays && errorPays),

@@ -1,13 +1,13 @@
 import { useCallback, useState, useEffect, useRef, useMemo } from 'react';
 import { FiEdit, FiChevronDown, FiXCircle } from 'react-icons/fi';
-import { Form } from '@unform/web';
+import { useLocation } from 'react-router-dom';
+import { IoMdTrash } from 'react-icons/io';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
-import { IoMdTrash } from 'react-icons/io';
+import { Form } from '@unform/web';
 import * as Yup from 'yup';
-import { useLocation } from 'react-router-dom';
 
-import api from '@/services/api';
+import { CommandData, CommandOrTableDTO, CommandService, TableData, TableService } from '@/services';
 import { LayoutBusiness, Input, Button } from '@/components';
 import { useModal, useToast } from '@/hooks';
 import { DateUtils, FormattedUtils, getValidationErrors } from '@/utils';
@@ -41,66 +41,6 @@ import {
   BoxButtons,
   SeparatorButton,
 } from './styles';
-
-interface ProductData {
-  id: string;
-  description: string;
-  value: number;
-  quantity: number;
-  created_at: string;
-  product?: {
-    image_url?: string;
-  };
-  value_formatted: string;
-  value_total_formatted: string;
-  image_url?: string;
-}
-
-interface CommandOrTableData {
-  id: string;
-  number: number;
-  value_entrance?: number;
-  prepaid_entrance?: boolean;
-  entrance_consume?: boolean;
-  value_consume?: number;
-  products: ProductData[];
-  customer?: {
-    id: string;
-    name: string;
-    user?: {
-      avatar_url?: string;
-    };
-    avatar_url?: string;
-  };
-  entrance_formatted?: string;
-  value_total: number;
-  value_total_formatted: string;
-  created_at: string;
-  spotlight: boolean;
-  table_customer?: {
-    id: string;
-    customer: {
-      id: string;
-      name: string;
-      user?: {
-        avatar_url?: string;
-      };
-      avatar_url?: string;
-    };
-  }[];
-}
-
-interface CommandData extends Omit<CommandOrTableData, 'table_customer' | 'products'> {
-  command_product: ProductData[];
-}
-
-interface TableData
-  extends Omit<
-    CommandOrTableData,
-    'value_entrance' | 'prepaid_entrance' | 'entrance_consume' | 'products' | 'customer' | 'entrance_formatted'
-  > {
-  table_product: ProductData[];
-}
 
 interface FormData {
   command: string;
@@ -156,14 +96,12 @@ const CloseCommandOrTable: React.FC = () => {
     });
   }, [addModal]);
 
-  const loadingCommand = useCallback(async (number: number) => {
-    const response = await api.get<CommandData>('commands/find', {
-      params: {
-        number,
-      },
-    });
+  const handlerCommand = useCallback(async (number: number) => {
+    const response = await CommandService.findCommandByNumber(number);
 
-    const { customer, command_product, ...rest } = response.data;
+    if (!response) throw new Error();
+
+    const { customer, command_product, ...rest } = response;
 
     let valueTotalCommand = command_product.reduce((prev, { quantity, value }) => {
       const totalValue = Math.fround(quantity * value);
@@ -210,17 +148,15 @@ const CloseCommandOrTable: React.FC = () => {
     ]);
   }, []);
 
-  const loadingTable = useCallback(async (number: number) => {
-    const response = await api.get<TableData>('tables/find', {
-      params: {
-        number,
-      },
-    });
+  const handlerTable = useCallback(async (number: number) => {
+    const response = await CommandService.findTableByNumber(number);
 
-    const { table_customer, table_product, ...rest } = response.data;
+    if (!response) throw new Error();
+
+    const { table_customer, table_product, ...rest } = response;
 
     const valueTotalTable = table_product.reduce((prev, { quantity, value }) => {
-      const totalValue = Math.fround(quantity * value);
+      const totalValue = Math.fround(quantity * Number(value));
 
       return totalValue + prev;
     }, 0);
@@ -291,12 +227,7 @@ const CloseCommandOrTable: React.FC = () => {
           },
         );
 
-        const formattedNumber = Number(
-          getSelected
-            .split('')
-            .filter(char => Number(char) || char === '0')
-            .join(''),
-        );
+        const formattedNumber = Number(FormattedUtils.onlyNumber(getSelected));
 
         if (whereSelected === 'command') {
           const showCommand = commandProduct.some(({ number }) => Number(number) === formattedNumber);
@@ -308,12 +239,12 @@ const CloseCommandOrTable: React.FC = () => {
             return;
           }
 
-          if (tableProduct.length > 0) {
+          if (tableProduct?.length > 0) {
             setTableProduct([]);
             setIdsCommandOrTable([]);
           }
 
-          await loadingCommand(formattedNumber);
+          await handlerCommand(formattedNumber);
         } else {
           const showTable = tableProduct.some(({ number }) => Number(number) === formattedNumber);
 
@@ -324,12 +255,12 @@ const CloseCommandOrTable: React.FC = () => {
             return;
           }
 
-          if (commandProduct.length > 0) {
+          if (commandProduct?.length > 0) {
             setCommandProduct([]);
             setIdsCommandOrTable([]);
           }
 
-          await loadingTable(formattedNumber);
+          await handlerTable(formattedNumber);
         }
 
         whereFormRef.current?.setFieldValue(whereSelected, ' ');
@@ -340,7 +271,8 @@ const CloseCommandOrTable: React.FC = () => {
 
           whereFormRef.current?.setErrors(errors);
         } else {
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
+          const whichError: string | undefined =
+            error.response && error.response.data ? error.response.data.message : undefined;
 
           if (whichError === 'Command not found at the Business') {
             formRefCommand.current?.setErrors({
@@ -354,7 +286,7 @@ const CloseCommandOrTable: React.FC = () => {
             addToast({
               type: 'error',
               message: 'Opss... Encontramos um erro',
-              description: 'Ocorreu um erro ao buscar por comanda, por favor, tente novamente !',
+              description: whichError || 'Ocorreu um erro ao buscar por comanda, por favor, tente novamente !',
             });
           }
         }
@@ -362,7 +294,7 @@ const CloseCommandOrTable: React.FC = () => {
         setLoading(false);
       }
     },
-    [addToast, commandProduct, loadingCommand, tableProduct, loadingTable],
+    [addToast, commandProduct, handlerCommand, tableProduct, handlerTable],
   );
 
   const handleChangeSpotlight = useCallback(({ id, where }: HandleChangeSpotlight) => {
@@ -398,22 +330,23 @@ const CloseCommandOrTable: React.FC = () => {
   }, []);
 
   const handleRemoveProduct = useCallback(
-    ({ item_product_id, command_or_table_id, where }: HandleRemoveProduct) => {
+    async ({ item_product_id, command_or_table_id, where }: HandleRemoveProduct) => {
       let valueTotalProduct = 0;
-      api
-        .delete(`${where}s/products`, {
-          params: {
-            [`${where}_product_id`]: item_product_id,
-            [`${where}_id`]: command_or_table_id,
-          },
-        })
-        .catch(() => {
-          addToast({
-            type: 'error',
-            message: 'Opss... Encontramos um erro',
-            description: `Ocorreu um erro ao deletar o produto da ${where === 'command' ? 'Comanda' : 'Mesa'}`,
-          });
+
+      try {
+        CommandService.removeProductInCommandOrTable({
+          resource: where,
+          id: command_or_table_id,
+          product_id: item_product_id,
         });
+      } catch {
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um erro',
+          description: `Ocorreu um erro ao deletar o produto da ${where === 'command' ? 'Comanda' : 'Mesa'}`,
+        });
+      }
+
       if (where === 'command') {
         commandProduct.forEach(getCommand => {
           const product = getCommand.command_product.find(({ id }) => id === item_product_id);
@@ -493,21 +426,16 @@ const CloseCommandOrTable: React.FC = () => {
   }, []);
 
   const handleRemoveCustomerTable = useCallback(
-    ({ table_id, customer_id }: HandleRemoveCustomerTable) => {
-      api
-        .delete(`tables/customers`, {
-          params: {
-            table_id,
-            customer_id,
-          },
-        })
-        .catch(() => {
-          addToast({
-            type: 'error',
-            message: 'Opss... Encontramos um erro',
-            description: 'Ocorreu um erro ao deletar o cliente da Mesa',
-          });
+    async ({ table_id, customer_id }: HandleRemoveCustomerTable) => {
+      try {
+        TableService.removeCustomerInTheTable({ table_id, customer_id });
+      } catch {
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um erro',
+          description: 'Ocorreu um erro ao deletar o cliente da Mesa',
         });
+      }
 
       setTableProduct(prevState =>
         prevState.map(prev =>
@@ -528,7 +456,7 @@ const CloseCommandOrTable: React.FC = () => {
     [addToast],
   );
 
-  const spotlightCommandOrTable = useMemo<CommandOrTableData | undefined>(() => {
+  const spotlightCommandOrTable = useMemo<CommandOrTableDTO | undefined>(() => {
     const findCommand = commandProduct.find(({ spotlight }) => spotlight);
 
     if (findCommand) {
@@ -575,7 +503,7 @@ const CloseCommandOrTable: React.FC = () => {
 
       setLoading(true);
       if (command_or_table === 'command') {
-        loadingCommand(number)
+        handlerCommand(number)
           .catch(() => {
             addToast({
               type: 'error',
@@ -588,7 +516,7 @@ const CloseCommandOrTable: React.FC = () => {
           });
         formRefCommand.current?.getFieldRef('command').focus();
       } else {
-        loadingTable(number)
+        handlerTable(number)
           .catch(() => {
             addToast({
               type: 'error',
@@ -604,7 +532,7 @@ const CloseCommandOrTable: React.FC = () => {
     } else {
       formRefCommand.current?.getFieldRef('command').focus();
     }
-  }, [state, loadingCommand, loadingTable, addToast]);
+  }, [state, handlerCommand, handlerTable, addToast]);
 
   useEffect(() => {
     if (responseModal.response) {

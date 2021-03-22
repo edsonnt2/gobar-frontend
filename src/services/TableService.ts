@@ -42,4 +42,21 @@ export class TableService {
 
     return response.data;
   }
+
+  public static async removeCustomerInTheTable({
+    table_id,
+    customer_id,
+  }: {
+    table_id: string;
+    customer_id: string;
+  }): Promise<void> {
+    await ApiService.remove('tables/customers', {
+      params: {
+        params: {
+          table_id,
+          customer_id,
+        },
+      },
+    });
+  }
 }

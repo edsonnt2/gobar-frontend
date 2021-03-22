@@ -4,7 +4,7 @@ import { Form } from '@unform/web';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
 
-import { CommandService, SearchProduct } from '@/services';
+import { CommandService, ProductService, SearchProduct } from '@/services';
 import { LayoutBusiness, Input, Button } from '@/components';
 import { useModal, useToast } from '@/hooks';
 import { FormattedUtils } from '@/utils';
@@ -305,7 +305,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
           handleProductSelected(searchProducts[cursor]);
           setCursor(-1);
         } else {
-          const response = await CommandService.findProductByInternalCode(search);
+          const response = await ProductService.findProductByInternalCode(search);
 
           if (response) {
             const isRegisted = productSelected.findIndex(({ product_id }) => product_id === response.id);
@@ -383,7 +383,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
       }
 
       try {
-        const response = await CommandService.searchProducts(search);
+        const response = await ProductService.searchProducts(search);
         setSearchProducts(response.filter(({ id }) => !productSelected.some(({ product_id }) => product_id === id)));
       } finally {
         setLoading(false);

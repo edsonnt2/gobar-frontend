@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useHistory, useParams } from 'react-router-dom';
 
-import { Customer as CustomerDTO } from '@/services';
+import { Customer as CustomerDTO, CustomerService } from '@/services';
 import { LayoutBusiness } from '@/components';
 import { useToast, useModal } from '@/hooks';
 import { noAvatar } from '@/assets';
-
-import api from '@/services/api';
 
 import {
   Container,
@@ -28,21 +26,25 @@ const Customer: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [customer, setCustomer] = useState<CustomerDTO>({} as CustomerDTO);
 
-  useEffect(() => {
-    async function loadCustomer(): Promise<void> {
-      try {
-        const response = await api.get<CustomerDTO>(`customers/${id}`);
-        setCustomer(response.data);
-      } catch (error) {
-        addToast({
-          type: 'error',
-          message: 'Opss... Encontramos um erro',
-          description: 'Ocorreu um erro ao carregar dados do cliente, tente novamente',
-        });
-      }
+  const loadCustomer = useCallback(async () => {
+    try {
+      const response = await CustomerService.fetchCustomer(id);
+
+      if (!response) throw new Error();
+
+      setCustomer(response);
+    } catch (error) {
+      addToast({
+        type: 'error',
+        message: 'Opss... Encontramos um erro',
+        description: 'Ocorreu um erro ao carregar dados do cliente, tente novamente',
+      });
     }
-    loadCustomer();
   }, [id, addToast]);
+
+  useEffect(() => {
+    loadCustomer();
+  }, [loadCustomer]);
 
   useEffect(() => {
     if (responseModal.action && responseModal.action === 'return_find_customer') {

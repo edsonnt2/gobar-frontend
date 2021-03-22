@@ -17,6 +17,9 @@ export interface Customer {
   gender?: 'M' | 'W';
   taxId?: number;
   avatar_url?: string;
+  user?: {
+    avatar_url?: string;
+  };
 }
 
 export interface CustomerBusiness extends Customer {

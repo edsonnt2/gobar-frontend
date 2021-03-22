@@ -13,8 +13,30 @@ interface RegisterProduct {
   sale_value: string;
 }
 
-interface Product {
-  teste: any;
+export interface Product {
+  id: string;
+  command_id?: string;
+  product_id?: string;
+  operator_id: string;
+  value: number;
+  quantity: number;
+  description: string;
+  label_description: string;
+  product?: {
+    image_url?: string;
+  };
+  image_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SearchProduct {
+  id?: string;
+  image_url?: string;
+  description: string;
+  quantity: number;
+  internal_code: string;
+  sale_value: number;
 }
 
 export class ProductService {
@@ -66,5 +88,25 @@ export class ProductService {
     });
 
     return response.data;
+  }
+
+  public static async findProductByInternalCode(internal_code: string): Promise<SearchProduct | undefined> {
+    const response = await ApiService.get<SearchProduct>('products/find', {
+      params: {
+        internal_code,
+      },
+    });
+
+    return response?.data;
+  }
+
+  public static async searchProducts(search: string): Promise<SearchProduct[]> {
+    const response = await ApiService.get<SearchProduct[]>('products/search', {
+      params: {
+        search,
+      },
+    });
+
+    return response?.data;
   }
 }
