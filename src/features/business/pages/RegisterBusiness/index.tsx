@@ -3,13 +3,12 @@ import { FiArrowLeft, FiCamera } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
-import Cep from 'cep-promise';
 import * as Yup from 'yup';
 
-import api from '@/services/api';
+import { BrasilAPIService, BusinessService, RegisterBusinessDTO } from '@/services';
 import { Header, Input, FileInput, Button } from '@/components';
 import { useToast, useAuth } from '@/hooks';
-import { getValidationErrors } from '@/utils';
+import { FormattedUtils, getValidationErrors } from '@/utils';
 import { noBusiness } from '@/assets';
 
 import {
@@ -23,22 +22,6 @@ import {
   SeparateInput,
   Footer,
 } from './styles';
-
-interface RegisterBusinessData {
-  file?: File;
-  name: string;
-  category?: string;
-  cell_phone?: string;
-  phone?: string;
-  taxId: string;
-  zip_code: string;
-  street: string;
-  number: string;
-  complement?: string;
-  district: string;
-  city: string;
-  state: string;
-}
 
 interface CategoriesBusiness {
   name: string;
@@ -61,7 +44,7 @@ const RegisterBusiness: React.FC = () => {
 
   const handleListCategory = useCallback(
     (saveCategory: string) => {
-      if (saveCategory.trim() !== '' && categories.length < 4) {
+      if (saveCategory?.trim() && categories.length < 4) {
         const haveSave = categories.find(cat => cat === saveCategory);
 
         if (!haveSave) setCategories([...categories, saveCategory]);
@@ -82,48 +65,51 @@ const RegisterBusiness: React.FC = () => {
     [categories],
   );
 
-  const handleBlur = useCallback(async () => {
-    const cep: string = formRef.current?.getFieldValue('zip_code');
+  const handleBlur = useCallback(
+    async (cep: string) => {
+      if (!cep) return;
 
-    const formattedCep = Number(
-      cep
-        .split('')
-        .filter(char => Number(char) || char === '0')
-        .join(''),
-    );
+      const formattedCep = FormattedUtils.onlyNumber(cep);
+      if (formattedCep.length < 8) return;
 
-    formRef.current?.setData({
-      street: 'carregando...',
-      district: 'carregando...',
-      city: 'carregando...',
-      state: ' ',
-    });
-
-    try {
-      const { street, neighborhood, city, state } = await Cep(formattedCep);
       formRef.current?.setData({
-        street,
-        district: neighborhood,
-        city,
-        state,
-      });
-    } catch {
-      formRef.current?.setData({
-        street: ' ',
-        district: ' ',
-        city: ' ',
+        street: 'carregando...',
+        neighborhood: 'carregando...',
+        city: 'carregando...',
+        state: ' ',
       });
 
-      addToast({
-        type: 'error',
-        message: 'CEP não encontrado',
-        description: 'Ocorreu um erro ao tentar encontrar os dados de CEP',
-      });
-    }
-  }, [addToast]);
+      try {
+        const response = await BrasilAPIService.fetchAddress(FormattedUtils.onlyNumber(cep));
+
+        if (!response) throw new Error();
+
+        const { street, neighborhood, city, state } = response;
+
+        formRef.current?.setData({
+          street,
+          neighborhood,
+          city,
+          state,
+        });
+      } catch {
+        formRef.current?.setData({
+          street: ' ',
+          neighborhood: ' ',
+          city: ' ',
+        });
+
+        addToast({
+          type: 'error',
+          message: 'CEP não encontrado',
+        });
+      }
+    },
+    [addToast],
+  );
 
   const handleSubmit = useCallback(
-    async (data: RegisterBusinessData) => {
+    async (data: RegisterBusinessDTO) => {
       setLoading(true);
       try {
         formRef.current?.setErrors({});
@@ -134,7 +120,7 @@ const RegisterBusiness: React.FC = () => {
           zip_code: Yup.string().required('CEP é obrigatório'),
           number: Yup.string().required('Número é obrigatório'),
           street: Yup.string().required('Logradouro é obrigatório'),
-          district: Yup.string().required('Bairro é obrigatório'),
+          neighborhood: Yup.string().required('Bairro é obrigatório'),
           city: Yup.string().required('Cidade é obrigatório'),
           state: Yup.string().required('Estado é obrigatório'),
         });
@@ -143,56 +129,20 @@ const RegisterBusiness: React.FC = () => {
           abortEarly: false,
         });
 
-        if (categories.length === 0) throw new Error();
+        if (!categories?.length) throw new Error();
 
-        const {
-          file,
-          cell_phone,
-          phone,
-          city,
-          taxId,
-          district,
-          name,
-          number,
-          state,
-          street,
-          zip_code,
-          complement,
-        } = data;
+        const { cell_phone, phone, ...restData } = data;
 
-        const formattedCellPhone =
-          cell_phone &&
-          cell_phone
-            .split('')
-            .filter(char => Number(char) || char === '0')
-            .join('');
+        const response = await BusinessService.registerBusiness({
+          ...restData,
+          ...(cell_phone && { cell_phone: FormattedUtils.onlyNumber(cell_phone) }),
+          ...(phone && { phone: FormattedUtils.onlyNumber(phone) }),
+          categories,
+        });
 
-        const formattedPhone =
-          phone &&
-          phone
-            .split('')
-            .filter(char => Number(char) || char === '0')
-            .join('');
+        if (!response) throw new Error();
 
-        const formData = new FormData();
-
-        formData.append('name', name);
-        formData.append('categories', categories.join(','));
-        formData.append('taxId', taxId);
-        formData.append('zip_code', zip_code);
-        formData.append('street', street);
-        formData.append('number', number);
-        formData.append('district', district);
-        formData.append('city', city);
-        formData.append('state', state);
-        if (complement) formData.append('complement', complement);
-        if (formattedCellPhone) formData.append('cell_phone', formattedCellPhone);
-        if (formattedPhone) formData.append('phone', formattedPhone);
-        if (file) formData.append('avatar', file);
-
-        const {
-          data: { business, token },
-        } = await api.post('business', formData);
+        const { business, token } = response;
 
         saveAuth({
           token,
@@ -203,64 +153,48 @@ const RegisterBusiness: React.FC = () => {
         addToast({
           type: 'success',
           message: 'Cadastro feito com sucesso',
-          description: 'Seu novo Négocio foi cadastrado no goBar :D',
+          description: 'Seu novo Negócio foi cadastrado no goBar :D',
         });
 
         history.push('/business/register-product');
       } catch (error) {
+        let errorCategory: string | undefined;
+
+        if (!categories?.length)
+          errorCategory = data.category ? 'Salve a categoria colocada com enter' : 'Coloque pelo menos 1 categoria';
+
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
 
-          if (categories.length === 0)
-            errors.category =
-              data.category === '' ? 'Coloque pelo menos 1 categoria' : 'Salve a categoria colocada com enter';
+          if (errorCategory) errors.category = errorCategory;
 
           formRef.current?.setErrors(errors);
         } else {
-          let errorData;
+          const whichError = error?.response?.data ? error.response.data.message : undefined;
 
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
+          const errorData: any = {
+            'Business name already registered': { name: 'Nome de Negócio já cadastrodo' },
+            'Cell phone already registered with another business': {
+              cell_phone: 'Celular já cadastrado em outro Negócio',
+            },
+            'Phone already registered with another business': { phone: 'Telefone já cadastrado em outro Negócio' },
+            'TaxId informed is invalid': { taxId: 'CPF/CNPJ informado é inválido' },
+            'CPF registered at another business for another user': {
+              taxId: 'CPF cadastrado em outro Negócio por outro usuário',
+            },
+            'CNPJ registered at another business': { taxId: 'CNPJ cadatrado em outro Negócio' },
+          };
 
-          switch (whichError) {
-            case 'Business name already registered':
-              errorData = { name: 'Nome de Negócio já cadastrodo' };
-              break;
-            case 'Cell phone already registered with another business':
-              errorData = {
-                cell_phone: 'Celular já cadastrado em outro Negócio',
-              };
-              break;
-            case 'Phone already registered with another business':
-              errorData = { phone: 'Telefone já cadastrado em outro Negócio' };
-              break;
-            case 'TaxId informed is invalid':
-              errorData = { taxId: 'CPF/CNPJ informado é inválido' };
-              break;
-            case 'CPF registered at another business for another user':
-              errorData = {
-                taxId: 'CPF cadastrado em outro Negócio por outro usuário',
-              };
-              break;
-            case 'CNPJ registered at another business':
-              errorData = { taxId: 'CNPJ cadatrado em outro Negócio' };
-              break;
-            default:
-              errorData = undefined;
-              break;
-          }
-
-          if (errorData) {
-            formRef.current?.setErrors(errorData);
-          } else if (categories.length === 0) {
-            const erroCategory =
-              data.category === '' ? 'Coloque pelo menos 1 categoria' : 'Salve a categoria colocada com enter';
-
-            formRef.current?.setErrors({ category: erroCategory });
+          if (errorData[whichError] || errorCategory) {
+            formRef.current?.setErrors({
+              ...(errorCategory && { category: errorCategory }),
+              ...errorData[whichError],
+            });
           } else {
             addToast({
               type: 'error',
               message: 'Erro no cadastro',
-              description: 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+              description: whichError || 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
             });
           }
         }
@@ -273,7 +207,7 @@ const RegisterBusiness: React.FC = () => {
   const handleSearchCategory = useCallback(
     (category: string) => {
       setSearchCategories([]);
-      if (category.trim() !== '' && categories.length < 4) {
+      if (category?.trim() && categories.length < 4) {
         setSearchCategory(category);
         setLoadingCategory(true);
       } else {
@@ -285,27 +219,20 @@ const RegisterBusiness: React.FC = () => {
   );
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchCategory.trim() !== '') {
-        api
-          .get<CategoriesBusiness[]>('business/categories/search', {
-            params: {
-              search: searchCategory,
-            },
-          })
-          .then(({ data }) => {
-            setSearchCategories(data);
-          })
-          .catch(() => {
-            addToast({
-              type: 'error',
-              message: 'Opss... Encontramos um erro',
-              description: 'Ocorreu um erro ao busca por cliente',
-            });
-          })
-          .finally(() => {
-            setLoadingCategory(false);
+    const timer = setTimeout(async () => {
+      if (searchCategory?.trim()) {
+        try {
+          const response = await BusinessService.fetchCategories(searchCategory);
+          setSearchCategories(response);
+        } catch {
+          addToast({
+            type: 'error',
+            message: 'Opss... Encontramos um erro',
+            description: 'Ocorreu um erro ao busca por categorias',
           });
+        } finally {
+          setLoadingCategory(false);
+        }
       }
     }, 250);
     return () => {
@@ -369,7 +296,7 @@ const RegisterBusiness: React.FC = () => {
                   hasTitle="CEP"
                   style={{ width: 110, flex: 'inherit' }}
                   styleInput={{ width: '100%', flex: 'auto' }}
-                  hasUpBlur={{ handleBlur }}
+                  handleChange={handleBlur}
                 />
                 <SeparateInput />
                 <Input
@@ -388,7 +315,7 @@ const RegisterBusiness: React.FC = () => {
               <ContentInput>
                 <Input mask="" name="street" hasTitle="Logradouro" placeholder="Rua/Avenida" disabled />
                 <SeparateInput />
-                <Input mask="" name="district" hasTitle="Bairro" disabled />
+                <Input mask="" name="neighborhood" hasTitle="Bairro" disabled />
               </ContentInput>
 
               <ContentInput>

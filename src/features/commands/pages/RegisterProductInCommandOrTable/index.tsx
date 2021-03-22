@@ -4,7 +4,7 @@ import { Form } from '@unform/web';
 import { GiTicket } from 'react-icons/gi';
 import { FormHandles } from '@unform/core';
 
-import { ApiService } from '@/services';
+import { CommandService, SearchProduct } from '@/services';
 import { LayoutBusiness, Input, Button } from '@/components';
 import { useModal, useToast } from '@/hooks';
 import { FormattedUtils } from '@/utils';
@@ -30,23 +30,14 @@ import {
   InfoSearchProduct,
 } from './styles';
 
-interface SearchProduct {
-  id: string;
-  image_url?: string;
-  description: string;
-  quantity: number;
-  internal_code: string;
-  sale_value: number;
-}
-
 interface SelectedProduct {
   product_id?: string;
   image_url?: string;
-  description: string;
-  quantity: string;
+  description?: string;
+  quantity?: string;
   value?: number;
   value_formatted?: string;
-  value_total: string;
+  value_total?: string;
   ref_quantity?: boolean;
   ref_value?: boolean;
 }
@@ -57,13 +48,7 @@ interface HandleChange {
   where?: 'quantity' | 'currency';
 }
 
-interface RegisterCmdORTableData {
-  command_or_table: string;
-  quantity: string[];
-  value?: (string | undefined)[];
-}
-
-const RegisterCommandOrTable: React.FC = () => {
+const RegisterProductInCommandOrTable: React.FC = () => {
   const { addModal, responseModal, resetResponseModal } = useModal();
   const [isFocused, setIsFocused] = useState(false);
   const { addToast } = useToast();
@@ -101,7 +86,7 @@ const RegisterCommandOrTable: React.FC = () => {
     ({ where, index }: Omit<HandleChange, 'value'>) => {
       if (index === undefined) return;
       if (where === 'currency') {
-        if (productSelected[index].value !== undefined) {
+        if (productSelected[index]?.value) {
           setProductSelected(prevState =>
             prevState.map((prev, i) =>
               i === index
@@ -113,8 +98,8 @@ const RegisterCommandOrTable: React.FC = () => {
             ),
           );
         }
-      } else if (productSelected[index].quantity !== '') {
-        if (productSelected[index].value === undefined) {
+      } else if (productSelected[index]?.quantity) {
+        if (!productSelected[index]?.value) {
           setProductSelected(prevState =>
             prevState.map((prev, i) =>
               i === index
@@ -142,13 +127,13 @@ const RegisterCommandOrTable: React.FC = () => {
   }, [productSelected]);
 
   const handleSubmit = useCallback(
-    async (data: RegisterCmdORTableData) => {
+    async ({ command_or_table }: { command_or_table: string }) => {
       setLoadingForm(true);
       try {
         formRef.current?.setErrors({});
 
         let errorProducts: { [key: string]: string } | undefined;
-        if (!data.command_or_table) {
+        if (!command_or_table) {
           errorProducts = {
             command_or_table: 'Número da Comanda é obrigatório',
           };
@@ -162,7 +147,7 @@ const RegisterCommandOrTable: React.FC = () => {
             };
           }
 
-          if (quantity === '') {
+          if (!quantity) {
             errorProducts = {
               [`quantity[${index}]`]: 'Quantidade do produto é obrigatório',
               ...(errorProducts && errorProducts),
@@ -182,22 +167,20 @@ const RegisterCommandOrTable: React.FC = () => {
           quantity,
         }));
 
-        await ApiService.post(`${selectCommandOrTable}s/products`, {
-          [selectCommandOrTable]: data.command_or_table,
+        await CommandService.registerProductInCommandOrTable({
+          resource: selectCommandOrTable,
+          command_or_table,
           products,
         });
 
         addToast({
           type: 'success',
-          message: 'Produto Cadastrado com Sucesso',
-          description:
+          message: 'Cadastrado feito com sucesso',
+          description: `${
             productSelected.length === 1 && Number(productSelected[0].quantity) <= 1
-              ? `Produto adicionado na ${selectCommandOrTable === 'command' ? 'comanda' : 'mesa'} ${
-                  data.command_or_table
-                }`
-              : `Produtos adicionados na ${selectCommandOrTable === 'command' ? 'comanda' : 'mesa'} ${
-                  data.command_or_table
-                }`,
+              ? 'Produto adicionado'
+              : 'Produtos adicionados'
+          } na ${selectCommandOrTable === 'command' ? 'comanda' : 'mesa'} ${command_or_table}`,
         });
 
         setProductSelected([]);
@@ -205,22 +188,28 @@ const RegisterCommandOrTable: React.FC = () => {
         formRef.current?.getFieldRef('command_or_table').focus();
       } catch (error) {
         let errorData;
-        const whichError: string = error.response && error.response.data ? error.response.data.message : 'error';
+        const whichError: string | undefined =
+          error.response && error.response.data ? error.response.data.message : undefined;
 
-        if (whichError === 'Command not found at this Business') {
-          errorData = { command_or_table: 'Comanda não encontrada' };
-        } else if (whichError === 'Table not found at this Business') {
-          errorData = { command_or_table: 'Mesa não encontrada' };
-        } else {
-          const isIdError = whichError.split('|');
-          const findIndex = productSelected.findIndex(product => isIdError[1] && product.product_id === isIdError[1]);
+        const typeError: { [key: string]: { [key: string]: string } } = {
+          'Command not found at this Business': { command_or_table: 'Comanda não encontrada' },
+          'Table not found at this Business': { command_or_table: 'Mesa não encontrada' },
+        };
 
-          errorData =
-            findIndex > -1
-              ? {
-                  [`quantity[${findIndex}]`]: 'Produto com quantidade insuficiente',
-                }
-              : undefined;
+        if (whichError) {
+          if (typeError[whichError]) {
+            errorData = typeError[whichError];
+          } else {
+            const [, product_id] = whichError?.split('|');
+            const findIndex = productSelected.findIndex(product => product_id && product.product_id === product_id);
+
+            errorData =
+              findIndex > -1
+                ? {
+                    [`quantity[${findIndex}]`]: 'Produto com quantidade insuficiente',
+                  }
+                : undefined;
+          }
         }
 
         if (errorData) {
@@ -229,9 +218,11 @@ const RegisterCommandOrTable: React.FC = () => {
           addToast({
             type: 'error',
             message: 'Opss... Encontramos um Erro',
-            description: `Ocorreu um erro ao tentar cadastrar os produtos na ${
-              selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
-            }, por favor, tente novamente !`,
+            description:
+              whichError ||
+              `Ocorreu um erro ao tentar cadastrar os produtos na ${
+                selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
+              }, por favor, tente novamente !`,
           });
         }
       } finally {
@@ -259,53 +250,53 @@ const RegisterCommandOrTable: React.FC = () => {
     }
   }, []);
 
-  const handleProductSelected = useCallback((data: Partial<SearchProduct>) => {
-    setSearch('');
-    setSearchProducts([]);
-    if (data.id) {
-      const description = data.description as string;
-
-      setProductSelected(prevState => [
-        ...prevState.map(prev => ({
-          ...prev,
-          ref_quantity: undefined,
-          ref_value: undefined,
-        })),
-        {
-          product_id: data.id,
-          image_url: data.image_url,
-          description,
-          quantity: '',
-          value: data.sale_value,
-          value_formatted: FormattedUtils.formattedValue(data.sale_value || 0),
-          value_total: FormattedUtils.formattedValue(0),
-          ref_quantity: true,
-        },
-      ]);
-    } else if (data.description && data.description.trim() !== '') {
-      const { description } = data;
-      setProductSelected(prevState => [
-        ...prevState.map(prev => ({
-          ...prev,
-          ref_quantity: undefined,
-          ref_value: undefined,
-        })),
-        {
-          description,
-          quantity: '',
-          value_total: FormattedUtils.formattedValue(0),
-          ref_value: true,
-        },
-      ]);
-    }
-    setLoading(false);
-  }, []);
+  const handleProductSelected = useCallback(
+    ({ id: product_id, description, image_url, sale_value }: Partial<SearchProduct>) => {
+      setSearch('');
+      setSearchProducts([]);
+      if (product_id) {
+        setProductSelected(prevState => [
+          ...prevState.map(prev => ({
+            ...prev,
+            ref_quantity: undefined,
+            ref_value: undefined,
+          })),
+          {
+            product_id,
+            image_url,
+            description,
+            quantity: '',
+            value: sale_value,
+            value_formatted: FormattedUtils.formattedValue(sale_value || 0),
+            value_total: FormattedUtils.formattedValue(0),
+            ref_quantity: true,
+          },
+        ]);
+      } else if (description?.trim()) {
+        setProductSelected(prevState => [
+          ...prevState.map(prev => ({
+            ...prev,
+            ref_quantity: undefined,
+            ref_value: undefined,
+          })),
+          {
+            description,
+            quantity: '',
+            value_total: FormattedUtils.formattedValue(0),
+            ref_value: true,
+          },
+        ]);
+      }
+      setLoading(false);
+    },
+    [],
+  );
 
   const handlekeyDown = useCallback(
     async (e: KeyboardEvent<HTMLInputElement>) => {
       const lengthList = searchProducts.length;
 
-      if (search.trim() === '') {
+      if (!search?.trim()) {
         if (e.key === 'Enter') hasSubmit();
         setSearchProducts([]);
       } else if (e.key === 'Enter') {
@@ -314,14 +305,10 @@ const RegisterCommandOrTable: React.FC = () => {
           handleProductSelected(searchProducts[cursor]);
           setCursor(-1);
         } else {
-          const response = await ApiService.get<SearchProduct>('products/find', {
-            params: {
-              internal_code: search,
-            },
-          });
+          const response = await CommandService.findProductByInternalCode(search);
 
-          if (response.data) {
-            const isRegisted = productSelected.findIndex(({ product_id }) => product_id === response.data.id);
+          if (response) {
+            const isRegisted = productSelected.findIndex(({ product_id }) => product_id === response.id);
 
             if (isRegisted > -1) {
               setProductSelected(prevState => {
@@ -334,7 +321,7 @@ const RegisterCommandOrTable: React.FC = () => {
               });
               setSearch('');
             } else {
-              handleProductSelected(response.data);
+              handleProductSelected(response);
             }
           } else {
             handleProductSelected({
@@ -388,24 +375,18 @@ const RegisterCommandOrTable: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (search.trim() !== '') {
-        ApiService.get<SearchProduct[]>('products/search', {
-          params: {
-            search,
-          },
-        })
-          .then(response => {
-            setSearchProducts(
-              response.data.filter(({ id }) => !productSelected.some(({ product_id }) => product_id === id)),
-            );
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      } else {
+    const timer = setTimeout(async () => {
+      if (!search?.trim()) {
         setLoading(false);
         setSearchProducts([]);
+        return;
+      }
+
+      try {
+        const response = await CommandService.searchProducts(search);
+        setSearchProducts(response.filter(({ id }) => !productSelected.some(({ product_id }) => product_id === id)));
+      } finally {
+        setLoading(false);
       }
     }, 200);
 
@@ -551,4 +532,4 @@ const RegisterCommandOrTable: React.FC = () => {
   );
 };
 
-export default RegisterCommandOrTable;
+export default RegisterProductInCommandOrTable;

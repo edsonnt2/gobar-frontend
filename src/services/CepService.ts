@@ -2,10 +2,19 @@ import axios from 'axios';
 
 import EnvConfig from '@/config/EnvConfig';
 
-export class CepService {
-  public static async fetchAddress<T>(code: string | number): Promise<T | undefined> {
-    const { data } = await axios.get<T>(`${EnvConfig.gobar.cep}/${code}`);
+export interface CEP {
+  cep: string;
+  state: string;
+  city: string;
+  street: string;
+  neighborhood: string;
+  service: string;
+}
 
-    return data;
+export class BrasilAPIService {
+  public static async fetchAddress(cep: string | number): Promise<CEP | undefined> {
+    const response = await axios.get<CEP>(`${EnvConfig.gobar.cep}/cep/v1/${cep}`);
+
+    return response?.data;
   }
 }

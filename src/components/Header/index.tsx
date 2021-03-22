@@ -57,7 +57,7 @@ const Header: React.FC<PropsHeader> = ({ isBusiness }) => {
             </ImgUser>
 
             <InfoUser>
-              <span>{business ? 'Neǵocio' : 'Logado'}</span>
+              <span>{business ? 'Negócio' : 'Logado'}</span>
               <strong>{dataShow.name}</strong>
             </InfoUser>
           </UserHader>

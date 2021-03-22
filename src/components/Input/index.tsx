@@ -32,9 +32,8 @@ interface PropsInput extends InputProps {
     handleSelect(value: string): void;
   };
   icon?: React.ComponentType<IconBaseProps>;
-  hasUpBlur?: {
-    handleBlur(): void;
-  };
+  handleBlur?(value?: string): void;
+  handleChange?(value?: string): void;
   isCurrency?: boolean;
   isButtonRight?: {
     title?: string;
@@ -57,7 +56,8 @@ const Input: React.FC<PropsInput> = ({
   formatField,
   hasMultSelect,
   hasAutoComplete,
-  hasUpBlur,
+  handleBlur,
+  handleChange,
   styleInput,
   isCurrency,
   isButtonRight,
@@ -80,10 +80,10 @@ const Input: React.FC<PropsInput> = ({
     clearError();
   }, [clearError]);
 
-  const handleBlur = useCallback(() => {
-    if (hasUpBlur) hasUpBlur.handleBlur();
+  const handleBlurFn = useCallback(() => {
+    if (handleBlur) handleBlur();
     setIsFocused(false);
-  }, [hasUpBlur]);
+  }, [handleBlur]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -111,8 +111,10 @@ const Input: React.FC<PropsInput> = ({
     [hasMultSelect, valueForm, hasAutoComplete, cursor, fieldName, hasSubmitDown],
   );
 
-  const handleChange = useCallback(
+  const handleChangeFn = useCallback(
     (value: string) => {
+      if (handleChange) handleChange(value);
+
       if (hasAutoComplete) {
         setCursor(-1);
         hasAutoComplete.handleChange(value);
@@ -158,7 +160,7 @@ const Input: React.FC<PropsInput> = ({
         setValueForm(value);
       }
     },
-    [formatField, hasAutoComplete, isCurrency, hasOnChange],
+    [formatField, hasAutoComplete, isCurrency, hasOnChange, handleChange],
   );
 
   const handleClickAutoComplete = useCallback(
@@ -180,11 +182,11 @@ const Input: React.FC<PropsInput> = ({
       path: 'value',
       setValue(_, value: string) {
         if (value) {
-          handleChange(value.trim());
+          handleChangeFn(value.trim());
         }
       },
     });
-  }, [fieldName, registerField, handleChange]);
+  }, [fieldName, registerField, handleChangeFn]);
 
   useEffect(() => {
     if (defaultValue) setValueForm(prevValue => (prevValue !== defaultValue ? defaultValue : prevValue));
@@ -219,12 +221,12 @@ const Input: React.FC<PropsInput> = ({
 
         <ReactInputMask
           ref={refInput}
-          onChange={e => handleChange(e.target.value)}
+          onChange={e => handleChangeFn(e.target.value)}
           value={valueForm}
           onKeyDown={handleKeyDown}
           disabled={disabled}
           onFocus={handleFocus}
-          onBlur={handleBlur}
+          onBlur={handleBlurFn}
           style={styleInput}
           {...rest}
         />
