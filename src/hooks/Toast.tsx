@@ -15,7 +15,7 @@ interface ToastContextData {
   removeToast(id: string): void;
 }
 
-const ToastContext = createContext<ToastContextData>({} as ToastContextData);
+const ToastContext = createContext({} as ToastContextData);
 
 const ToastProvider: React.FC = ({ children }) => {
   const [messages, setMessages] = useState<ToastMessage[]>([]);

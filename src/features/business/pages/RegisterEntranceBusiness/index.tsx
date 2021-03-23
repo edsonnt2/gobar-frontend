@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 
 import { Entrance, EntranceService } from '@/services';
 import { Header, Button, Input, Select } from '@/components';
-import { useToast } from '@/hooks';
+import { useLoading, useToast } from '@/hooks';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 
 import { MenuRegisterPTT } from '../../components';
@@ -34,9 +34,9 @@ interface RegisterEntranceBusinessData {
 
 const RegisterEntranceBusiness: React.FC = () => {
   const { addToast } = useToast();
+  const { setLoading } = useLoading();
   const history = useHistory();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
   const [entrance, setEntrance] = useState<Entrance[]>([]);
 
   useEffect(() => {
@@ -124,11 +124,12 @@ const RegisterEntranceBusiness: React.FC = () => {
         setLoading(false);
       }
     },
-    [addToast],
+    [addToast, setLoading],
   );
 
   const handleDeleteEntrance = useCallback(
     async (id: string) => {
+      setLoading(true);
       try {
         await EntranceService.removeEntrance(id);
 
@@ -143,9 +144,11 @@ const RegisterEntranceBusiness: React.FC = () => {
           message: 'Opss... Encontramos um erro',
           description: error?.response?.data?.message || 'Ocorreu um erro ao tenta deleta entrada, tente novamente',
         });
+      } finally {
+        setLoading(false);
       }
     },
-    [addToast],
+    [addToast, setLoading],
   );
 
   return (
@@ -184,9 +187,7 @@ const RegisterEntranceBusiness: React.FC = () => {
                 </Select>
               </ContentInput>
 
-              <Button loading={loading} type="submit">
-                CADASTRAR
-              </Button>
+              <Button type="submit">CADASTRAR</Button>
             </Form>
 
             {entrance.length > 0 && (

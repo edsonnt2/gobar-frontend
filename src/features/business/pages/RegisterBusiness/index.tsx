@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import { BrasilAPIService, BusinessService, RegisterBusinessDTO } from '@/services';
 import { Header, Input, FileInput, Button } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { FormattedUtils, getValidationErrors } from '@/utils';
 import { noBusiness } from '@/assets';
 
@@ -29,10 +29,10 @@ interface CategoriesBusiness {
 
 const RegisterBusiness: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
+  const { setLoading } = useLoading();
   const { saveAuth, user } = useAuth();
   const { addToast } = useToast();
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [searchCategories, setSearchCategories] = useState<CategoriesBusiness[]>([]);
@@ -202,7 +202,7 @@ const RegisterBusiness: React.FC = () => {
         setLoading(false);
       }
     },
-    [addToast, categories, saveAuth, user, history],
+    [addToast, categories, saveAuth, user, history, setLoading],
   );
 
   const handleSearchCategory = useCallback(
@@ -330,7 +330,7 @@ const RegisterBusiness: React.FC = () => {
                 />
               </ContentInput>
 
-              <Button type="button" loading={loading} onClick={functionThatSubmitsForm}>
+              <Button type="button" onClick={functionThatSubmitsForm}>
                 CONTINUAR
               </Button>
             </Form>

@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState } from 'react';
+import { useRef, useCallback } from 'react';
 import { FiUser, FiSmartphone, FiMail, FiCalendar, FiLock, FiArrowLeft } from 'react-icons/fi';
 import { Link, useHistory } from 'react-router-dom';
 import { FormHandles } from '@unform/core';
@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import { AuthService, SignInDTO } from '@/services';
 import { Input, Button } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { DateUtils, FormattedUtils, getValidationErrors } from '@/utils';
 import { logo } from '@/assets';
 
@@ -15,7 +15,7 @@ import { Container, Content, AsideRegister, ContentDescription, Footer } from '.
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const { saveAuth } = useAuth();
   const history = useHistory();
@@ -85,7 +85,7 @@ const SignUp: React.FC = () => {
         setLoading(false);
       }
     },
-    [history, addToast, saveAuth],
+    [history, addToast, saveAuth, setLoading],
   );
 
   return (
@@ -128,9 +128,7 @@ const SignUp: React.FC = () => {
             <Input mask="(99) 99999-9999" name="cell_phone" icon={FiSmartphone} placeholder="Celular" />
             <Input name="password" icon={FiLock} placeholder="Senha" type="password" />
             <Input mask="99/99/9999" name="birthDate" icon={FiCalendar} placeholder="Data de Nascimento" />
-            <Button loading={loading} type="submit">
-              CADASTRAR
-            </Button>
+            <Button type="submit">CADASTRAR</Button>
           </Form>
 
           <Link to="/">

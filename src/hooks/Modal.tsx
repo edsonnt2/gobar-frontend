@@ -36,7 +36,7 @@ interface ModalContextData {
   resetResponseModal(): void;
 }
 
-const ModalContext = createContext<ModalContextData>({} as ModalContextData);
+const ModalContext = createContext({} as ModalContextData);
 
 const ModalProvider: React.FC = ({ children }) => {
   const [dataModal, setDataModal] = useState<ModalRequest | undefined>(undefined);

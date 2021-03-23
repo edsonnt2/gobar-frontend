@@ -9,3 +9,4 @@ export * from './LinkCustom';
 export * from './ModalContainer';
 export * from './Select';
 export * from './ToastContainer';
+export * from './Spinner';

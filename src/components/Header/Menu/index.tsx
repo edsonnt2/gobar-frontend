@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FiPower, FiUsers, FiPackage, FiDatabase } from 'react-icons/fi';
-import { useHistory } from 'react-router-dom';
 
 import { AuthService } from '@/services';
-import { useAuth, Business, User, useToast } from '@/hooks';
+import { useAuth, Business, User, useToast, useLoading } from '@/hooks';
 
 import { noAvatar, noBusiness } from '@/assets';
 
@@ -16,7 +15,7 @@ export interface MenuProps {
 }
 
 const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
-  const history = useHistory();
+  const { setLoading } = useLoading();
   const { signOut, saveAuth, business, user } = useAuth();
   const { addToast } = useToast();
   const [listBusiness, setListBusiness] = useState<Business[]>([]);
@@ -32,38 +31,40 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
         addToast({
           type: 'error',
           message: 'Ooops... Encontrando um erro',
-          description: 'Ocorreu um erro ao entrar em negócio, tente novamente',
+          description: 'Ocorreu um erro ao carregar seus negócios',
         });
       });
   }, [addToast, business]);
 
   const handleBackUser = useCallback(async () => {
     setShowOptions();
+    setLoading(true);
     try {
       const response = await AuthService.fecthSession();
 
-      if (!response) return;
+      if (!response) throw new Error();
 
       saveAuth(response);
 
       addToast({
         type: 'success',
-        message: `Logado como ${response.user.full_name}`,
+        message: `Logado como ${response.user?.name}`,
       });
-
-      history.push('/dashboard');
     } catch (error) {
       addToast({
         type: 'error',
         message: 'Ooops... Encontrando um erro',
-        description: 'Ocorreu um erro ao volta para usuário, tente novamente',
+        description: error?.response?.data?.message || 'Ocorreu um erro ao volta para usuário, tente novamente',
       });
+    } finally {
+      setLoading(false);
     }
-  }, [saveAuth, addToast, history, setShowOptions]);
+  }, [saveAuth, addToast, setLoading, setShowOptions]);
 
   const handleLoggedBusiness = useCallback(
     async (business_id: string) => {
       setShowOptions();
+      setLoading(true);
       try {
         const response = await AuthService.authenticateBusiness(business_id);
 
@@ -78,17 +79,17 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
           type: 'success',
           message: `Logado como ${response?.business?.name}`,
         });
-
-        history.push('/business');
       } catch (error) {
         addToast({
           type: 'error',
           message: 'Ooops... Encontrando um erro',
           description: error?.response?.data?.message || 'Ocorreu um erro ao entrar em negócio, tente novamente',
         });
+      } finally {
+        setLoading(false);
       }
     },
-    [saveAuth, addToast, user, history, setShowOptions],
+    [saveAuth, addToast, user, setLoading, setShowOptions],
   );
 
   return (

@@ -5,7 +5,7 @@ import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
 import { Button, Select, Input } from '@/components';
-import { MakeyPayData, useModal, useToast } from '@/hooks';
+import { MakeyPayData, useLoading, useModal, useToast } from '@/hooks';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 
 import { onChangeDiscont, onChangePayment, sendPayment } from './Functions';
@@ -40,10 +40,10 @@ export interface FormOfPayment {
 }
 
 const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({ style, data }) => {
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
   const [textButton, setTextButton] = useState('Fazer Pagamento');
   const [formOfPayment, setFormOfPayment] = useState<FormOfPayment[]>([
     {
@@ -116,7 +116,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
         setLoading(false);
       }
     },
-    [addToast, formOfPayment, payData, removeModal],
+    [addToast, formOfPayment, payData, removeModal, setLoading],
   );
 
   const handleFormPayment = useCallback(
@@ -327,9 +327,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           </Fragment>
         ))}
 
-        <Button type="submit" loading={loading}>
-          {textButton}
-        </Button>
+        <Button type="submit">{textButton}</Button>
       </Form>
     </Container>
   );

@@ -86,7 +86,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
           addToast({
             type: 'error',
             message: 'Opss.. Encontramos um erro',
-            description: 'Ocorreu um erro ao carregar as mesas para esse comércio, por favor, tente novamente',
+            description: 'Ocorreu um erro ao carregar as mesas para esse negócio, tente novamente',
           });
         })
         .finally(() => {

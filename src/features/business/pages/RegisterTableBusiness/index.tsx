@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import { Form } from '@unform/web';
@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import { BusinessService } from '@/services';
 import { Header, Button, Input } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { getValidationErrors } from '@/utils';
 
 import { MenuRegisterPTT } from '../../components';
@@ -15,11 +15,11 @@ import { MenuRegisterPTT } from '../../components';
 import { Container, Content, BackPage, Main, ContentRegister, Footer } from './styles';
 
 const RegisterTableBusiness: React.FC = () => {
+  const { setLoading } = useLoading();
   const { business, saveAuth } = useAuth();
   const { addToast } = useToast();
   const history = useHistory();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const quantityTable = String(business?.table) || '0';
@@ -74,7 +74,7 @@ const RegisterTableBusiness: React.FC = () => {
         setLoading(false);
       }
     },
-    [addToast, saveAuth],
+    [addToast, saveAuth, setLoading],
   );
 
   return (
@@ -95,9 +95,7 @@ const RegisterTableBusiness: React.FC = () => {
 
             <Form onSubmit={handleSubmit} ref={formRef}>
               <Input type="number" name="table" hasTitle="Quantidade de Mesas" formatField="number" />
-              <Button loading={loading} type="submit">
-                SALVAR
-              </Button>
+              <Button type="submit">SALVAR</Button>
             </Form>
           </ContentRegister>
         </Main>

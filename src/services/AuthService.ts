@@ -3,7 +3,6 @@ import { ApiService } from './ApiService';
 interface User {
   id: string;
   name: string;
-  full_name?: string;
   cell_phone: number;
   email: string;
   birthDate: string;

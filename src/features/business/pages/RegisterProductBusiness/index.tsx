@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 
 import { ProductService } from '@/services';
 import { Header, Button, Input, FileInput } from '@/components';
-import { useToast } from '@/hooks';
+import { useLoading, useToast } from '@/hooks';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 import { addImage } from '@/assets';
 
@@ -44,10 +44,10 @@ interface RegisterProductBusinessData {
 }
 
 const RegisterProductBusiness: React.FC = () => {
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const history = useHistory();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
 
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [allCategories, setAllCategories] = useState<CategoryProvider[]>([]);
@@ -138,7 +138,7 @@ const RegisterProductBusiness: React.FC = () => {
         setLoading(false);
       }
     },
-    [addToast],
+    [addToast, setLoading],
   );
 
   const handleCategory = useCallback((field: string) => {
@@ -339,7 +339,7 @@ const RegisterProductBusiness: React.FC = () => {
                 />
               </ContentInput>
 
-              <Button type="button" loading={loading} onClick={functionThatSubmitsForm}>
+              <Button type="button" onClick={functionThatSubmitsForm}>
                 CADASTRAR
               </Button>
             </Form>

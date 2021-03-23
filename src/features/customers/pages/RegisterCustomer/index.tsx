@@ -7,18 +7,18 @@ import * as Yup from 'yup';
 
 import { CustomerService, Customer, RegisterCustomer } from '@/services';
 import { LayoutBusiness, Button, Input, Select } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { DateUtils, FormattedUtils, getValidationErrors } from '@/utils';
 
 import { Container, Content, BackPage } from './styles';
 
 const FindCustomer: React.FC = () => {
+  const { setLoading } = useLoading();
   const formRef = useRef<FormHandles>(null);
   const { addToast } = useToast();
   const { business } = useAuth();
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
   const [dataCustomer, setDataCustomer] = useState<Customer>({} as Customer);
 
   const loadCustomer = useCallback(async () => {
@@ -119,7 +119,7 @@ const FindCustomer: React.FC = () => {
         setLoading(false);
       }
     },
-    [id, addToast, business, history],
+    [id, addToast, business, history, setLoading],
   );
 
   useEffect(() => {
@@ -159,9 +159,7 @@ const FindCustomer: React.FC = () => {
               <option value="W">Mulher</option>
             </Select>
 
-            <Button loading={loading} type="submit">
-              CADASTRAR
-            </Button>
+            <Button type="submit">CADASTRAR</Button>
           </Form>
         </Content>
       </Container>
