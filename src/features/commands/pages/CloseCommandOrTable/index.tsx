@@ -268,28 +268,27 @@ const CloseCommandOrTable: React.FC = () => {
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           whereFormRef.current?.setErrors(errors);
-        } else {
-          const whichError: string | undefined =
-            error.response && error.response.data ? error.response.data.message : undefined;
-
-          if (whichError === 'Command not found at the Business') {
-            formRefCommand.current?.setErrors({
-              command: 'Comanda não encotrada',
-            });
-          } else if (whichError === 'Table not found at the Business') {
-            formRefTable.current?.setErrors({
-              table: 'Mesa não encotrada',
-            });
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Opss... Encontramos um erro',
-              description: whichError || 'Ocorreu um erro ao buscar por comanda, por favor, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Command not found at the Business': { command: 'Comanda não encotrada' },
+          'Table not found at the Business': { table: 'Mesa não encotrada' },
+        };
+
+        if (typeErrors[whichError]) {
+          formRefTable.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um erro',
+          description: whichError || 'Ocorreu um erro ao buscar por comanda, por favor, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }
@@ -427,15 +426,14 @@ const CloseCommandOrTable: React.FC = () => {
 
   const handleRemoveCustomerTable = useCallback(
     async ({ table_id, customer_id }: HandleRemoveCustomerTable) => {
-      try {
-        TableService.removeCustomerInTheTable({ table_id, customer_id });
-      } catch {
+      TableService.removeCustomerInTheTable({ table_id, customer_id }).catch(error => {
+        const whichError = error?.response?.data?.message || undefined;
         addToast({
           type: 'error',
           message: 'Opss... Encontramos um erro',
-          description: 'Ocorreu um erro ao deletar o cliente da Mesa',
+          description: whichError || 'Ocorreu um erro ao deletar o cliente da Mesa',
         });
-      }
+      });
 
       setTableProduct(prevState =>
         prevState.map(prev =>
@@ -451,6 +449,7 @@ const CloseCommandOrTable: React.FC = () => {
       addToast({
         type: 'success',
         message: 'Cliente removido com sucesso',
+        description: 'O Cliente foi removido da mesa selecionada',
       });
     },
     [addToast],

@@ -34,31 +34,29 @@ const FindCustomer: React.FC = () => {
       customer: { id, avatar_url, name, command_open, table_number, command },
       command_or_table,
     }: HandleCommandOrTable) => {
-      if (command_open && command_or_table === 'command') {
-        const number_command = command.find(
-          ({ business_id, command_closure_id }) => business_id === business?.id && !command_closure_id,
-        );
+      if (command_open || table_number) {
+        const number_command =
+          command_or_table === 'command'
+            ? command.find(({ business_id, command_closure_id }) => business_id === business?.id && !command_closure_id)
+            : undefined;
 
-        history.push('business/close-command-or-table', {
-          number: number_command?.number,
+        history.push('business/command-or-table/close', {
+          number: number_command?.number || table_number,
           command_or_table,
         });
-      } else if (table_number && command_or_table === 'table') {
-        history.push('business/close-command-or-table', {
-          number: table_number,
-          command_or_table,
-        });
-      } else {
-        addModal({
-          customer: {
-            where: 'findCustomer',
-            id,
-            name,
-            avatar_url: avatar_url || noAvatar,
-            command_or_table,
-          },
-        });
+
+        return;
       }
+
+      addModal({
+        customer: {
+          where: 'findCustomer',
+          id,
+          name,
+          avatar_url: avatar_url || noAvatar,
+          command_or_table,
+        },
+      });
     },
     [addModal, history, business],
   );

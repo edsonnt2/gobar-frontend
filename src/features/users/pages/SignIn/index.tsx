@@ -47,7 +47,7 @@ const SignIn: React.FC = () => {
         addToast({
           type: 'success',
           message: 'Login feito com sucesso',
-          description: 'Estamos felizes em te ver por aqui :D',
+          description: 'Estamos felizes em saber que você está aqui :D',
         });
 
         history.push('/dashboard');
@@ -55,18 +55,22 @@ const SignIn: React.FC = () => {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
           formRef.current?.setErrors(errors);
-        } else {
-          const description =
-            error.response && error.response.data && error.response.data.message === 'Credentials is required'
-              ? 'Cheque suas credenciais e tente fazer login novamente'
-              : 'Ocorreu um erro ao fazer o login, por favor, tente novamente';
-
-          addToast({
-            type: 'error',
-            message: 'Erro ao fazer login',
-            description,
-          });
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Credentials is required': 'Cheque suas credenciais e tente fazer login novamente',
+        };
+
+        addToast({
+          type: 'error',
+          message: 'Erro ao fazer login',
+          description:
+            typeErrors[whichError] || whichError || 'Ocorreu um erro ao fazer o login, por favor, tente novamente',
+        });
+      } finally {
         setLoading(false);
       }
     },

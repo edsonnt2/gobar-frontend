@@ -113,34 +113,27 @@ const RegisterProductBusiness: React.FC = () => {
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           formRef.current?.setErrors(errors);
-        } else {
-          let errorData;
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          switch (whichError) {
-            case 'Internal code already registered':
-              errorData = { internal_code: 'Código interno já cadastrado' };
-              break;
-            case 'Description already registered':
-              errorData = { description: 'Descrição já cadastrada' };
-              break;
-            default:
-              errorData = undefined;
-              break;
-          }
-
-          if (errorData) {
-            formRef.current?.setErrors(errorData);
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no cadastro',
-              description: 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Internal code already registered': { internal_code: 'Código interno já cadastrado' },
+          'Description already registered': { description: 'Descrição já cadastrada' },
+        };
+
+        if (whichError && typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }

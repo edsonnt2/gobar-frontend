@@ -98,19 +98,20 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           return;
         }
 
-        const whichError = error.response && error.response.data ? error.response.data.message : undefined;
+        const whichError = error?.response?.data?.message || undefined;
 
-        if (whichError === 'Command number already registered') {
-          formRef.current?.setErrors({
-            number: 'Número de comanda já Cadastrado',
-          });
-        } else {
-          addToast({
-            type: 'error',
-            message: 'Erro no Pagamento',
-            description: whichError || 'Ocorreu um erro ao tentar finalizar o pagamento, por favor, tente novamente !',
-          });
-        }
+        const typeErrors: { [key: string]: string } = {
+          'Type money requires value received': 'Forma de pagamento em dinheiro requer valor recebido',
+          'One of the command was not found in the business': 'Uma das comandas não foram encontradas no negócio',
+          'Type card requires selected of card': 'Forma de pagamento em cartão requer a seleção do tipo de cartão',
+        };
+
+        addToast({
+          type: 'error',
+          message: 'Erro no Pagamento',
+          description:
+            typeErrors[whichError] || 'Ocorreu um erro ao tentar finalizar o pagamento, por favor, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }

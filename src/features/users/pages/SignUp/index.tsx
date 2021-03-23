@@ -5,21 +5,13 @@ import { FormHandles } from '@unform/core';
 import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
-import api from '@/services/api';
+import { AuthService, SignInDTO } from '@/services';
 import { Input, Button } from '@/components';
 import { useToast, useAuth } from '@/hooks';
-import { getValidationErrors } from '@/utils';
+import { DateUtils, FormattedUtils, getValidationErrors } from '@/utils';
 import { logo } from '@/assets';
 
 import { Container, Content, AsideRegister, ContentDescription, Footer } from './styles';
-
-interface SignInData {
-  name: string;
-  cell_phone: string;
-  email: string;
-  password: string;
-  birthDate: string;
-}
 
 const SignUp: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -29,7 +21,7 @@ const SignUp: React.FC = () => {
   const history = useHistory();
 
   const handleSubmit = useCallback(
-    async (data: SignInData) => {
+    async (data: SignInDTO) => {
       setLoading(true);
       try {
         formRef.current?.setErrors({});
@@ -47,29 +39,20 @@ const SignUp: React.FC = () => {
 
         const { birthDate, cell_phone, ...other } = data;
 
-        const formattedCellPhone = cell_phone
-          .split('')
-          .filter(char => Number(char) || char === '0')
-          .join('');
-
-        const splitBirth = birthDate.split('/');
-
-        const formattedBirth = `${splitBirth[2]}-${splitBirth[1]}-${splitBirth[0]}`;
-
-        const {
-          data: { user, token },
-        } = await api.post('users', {
-          birthDate: formattedBirth,
-          cell_phone: formattedCellPhone,
+        const response = await AuthService.registerUser({
           ...other,
+          cell_phone: FormattedUtils.onlyNumber(cell_phone),
+          birthDate: DateUtils.formattedBirth(birthDate),
         });
 
-        saveAuth({ user, token });
+        if (!response) throw new Error();
+
+        saveAuth(response);
 
         addToast({
           type: 'success',
           message: 'Cadastro feito com sucesso',
-          description: `Ola ${user.name}, seja bem vindo ao goBar ;)`,
+          description: `Ola ${response.user.name}, seja bem vindo ao goBar ;)`,
         });
 
         history.push('/dashboard');
@@ -77,39 +60,28 @@ const SignUp: React.FC = () => {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
           formRef.current?.setErrors(errors);
-        } else {
-          let errorData;
-
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          switch (whichError) {
-            case 'Email already registered in another account':
-              errorData = { email: 'E-mail já está cadastrado' };
-              break;
-            case 'Phone already registered in another account':
-              errorData = { cell_phone: 'Celular já está cadastrado' };
-              break;
-            case 'Format Date invalid':
-              errorData = { birthDate: 'Data informada é inválida' };
-              break;
-            case 'Age minimum for register is 16 Years':
-              errorData = { birthDate: 'Idade mínima é de 16 anos' };
-              break;
-            default:
-              errorData = undefined;
-              break;
-          }
-
-          if (errorData) {
-            formRef.current?.setErrors(errorData);
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no cadastro',
-              description: 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Email already registered in another account': { email: 'E-mail já está cadastrado' },
+          'Phone already registered in another account': { cell_phone: 'Celular já está cadastrado' },
+          'Format Date invalid': { birthDate: 'Data informada é inválida' },
+          'Age minimum for register is 16 Years': { birthDate: 'Idade mínima é de 16 anos' },
+        };
+
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+        });
+      } finally {
         setLoading(false);
       }
     },

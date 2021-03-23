@@ -67,6 +67,8 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
       try {
         const response = await AuthService.authenticateBusiness(business_id);
 
+        if (!response) throw new Error();
+
         saveAuth({
           ...response,
           user,
@@ -82,7 +84,7 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
         addToast({
           type: 'error',
           message: 'Ooops... Encontrando um erro',
-          description: 'Ocorreu um erro ao entrar em negócio, tente novamente',
+          description: error?.response?.data?.message || 'Ocorreu um erro ao entrar em negócio, tente novamente',
         });
       }
     },
@@ -107,7 +109,7 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
       </BoxInfoMenu>
       {business && (
         <>
-          <LinkOption to="/business/register-product">
+          <LinkOption to="/business/register/product">
             <FiPackage size={22} />
             Cadastros
           </LinkOption>

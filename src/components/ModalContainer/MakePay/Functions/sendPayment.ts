@@ -89,7 +89,7 @@ export default async function sendPayment({
   }));
 
   if (sumSubTotal < valueTotalPay) {
-    PaymentService.sendDiscountPayment({
+    await PaymentService.sendDiscountPayment({
       value_total: payData.value_total,
       discount: payData.value_discont,
       command_id: payData.close_id[0],
@@ -99,7 +99,7 @@ export default async function sendPayment({
     return 'discount';
   }
 
-  PaymentService.sendPayment({
+  await PaymentService.sendPayment({
     resource: payData.type,
     value_total: payData.value_total,
     discount: payData.value_discont,

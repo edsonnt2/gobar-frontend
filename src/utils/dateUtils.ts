@@ -11,8 +11,8 @@ export class DateUtils {
   }
 
   public static formattedBirth(date: string): string {
-    const splitDate = date.split('/');
+    const [day, month, year] = date.split('/');
 
-    return `${splitDate[2]}-${splitDate[1]}-${splitDate[0]}`;
+    return `${year}-${month}-${day}`;
   }
 }

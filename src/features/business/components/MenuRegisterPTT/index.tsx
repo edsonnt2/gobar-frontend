@@ -11,19 +11,19 @@ const MenuRegisterPTT: React.FC<Props> = ({ whoSelected }) => {
     <Container>
       <Menu>
         <li>
-          <LinkMenu to="/business/register-product" selected={whoSelected === 'product' ? 1 : 0}>
+          <LinkMenu to="/business/register/product" selected={whoSelected === 'product' ? 1 : 0}>
             <GiBookmarklet size={20} />
             Cadastrar Produto
           </LinkMenu>
         </li>
         <li>
-          <LinkMenu to="/business/register-table" selected={whoSelected === 'table' ? 1 : 0}>
+          <LinkMenu to="/business/register/table" selected={whoSelected === 'table' ? 1 : 0}>
             <GiRoundTable size={20} />
             Cadastrar Mesa
           </LinkMenu>
         </li>
         <li>
-          <LinkMenu to="/business/register-entrance" selected={whoSelected === 'entrance' ? 1 : 0}>
+          <LinkMenu to="/business/register/entrance" selected={whoSelected === 'entrance' ? 1 : 0}>
             <GiTicket size={20} />
             Cadastrar Entrada
           </LinkMenu>

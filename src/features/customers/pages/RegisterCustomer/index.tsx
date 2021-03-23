@@ -76,7 +76,7 @@ const FindCustomer: React.FC = () => {
           ...(email && { email }),
         });
 
-        if (!response) return;
+        if (!response) throw new Error();
 
         addToast({
           type: 'success',
@@ -88,51 +88,34 @@ const FindCustomer: React.FC = () => {
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           formRef.current?.setErrors(errors);
-        } else {
-          let errorData;
-
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          switch (whichError) {
-            case 'Cell phone already registered at another customer':
-              errorData = {
-                cell_phone: 'Celular já cadastrado por outro cliente',
-              };
-              break;
-            case 'Cell phone already registered at one user':
-              errorData = {
-                cell_phone: 'Celular já cadastrado por um usuário',
-              };
-              break;
-            case 'E-mail already registered at another customer':
-              errorData = { email: 'E-mail já cadastrado por outro cliente' };
-              break;
-            case 'E-mail already registered at one user':
-              errorData = { email: 'E-mail já cadastrado por um usuário' };
-              break;
-            case 'Format Date invalid':
-              errorData = { birthDate: 'Data informada é inválida' };
-              break;
-            case 'Age minimum for register is 16 Years':
-              errorData = { birthDate: 'Idade mínima é de 16 anos' };
-              break;
-            default:
-              errorData = undefined;
-              break;
-          }
-
-          if (errorData) {
-            formRef.current?.setErrors(errorData);
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no cadastro',
-              description: 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Cell phone already registered at another customer': {
+            cell_phone: 'Celular já cadastrado por outro cliente',
+          },
+          'Cell phone already registered at one user': { cell_phone: 'Celular já cadastrado por um usuário' },
+          'E-mail already registered at another customer': { email: 'E-mail já cadastrado por outro cliente' },
+          'E-mail already registered at one user': { email: 'E-mail já cadastrado por um usuário' },
+          'Format Date invalid': { birthDate: 'Data informada é inválida' },
+          'Age minimum for register is 16 Years': { birthDate: 'Idade mínima é de 16 anos' },
+        };
+
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+        });
+      } finally {
         setLoading(false);
       }
     },

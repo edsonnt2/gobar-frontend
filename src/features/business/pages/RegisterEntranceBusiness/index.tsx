@@ -74,7 +74,7 @@ const RegisterEntranceBusiness: React.FC = () => {
           consume: !!Number(consume),
         });
 
-        if (!response) return;
+        if (!response) throw new Error();
 
         setEntrance(prevEntrance => [
           ...prevEntrance,
@@ -100,32 +100,26 @@ const RegisterEntranceBusiness: React.FC = () => {
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           formRef.current?.setErrors(errors);
-        } else {
-          let errorData;
-
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          switch (whichError) {
-            case 'Entrance description already registered':
-              errorData = { description: 'Descrição de Entrada já cadastrada' };
-              break;
-            default:
-              errorData = undefined;
-              break;
-          }
-
-          if (errorData) {
-            formRef.current?.setErrors(errorData);
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no Cadastro de Entrada',
-              description: 'Ocorreu um erro ao fazer o cadastro da entradao produto, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Entrance description already registered': { description: 'Descrição de Entrada já cadastrada' },
+        };
+
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro de entrada',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro da entrada !',
+        });
       } finally {
         setLoading(false);
       }
@@ -141,13 +135,13 @@ const RegisterEntranceBusiness: React.FC = () => {
         setEntrance(prevEntrance => prevEntrance.filter(getEntrance => getEntrance.id !== id));
         addToast({
           type: 'success',
-          message: 'Entrada Deletada com sucesso',
+          message: 'Entrada deletada com sucesso',
         });
       } catch (error) {
         addToast({
           type: 'error',
           message: 'Opss... Encontramos um erro',
-          description: 'Ocorreu um erro ao tenta deleta entrada, tente novamente',
+          description: error?.response?.data?.message || 'Ocorreu um erro ao tenta deleta entrada, tente novamente',
         });
       }
     },

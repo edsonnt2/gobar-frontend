@@ -45,6 +45,8 @@ const RegisterTableBusiness: React.FC = () => {
 
         const response = await BusinessService.updateNumberOfTable(table);
 
+        if (!response) throw new Error();
+
         saveAuth({
           business: response,
         });
@@ -57,15 +59,17 @@ const RegisterTableBusiness: React.FC = () => {
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           formRef.current?.setErrors(errors);
-        } else {
-          addToast({
-            type: 'error',
-            message: 'Erro no cadastro',
-            description: 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
-          });
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }

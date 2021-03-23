@@ -187,44 +187,37 @@ const RegisterProductInCommandOrTable: React.FC = () => {
         formRef.current?.setFieldValue('command_or_table', ' ');
         formRef.current?.getFieldRef('command_or_table').focus();
       } catch (error) {
-        let errorData;
-        const whichError: string | undefined =
-          error.response && error.response.data ? error.response.data.message : undefined;
+        const whichError = error?.response?.data?.message || undefined;
 
-        const typeError: { [key: string]: { [key: string]: string } } = {
+        const typeErrors: { [key: string]: any } = {
           'Command not found at this Business': { command_or_table: 'Comanda não encontrada' },
           'Table not found at this Business': { command_or_table: 'Mesa não encontrada' },
         };
 
-        if (whichError) {
-          if (typeError[whichError]) {
-            errorData = typeError[whichError];
-          } else {
-            const [, product_id] = whichError?.split('|');
-            const findIndex = productSelected.findIndex(product => product_id && product.product_id === product_id);
-
-            errorData =
-              findIndex > -1
-                ? {
-                    [`quantity[${findIndex}]`]: 'Produto com quantidade insuficiente',
-                  }
-                : undefined;
-          }
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
         }
 
-        if (errorData) {
-          formRef.current?.setErrors(errorData);
-        } else {
-          addToast({
-            type: 'error',
-            message: 'Opss... Encontramos um Erro',
-            description:
-              whichError ||
-              `Ocorreu um erro ao tentar cadastrar os produtos na ${
-                selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
-              }, por favor, tente novamente !`,
+        const [, product_id] = whichError?.split('|');
+        const findIndex = productSelected.findIndex(product => product_id && product.product_id === product_id);
+
+        if (findIndex > -1) {
+          formRef.current?.setErrors({
+            [`quantity[${findIndex}]`]: 'Produto com quantidade insuficiente',
           });
+          return;
         }
+
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um Erro',
+          description:
+            whichError ||
+            `Ocorreu um erro ao tentar cadastrar os produtos na ${
+              selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
+            }, por favor, tente novamente !`,
+        });
       } finally {
         setLoadingForm(false);
       }

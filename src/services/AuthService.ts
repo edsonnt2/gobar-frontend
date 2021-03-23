@@ -10,6 +10,14 @@ interface User {
   avatar_url: string;
 }
 
+export interface SignInDTO {
+  name: string;
+  cell_phone: string;
+  email: string;
+  password: string;
+  birthDate: string;
+}
+
 export interface Business {
   id: string;
   name: string;
@@ -29,6 +37,12 @@ export class AuthService {
     password: string;
   }): Promise<Authenticate | undefined> {
     const response = await ApiService.post<Authenticate>('sessions', data);
+
+    return response?.data;
+  }
+
+  public static async registerUser(data: SignInDTO): Promise<{ user: User; token: string } | undefined> {
+    const response = await ApiService.post<{ user: User; token: string }>('users', data);
 
     return response?.data;
   }

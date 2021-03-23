@@ -8,12 +8,12 @@ const RoutesCommand: React.FC = () => {
   return (
     <Switch>
       <Route
-        path="/business/register-command-or-table"
+        path="/business/command-or-table/register"
         component={RegisterProductInCommandOrTable}
         isPrivate
         isBusiness
       />
-      <Route path="/business/close-command-or-table" component={CloseCommandOrTable} isPrivate isBusiness />
+      <Route path="/business/command-or-table/close" component={CloseCommandOrTable} isPrivate isBusiness />
     </Switch>
   );
 };

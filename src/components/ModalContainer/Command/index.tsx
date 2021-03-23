@@ -82,21 +82,26 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           const errors = getValidationErrors(error);
 
           formRef.current?.setErrors(errors);
-        } else {
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          if (whichError === 'Command number already registered') {
-            formRef.current?.setErrors({
-              number: 'Número de comanda já Cadastrado',
-            });
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no Cadastro',
-              description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Command number already registered': { number: 'Número de comanda já Cadastrado' },
+        };
+
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no Cadastro',
+          description: whichError || 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+        });
+      } finally {
         setLoading(false);
       }
     },
