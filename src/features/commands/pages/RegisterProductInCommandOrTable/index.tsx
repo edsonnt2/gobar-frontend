@@ -70,7 +70,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   const handleModal = useCallback(() => {
     addModal({
-      list_command: true,
+      list_commands: true,
     });
   }, [addModal]);
 

@@ -86,13 +86,13 @@ const CloseCommandOrTable: React.FC = () => {
 
   const handleModalCommand = useCallback(() => {
     addModal({
-      list_command: true,
+      list_commands: true,
     });
   }, [addModal]);
 
   const handleModalTable = useCallback(() => {
     addModal({
-      list_command: true,
+      list_commands: true,
     });
   }, [addModal]);
 

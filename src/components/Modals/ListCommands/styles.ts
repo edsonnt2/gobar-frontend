@@ -36,7 +36,7 @@ export const CloseCommand = styled.button`
   }
 `;
 
-export const ListCommands = styled.ul`
+export const ContainerCommands = styled.ul`
   list-style: none;
   max-height: 500px;
   overflow-y: auto;

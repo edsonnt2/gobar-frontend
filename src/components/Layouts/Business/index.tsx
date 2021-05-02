@@ -2,7 +2,7 @@ import { findCustomer, closeCommand, commandBar, customerAccount, boxFront } fro
 
 import { Container, NavBusiness, MenuMain, LinkMenu, Content, Footer } from './styles';
 
-import { Header } from '../Header';
+import { Header } from '../../Header';
 
 interface Props {
   pgActive?: 'find-customer' | 'close-command-table' | 'register-command-table' | 'customer-account' | 'boxfront';
