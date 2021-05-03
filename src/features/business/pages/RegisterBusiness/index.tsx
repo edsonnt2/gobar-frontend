@@ -156,7 +156,7 @@ const RegisterBusiness: React.FC = () => {
           description: 'Seu novo Negócio foi cadastrado no goBar :D',
         });
 
-        history.push('/business/register-product');
+        history.push('/business/register/product');
       } catch (error) {
         let errorCategory: string | undefined;
 
