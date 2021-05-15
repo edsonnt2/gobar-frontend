@@ -1,41 +1,54 @@
-import { useCallback, useRef, useState, useEffect, KeyboardEvent } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { FiXCircle, FiSearch } from 'react-icons/fi';
+import { GiTable } from 'react-icons/gi';
 
-import { Command, CommandService } from '@/services';
+import { TableService } from '@/services';
 import { InputSearch } from '@/components';
-import { PlaceTable, useModal, useToast } from '@/hooks';
-import { noAvatar } from '@/assets';
+import { PlaceTable, useAuth, useModal, useToast } from '@/hooks';
 
-import { Container, CloseCommand, ImgCustomer, InfoCustomer, ContainerCommands, RowCommand } from './styles';
+import { Container, CloseTable, BoxTable, ContainerTables } from './styles';
 
-interface ListTablesProps {
+interface Props {
   style: React.CSSProperties;
   place: PlaceTable;
 }
 
-const ListTables: React.FC<ListTablesProps> = ({ style, place }) => {
+interface ListTableProps {
+  isEmpty: boolean;
+  number: number;
+}
+
+const ListTables: React.FC<Props> = ({ style, place }) => {
+  const { business } = useAuth();
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const inputRef = useRef<HTMLInputElement>(null);
   const [LoadingSearch, setLoadingSearch] = useState(false);
   const [search, setSearch] = useState('');
-  const [commands, setCommands] = useState<Command[]>([]);
-  const [cursor, setCursor] = useState(-1);
+  const [listTable, setListTable] = useState<ListTableProps[]>([]);
+  const [allTables, setAllTables] = useState<ListTableProps[]>([]);
 
-  const loadCommands = useCallback(async () => {
+  const loadTables = useCallback(async () => {
+    if (!business?.table) return;
+
+    setLoadingSearch(true);
+
     try {
-      const response = await CommandService.fetchCommands();
-      setCommands(
-        response.map(command => ({
-          ...command,
-          command: {
-            ...command.customer,
-            ...(command?.customer?.user?.avatar_url && {
-              avatar_url: command.customer.user.avatar_url,
-            }),
-          },
-        })),
+      const response = await TableService.fecthTables();
+      const getTables = Array.from(
+        {
+          length: business.table,
+        },
+        (_, index): ListTableProps => ({
+          number: index + 1,
+          isEmpty: !response.some(({ number }) => +number === index + 1),
+        }),
       );
+
+      const tables = place === 'launch' ? getTables : getTables.filter(({ isEmpty }) => !isEmpty);
+
+      setListTable(tables);
+      setAllTables(tables);
     } catch (error) {
       addToast({
         type: 'error',
@@ -45,17 +58,20 @@ const ListTables: React.FC<ListTablesProps> = ({ style, place }) => {
     } finally {
       setLoadingSearch(false);
     }
-  }, [addToast]);
+  }, [addToast, business, place]);
 
-  const handleSearch = useCallback((valueSearch: string) => {
-    setLoadingSearch(true);
-    if (valueSearch?.trim()) {
-      setSearch(valueSearch);
-    } else {
-      setSearch('');
-      setCommands([]);
-    }
-  }, []);
+  const handleSearch = useCallback(
+    (findTable: string) => {
+      if (!findTable?.trim()) {
+        setSearch('');
+        setListTable(allTables);
+      }
+
+      setSearch(findTable.trim());
+      setListTable(allTables.filter(({ number }) => number.toString().includes(findTable.trim())));
+    },
+    [allTables],
+  );
 
   const handleClick = useCallback(
     (number: number) => {
@@ -64,98 +80,48 @@ const ListTables: React.FC<ListTablesProps> = ({ style, place }) => {
     [removeModal],
   );
 
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && commands.length > 0 && cursor > -1) {
-        handleClick(commands[cursor].number);
-      } else if (e.key === 'ArrowUp' && cursor >= 0) {
-        setCursor(cursor - 1);
-      } else if (e.key === 'ArrowDown' && cursor < commands.length - 1) {
-        setCursor(cursor + 1);
-      }
-    },
-    [cursor, commands, handleClick],
-  );
+  useEffect(() => {
+    loadTables();
+  }, [loadTables]);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  useEffect(() => {
-    loadCommands();
-  }, [loadCommands]);
-
-  useEffect(() => {
-    const timer = setTimeout(async () => {
-      if (!search?.trim()) {
-        loadCommands();
-        return;
-      }
-
-      try {
-        const response = await CommandService.searchCommands(search);
-
-        setCommands(
-          response.map(command => ({
-            ...command,
-            command: {
-              ...command.customer,
-              ...(command?.customer?.user?.avatar_url && {
-                avatar_url: command.customer.user.avatar_url,
-              }),
-            },
-          })),
-        );
-      } catch {
-        addToast({
-          type: 'error',
-          message: 'Opss... Encontramos um erro',
-          description: 'Ocorreu um erro ao busca por comandas cadastradas, por favor, tente novamente !',
-        });
-      } finally {
-        setLoadingSearch(false);
-      }
-    }, 200);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [search, addToast, loadCommands]);
-
   return (
     <Container style={style}>
-      <h1>Comandas Abertas</h1>
+      <h1>Selecionar {place === 'launch' ? 'ou abrir nova mesa' : 'mesa para fechar'}</h1>
 
-      <CloseCommand type="button" onClick={() => removeModal()}>
+      <CloseTable type="button" onClick={() => removeModal()}>
         <FiXCircle size={28} />
-      </CloseCommand>
+      </CloseTable>
 
       <InputSearch
         icon={FiSearch}
         inputRef={inputRef}
         valueSearch={search}
         handleSearch={handleSearch}
-        onKeyDown={handleKeyDown}
-        placeholder="Busque pela Comanda ou Cliente"
+        placeholder="Busque pelo número da mesa"
       />
 
       {LoadingSearch ? (
         'loading...'
       ) : (
-        <ContainerCommands>
-          {commands.map(({ id, number, customer }, index) => (
-            <RowCommand key={id} onClick={() => handleClick(number)} hasSelected={cursor === index}>
-              <ImgCustomer>
-                <img src={customer?.avatar_url || noAvatar} alt={customer?.name || 'Usuário sem foto'} />
-              </ImgCustomer>
-              <InfoCustomer>
-                <h2>{customer?.name || 'Usuário sem nome'}</h2>
-                <span>
-                  Comanda: <strong>{number}</strong>
-                </span>
-              </InfoCustomer>
-            </RowCommand>
+        <ContainerTables>
+          {listTable.map(list => (
+            <BoxTable
+              key={list.number.toString()}
+              isEmpty={Number(list.isEmpty)}
+              onClick={() => handleClick(list.number)}
+            >
+              <h2>
+                <GiTable size={40} />
+                {list.number}
+              </h2>
+              <span>{list.isEmpty ? 'MESA LIVRE' : 'MESA EM USO'}</span>
+            </BoxTable>
           ))}
-        </ContainerCommands>
+        </ContainerTables>
       )}
     </Container>
   );

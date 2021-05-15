@@ -34,7 +34,7 @@ const FindCustomer: React.FC = () => {
       customer: { id, avatar_url, name, command_open, table_number, command },
       command_or_table,
     }: HandleCommandOrTable) => {
-      if (command_open || table_number) {
+      if ((command_or_table === 'command' && command_open) || (command_or_table === 'table' && table_number)) {
         const number_command =
           command_or_table === 'command'
             ? command.find(({ business_id, command_closure_id }) => business_id === business?.id && !command_closure_id)

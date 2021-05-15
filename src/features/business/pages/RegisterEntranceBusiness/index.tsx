@@ -71,7 +71,7 @@ const RegisterEntranceBusiness: React.FC = () => {
         const response = await EntranceService.registerEntrance({
           description,
           value: FormattedUtils.valueDefault(value),
-          consume: !!Number(consume),
+          consume: !!+consume,
         });
 
         if (!response) throw new Error();

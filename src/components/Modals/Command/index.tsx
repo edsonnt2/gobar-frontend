@@ -54,7 +54,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
         const formattedValueConsume = value_consume
           ? value_consume
               .split('')
-              .filter(char => Number(char) || char === '0' || char === ',')
+              .filter(char => +char || char === '0' || char === ',')
               .join('')
               .replace(',', '.')
           : undefined;
@@ -64,7 +64,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           number,
           ...(entrance_id && { entrance_id }),
           ...(prepaid_entrance && {
-            prepaid_entrance: !!Number(prepaid_entrance),
+            prepaid_entrance: !!+prepaid_entrance,
           }),
           ...(formattedValueConsume && {
             value_consume: formattedValueConsume,

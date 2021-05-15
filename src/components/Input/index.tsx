@@ -131,7 +131,7 @@ const Input: React.FC<PropsInput> = ({
           setValueForm(onlyNumber);
           if (hasOnChange) {
             hasOnChange.fnOnChange({
-              value: Number(onlyNumber),
+              value: +onlyNumber,
               indexRef: hasOnChange.indexRef,
             });
           }
@@ -150,11 +150,11 @@ const Input: React.FC<PropsInput> = ({
                 .join('');
 
         setValueForm(
-          valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency)),
+          valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(+valueCurrency),
         );
         if (hasOnChange) {
           hasOnChange.fnOnChange({
-            value: valueCurrency === '.00' || valueCurrency === '' ? 0 : Number(valueCurrency),
+            value: valueCurrency === '.00' || valueCurrency === '' ? 0 : +valueCurrency,
             indexRef: hasOnChange.indexRef,
           });
         }

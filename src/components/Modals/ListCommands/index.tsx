@@ -8,7 +8,7 @@ import { noAvatar } from '@/assets';
 
 import { Container, CloseCommand, ImgCustomer, InfoCustomer, ContainerCommands, RowCommand } from './styles';
 
-const ListTables: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
+const ListCommands: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,4 +156,4 @@ const ListTables: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   );
 };
 
-export default ListTables;
+export default ListCommands;

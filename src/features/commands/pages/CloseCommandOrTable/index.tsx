@@ -47,25 +47,27 @@ interface FormData {
   table: string;
 }
 
+type CommandOrTableSelect = 'command' | 'table';
+
 interface FormSubmitData {
   data: FormData;
-  whereSelected: 'command' | 'table';
+  whereSelected: CommandOrTableSelect;
 }
 
 interface HandleChangeSpotlight {
   id: string;
-  where: 'command' | 'table';
+  where: CommandOrTableSelect;
 }
 
 interface HandleRemoveProduct {
   item_product_id: string;
   command_or_table_id: string;
-  where: 'command' | 'table';
+  where: CommandOrTableSelect;
 }
 
 interface HandleRemoveCommandOrTable {
   remove_id: string;
-  where: 'command' | 'table';
+  where: CommandOrTableSelect;
 }
 
 interface HandleRemoveCustomerTable {
@@ -78,6 +80,7 @@ const CloseCommandOrTable: React.FC = () => {
   const { addToast } = useToast();
   const formRefCommand = useRef<FormHandles>(null);
   const formRefTable = useRef<FormHandles>(null);
+  const [modalSelected, setModalSelected] = useState<CommandOrTableSelect>('command');
   const [commandProduct, setCommandProduct] = useState<CommandData[]>([]);
   const [tableProduct, setTableProduct] = useState<TableData[]>([]);
   const [idsCommandOrTable, setIdsCommandOrTable] = useState<string[]>([]);
@@ -85,14 +88,16 @@ const CloseCommandOrTable: React.FC = () => {
   const { state } = useLocation();
 
   const handleModalCommand = useCallback(() => {
+    setModalSelected('command');
     addModal({
       list_commands: true,
     });
   }, [addModal]);
 
   const handleModalTable = useCallback(() => {
+    setModalSelected('table');
     addModal({
-      list_commands: true,
+      list_tables: 'close',
     });
   }, [addModal]);
 
@@ -156,7 +161,7 @@ const CloseCommandOrTable: React.FC = () => {
     const { table_customer, table_product, ...rest } = response;
 
     const valueTotalTable = table_product.reduce((prev, { quantity, value }) => {
-      const totalValue = Math.fround(quantity * Number(value));
+      const totalValue = Math.fround(quantity * +value);
 
       return totalValue + prev;
     }, 0);
@@ -227,10 +232,10 @@ const CloseCommandOrTable: React.FC = () => {
           },
         );
 
-        const formattedNumber = Number(FormattedUtils.onlyNumber(getSelected));
+        const formattedNumber = +FormattedUtils.onlyNumber(getSelected);
 
         if (whereSelected === 'command') {
-          const showCommand = commandProduct.some(({ number }) => Number(number) === formattedNumber);
+          const showCommand = commandProduct.some(({ number }) => +number === formattedNumber);
 
           if (showCommand) {
             formRefCommand.current?.setErrors({
@@ -246,7 +251,7 @@ const CloseCommandOrTable: React.FC = () => {
 
           await handlerCommand(formattedNumber);
         } else {
-          const showTable = tableProduct.some(({ number }) => Number(number) === formattedNumber);
+          const showTable = tableProduct.some(({ number }) => +number === formattedNumber);
 
           if (showTable) {
             formRefTable.current?.setErrors({
@@ -255,7 +260,7 @@ const CloseCommandOrTable: React.FC = () => {
             return;
           }
 
-          if (commandProduct?.length > 0) {
+          if (commandProduct?.length) {
             setCommandProduct([]);
             setIdsCommandOrTable([]);
           }
@@ -534,25 +539,26 @@ const CloseCommandOrTable: React.FC = () => {
   }, [state, handlerCommand, handlerTable, addToast]);
 
   useEffect(() => {
-    if (responseModal.response) {
-      if (responseModal.response === 'discount') {
-        // eslint-disable-next-line
-        alert('descontar da conta');
-        return;
-      }
+    if (!responseModal.response) return;
 
-      if (responseModal.response === 'payment') {
-        setCommandProduct([]);
-        setTableProduct([]);
-        setIdsCommandOrTable([]);
-      } else {
-        formRefCommand.current?.setFieldValue('command', responseModal.response);
-      }
-
-      formRefCommand.current?.getFieldRef('command').focus();
-      resetResponseModal();
+    if (responseModal.response === 'discount') {
+      alert('descontar da conta');
+      return;
     }
-  }, [responseModal.response, resetResponseModal]);
+
+    const selectForm = modalSelected === 'command' ? formRefCommand : formRefTable;
+
+    if (responseModal.response === 'payment') {
+      setCommandProduct([]);
+      setTableProduct([]);
+      setIdsCommandOrTable([]);
+    } else {
+      selectForm.current?.setFieldValue(modalSelected, responseModal.response.toString());
+    }
+
+    selectForm.current?.getFieldRef(modalSelected).focus();
+    resetResponseModal();
+  }, [responseModal.response, resetResponseModal, modalSelected]);
 
   return (
     <LayoutBusiness pgActive="close-command-table">
@@ -650,7 +656,7 @@ const CloseCommandOrTable: React.FC = () => {
                 <span>
                   Valor Total: <strong>{value_total_formatted}</strong>
                 </span>
-                {table_customer && table_customer.length > 0 && (
+                {table_customer && table_customer?.length && (
                   <span>
                     <strong>{table_customer.length}</strong> {table_customer.length > 1 ? 'Clientes' : 'Cliente'} na
                     Mesa
@@ -682,7 +688,7 @@ const CloseCommandOrTable: React.FC = () => {
                   <span>
                     Valor Total: <strong>{spotlightCommandOrTable.value_total_formatted}</strong>
                   </span>
-                  {spotlightCommandOrTable.table_customer && spotlightCommandOrTable.table_customer.length > 0 && (
+                  {spotlightCommandOrTable?.table_customer?.length && (
                     <span>
                       <strong>{spotlightCommandOrTable.table_customer.length}</strong>{' '}
                       {spotlightCommandOrTable.table_customer.length > 1 ? 'Clientes' : 'Cliente'} na Mesa
@@ -733,7 +739,7 @@ const CloseCommandOrTable: React.FC = () => {
 
         {!loading && spotlightCommandOrTable ? (
           <>
-            <H2Description>Descrição da {commandProduct.length > 0 ? 'Comanda' : 'Mesa'}</H2Description>
+            <H2Description>Descrição da {commandProduct?.length ? 'Comanda' : 'Mesa'}</H2Description>
 
             <ListProducts>
               {spotlightCommandOrTable.products.map(
@@ -765,7 +771,7 @@ const CloseCommandOrTable: React.FC = () => {
                           handleRemoveProduct({
                             item_product_id: id,
                             command_or_table_id: spotlightCommandOrTable.id,
-                            where: commandProduct.length > 0 ? 'command' : 'table',
+                            where: commandProduct?.length ? 'command' : 'table',
                           });
                         }}
                       />
@@ -795,7 +801,7 @@ const CloseCommandOrTable: React.FC = () => {
                 </RowProducts>
               )}
 
-              {commandProduct.length > 1 && (
+              {commandProduct?.length > 1 && (
                 <RowProducts>
                   <TotalCommand>Valor total da Comanda {spotlightCommandOrTable.value_total_formatted}</TotalCommand>
                 </RowProducts>
@@ -813,13 +819,13 @@ const CloseCommandOrTable: React.FC = () => {
                   addModal({
                     make_pay: {
                       value_total: valueTotalItems,
-                      type: commandProduct.length > 0 ? 'command' : 'table',
+                      type: commandProduct?.length ? 'command' : 'table',
                       close_id: idsCommandOrTable,
                     },
                   });
                 }}
               >
-                OPÇÃO DE {commandProduct.length > 0 ? 'COMANDA' : 'MESA'}
+                OPÇÃO DE {commandProduct?.length ? 'COMANDA' : 'MESA'}
               </Button>
               <SeparatorButton />
               <Button type="button" style={{ background: '#A6A4A2' }}>

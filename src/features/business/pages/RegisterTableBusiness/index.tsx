@@ -22,7 +22,7 @@ const RegisterTableBusiness: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
 
   useEffect(() => {
-    const quantityTable = String(business?.table) || '0';
+    const quantityTable = business?.table?.toString() || '0';
     formRef.current?.setFieldValue('table', quantityTable);
   }, [business]);
 
@@ -54,7 +54,7 @@ const RegisterTableBusiness: React.FC = () => {
         addToast({
           type: 'success',
           message: 'Cadastro de Mesas',
-          description: Number(table) > 1 ? 'Mesas forão cadastradas com sucesso' : 'Mesa foi cadastrada com sucesso',
+          description: +table > 1 ? 'Mesas forão cadastradas com sucesso' : 'Mesa foi cadastrada com sucesso',
         });
       } catch (error) {
         if (error instanceof Yup.ValidationError) {

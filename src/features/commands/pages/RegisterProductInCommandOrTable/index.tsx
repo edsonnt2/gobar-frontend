@@ -65,14 +65,21 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   const handleSelectCommandOrTable = useCallback(() => {
     setSelectCommandOrTable(prevState => (prevState === 'command' ? 'table' : 'command'));
+    formRef.current?.setFieldValue('command_or_table', ' ');
     formRef.current?.getFieldRef('command_or_table').focus();
   }, []);
 
   const handleModal = useCallback(() => {
-    addModal({
-      list_commands: true,
-    });
-  }, [addModal]);
+    addModal(
+      selectCommandOrTable === 'command'
+        ? {
+            list_commands: true,
+          }
+        : {
+            list_tables: 'launch',
+          },
+    );
+  }, [addModal, selectCommandOrTable]);
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -84,7 +91,8 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   const InputkeyDown = useCallback(
     ({ where, index }: Omit<HandleChange, 'value'>) => {
-      if (index === undefined) return;
+      if (!index) return;
+
       if (where === 'currency') {
         if (productSelected[index]?.value) {
           setProductSelected(prevState =>
@@ -341,7 +349,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
             ? {
                 ...prev,
                 quantity: value,
-                value_total: FormattedUtils.formattedValue(Number(value) * (prev.value || 0)),
+                value_total: FormattedUtils.formattedValue(+value * (prev.value || 0)),
                 ref_quantity: undefined,
                 ref_value: undefined,
               }
@@ -358,8 +366,8 @@ const RegisterProductInCommandOrTable: React.FC = () => {
           i === index
             ? {
                 ...prev,
-                value: value !== '.00' ? Number(value) : undefined,
-                value_total: FormattedUtils.formattedValue(Number(prev.quantity) * Number(value)),
+                value: value !== '.00' ? +value : undefined,
+                value_total: FormattedUtils.formattedValue(Number(prev.quantity) * +value),
               }
             : prev,
         ),
@@ -390,7 +398,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   useEffect(() => {
     if (responseModal.response) {
-      formRef.current?.setFieldValue('command_or_table', responseModal.response);
+      formRef.current?.setFieldValue('command_or_table', responseModal.response.toString());
       inputRef.current?.focus();
 
       resetResponseModal();
@@ -432,7 +440,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
           <BoxProduct>
             {productSelected.map((product, index) => (
-              <LiProduct key={String(index)}>
+              <LiProduct key={index.toString()}>
                 <ImgProduct>
                   <img src={product.image_url || noProduct} alt={product.description} />
                 </ImgProduct>

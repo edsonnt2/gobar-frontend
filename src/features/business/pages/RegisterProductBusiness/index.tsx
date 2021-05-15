@@ -173,7 +173,7 @@ const RegisterProductBusiness: React.FC = () => {
   const handleValueWithPorcent = useCallback(
     ({ value }: { value: number }) => {
       const result = value / 100;
-      const calcValue = value + Number(porcentDefault) * result;
+      const calcValue = value + +porcentDefault * result;
       setValueSaleDefault(calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ');
       setvaluePushaseDefault(value);
     },
@@ -185,7 +185,7 @@ const RegisterProductBusiness: React.FC = () => {
       const result = valuePushaseDefault / 100;
       const calcValue = valuePushaseDefault + value * result;
       setValueSaleDefault(calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ');
-      setPorcentDefault(String(value));
+      setPorcentDefault(value.toString());
     },
     [valuePushaseDefault],
   );

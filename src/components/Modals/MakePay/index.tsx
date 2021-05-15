@@ -258,7 +258,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
         </RowHeaderPay>
 
         {formOfPayment.map((formPay, index) => (
-          <Fragment key={String(index)}>
+          <Fragment key={index.toString()}>
             <Select
               name={`form_of_payment[${index}]`}
               hasTitle={`${index + 1}º Forma de Pagamento${

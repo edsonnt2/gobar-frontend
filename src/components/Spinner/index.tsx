@@ -7,7 +7,7 @@ const Spinner: React.FC = () => {
         {Array.from({
           length: 9,
         }).map((_, index) => (
-          <div key={String(index)} />
+          <div key={index.toString()} />
         ))}
       </div>
     </Container>

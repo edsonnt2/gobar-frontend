@@ -20,7 +20,7 @@ export const Container = styled(animated.div)`
   }
 `;
 
-export const CloseCommand = styled.button`
+export const CloseTable = styled.button`
   position: absolute;
   background: transparent;
   width: 28px;
@@ -36,66 +36,61 @@ export const CloseCommand = styled.button`
   }
 `;
 
-export const ContainerCommands = styled.ul`
+export const ContainerTables = styled.ul`
   list-style: none;
-  max-height: 500px;
-  overflow-y: auto;
-`;
-
-export const RowCommand = styled.li<{ hasSelected: boolean }>`
+  width: 100%;
   display: flex;
-  padding: 8px 5px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  & + li {
-    border-top: 1px solid #2a2a2c;
-  }
-
-  &:hover {
-    background-color: ${shade(0.2, '#2f2f31')};
-  }
-
-  ${({ hasSelected }) =>
-    hasSelected &&
-    css`
-      background-color: ${shade(0.2, '#2f2f31')};
-    `}
+  flex-wrap: wrap;
+  margin-top: 16px;
 `;
 
-export const ImgCustomer = styled.div`
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  position: relative;
-  overflow: hidden;
-
-  img {
-    position: absolute;
-    width: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-`;
-
-export const InfoCustomer = styled.div`
+export const BoxTable = styled.li<{ isEmpty: number }>`
+  width: 114px;
+  height: 68px;
+  margin: 3px 0 3px 6px;
   display: flex;
   flex-direction: column;
-  line-height: 24px;
-  justify-content: space-around;
-  margin-left: 16px;
+  align-items: center;
+  padding-top: 8px;
+  border: 2px solid #0fa81f;
+  color: #0fa81f;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+
+  ${({ isEmpty }) =>
+    !isEmpty &&
+    css`
+      border-color: #d64531;
+      color: #d64531;
+    `}
+
+  :hover {
+    ${({ isEmpty }) =>
+      !isEmpty
+        ? css`
+            border-color: ${shade(0.15, '#d64531')};
+            color: ${shade(0.15, '#d64531')};
+          `
+        : css`
+            border-color: ${shade(0.15, '#0fa81f')};
+            color: ${shade(0.15, '#0fa81f')};
+          `}
+  }
 
   h2 {
-    color: #e5a43a;
-    font-weight: 500;
-    font-size: 16px;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+
+    svg {
+      margin-top: -20px;
+      margin-right: 5px;
+    }
   }
 
   span {
-    font-size: 16px;
-
-    strong {
-      font-size: 18px;
-    }
+    font-size: 14px;
+    font-weight: bold;
   }
 `;
