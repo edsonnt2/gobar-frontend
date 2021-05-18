@@ -115,7 +115,7 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
             Cadastros
           </LinkOption>
 
-          <LinkOption to="/business">
+          <LinkOption to="/business/stock">
             <FiDatabase size={22} />
             Estoque
           </LinkOption>
