@@ -656,7 +656,7 @@ const CloseCommandOrTable: React.FC = () => {
                 <span>
                   Valor Total: <strong>{value_total_formatted}</strong>
                 </span>
-                {table_customer && table_customer?.length && (
+                {table_customer && table_customer?.length > 0 && (
                   <span>
                     <strong>{table_customer.length}</strong> {table_customer.length > 1 ? 'Clientes' : 'Cliente'} na
                     Mesa
@@ -688,7 +688,7 @@ const CloseCommandOrTable: React.FC = () => {
                   <span>
                     Valor Total: <strong>{spotlightCommandOrTable.value_total_formatted}</strong>
                   </span>
-                  {spotlightCommandOrTable?.table_customer?.length && (
+                  {spotlightCommandOrTable?.table_customer && spotlightCommandOrTable.table_customer.length > 0 && (
                     <span>
                       <strong>{spotlightCommandOrTable.table_customer.length}</strong>{' '}
                       {spotlightCommandOrTable.table_customer.length > 1 ? 'Clientes' : 'Cliente'} na Mesa
@@ -705,7 +705,7 @@ const CloseCommandOrTable: React.FC = () => {
                   />
                 </InfoTable>
 
-                {spotlightCommandOrTable.table_customer && (
+                {spotlightCommandOrTable?.table_customer && (
                   <DetailCustomersTable>
                     {spotlightCommandOrTable.table_customer.map(({ id: keyid, customer: { id, avatar_url, name } }) => (
                       <RowInfoTable key={keyid}>
