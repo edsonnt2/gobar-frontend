@@ -249,8 +249,6 @@ const RegisterProductBusiness: React.FC = () => {
         </BackPage>
 
         <Main>
-          <MenuRegisterPTT whoSelected="product" />
-
           <ContentRegister>
             <h1>Cadastrar Produto</h1>
 

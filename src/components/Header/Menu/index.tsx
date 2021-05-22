@@ -110,7 +110,7 @@ const Menu: React.FC<MenuProps> = ({ avatar, dataShow, setShowOptions }) => {
       </BoxInfoMenu>
       {business && (
         <>
-          <LinkOption to="/business/register/product">
+          <LinkOption to="/business/register/table">
             <FiPackage size={22} />
             Cadastros
           </LinkOption>

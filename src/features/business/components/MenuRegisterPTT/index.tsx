@@ -1,21 +1,15 @@
-import { GiBookmarklet, GiTicket, GiRoundTable } from 'react-icons/gi';
+import { GiTicket, GiRoundTable } from 'react-icons/gi';
 
 import { Container, Menu, LinkMenu } from './styles';
 
 interface Props {
-  whoSelected?: 'product' | 'table' | 'entrance';
+  whoSelected?: 'table' | 'entrance';
 }
 
 const MenuRegisterPTT: React.FC<Props> = ({ whoSelected }) => {
   return (
     <Container>
       <Menu>
-        <li>
-          <LinkMenu to="/business/register/product" selected={whoSelected === 'product' ? 1 : 0}>
-            <GiBookmarklet size={20} />
-            Cadastrar Produto
-          </LinkMenu>
-        </li>
         <li>
           <LinkMenu to="/business/register/table" selected={whoSelected === 'table' ? 1 : 0}>
             <GiRoundTable size={20} />
