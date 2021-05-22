@@ -3,11 +3,18 @@ import { ApiService } from './ApiService';
 interface User {
   id: string;
   name: string;
-  full_name?: string;
   cell_phone: number;
   email: string;
   birthDate: string;
   avatar_url: string;
+}
+
+export interface SignInDTO {
+  name: string;
+  cell_phone: string;
+  email: string;
+  password: string;
+  birthDate: string;
 }
 
 export interface Business {
@@ -29,6 +36,12 @@ export class AuthService {
     password: string;
   }): Promise<Authenticate | undefined> {
     const response = await ApiService.post<Authenticate>('sessions', data);
+
+    return response?.data;
+  }
+
+  public static async registerUser(data: SignInDTO): Promise<{ user: User; token: string } | undefined> {
+    const response = await ApiService.post<{ user: User; token: string }>('users', data);
 
     return response?.data;
   }

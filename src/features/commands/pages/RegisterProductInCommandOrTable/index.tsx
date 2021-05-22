@@ -65,14 +65,21 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   const handleSelectCommandOrTable = useCallback(() => {
     setSelectCommandOrTable(prevState => (prevState === 'command' ? 'table' : 'command'));
+    formRef.current?.setFieldValue('command_or_table', ' ');
     formRef.current?.getFieldRef('command_or_table').focus();
   }, []);
 
   const handleModal = useCallback(() => {
-    addModal({
-      list_command: true,
-    });
-  }, [addModal]);
+    addModal(
+      selectCommandOrTable === 'command'
+        ? {
+            list_commands: true,
+          }
+        : {
+            list_tables: 'launch',
+          },
+    );
+  }, [addModal, selectCommandOrTable]);
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -84,7 +91,8 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   const InputkeyDown = useCallback(
     ({ where, index }: Omit<HandleChange, 'value'>) => {
-      if (index === undefined) return;
+      if (!index) return;
+
       if (where === 'currency') {
         if (productSelected[index]?.value) {
           setProductSelected(prevState =>
@@ -187,44 +195,37 @@ const RegisterProductInCommandOrTable: React.FC = () => {
         formRef.current?.setFieldValue('command_or_table', ' ');
         formRef.current?.getFieldRef('command_or_table').focus();
       } catch (error) {
-        let errorData;
-        const whichError: string | undefined =
-          error.response && error.response.data ? error.response.data.message : undefined;
+        const whichError = error?.response?.data?.message || undefined;
 
-        const typeError: { [key: string]: { [key: string]: string } } = {
+        const typeErrors: { [key: string]: any } = {
           'Command not found at this Business': { command_or_table: 'Comanda não encontrada' },
           'Table not found at this Business': { command_or_table: 'Mesa não encontrada' },
         };
 
-        if (whichError) {
-          if (typeError[whichError]) {
-            errorData = typeError[whichError];
-          } else {
-            const [, product_id] = whichError?.split('|');
-            const findIndex = productSelected.findIndex(product => product_id && product.product_id === product_id);
-
-            errorData =
-              findIndex > -1
-                ? {
-                    [`quantity[${findIndex}]`]: 'Produto com quantidade insuficiente',
-                  }
-                : undefined;
-          }
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
         }
 
-        if (errorData) {
-          formRef.current?.setErrors(errorData);
-        } else {
-          addToast({
-            type: 'error',
-            message: 'Opss... Encontramos um Erro',
-            description:
-              whichError ||
-              `Ocorreu um erro ao tentar cadastrar os produtos na ${
-                selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
-              }, por favor, tente novamente !`,
+        const [, product_id] = whichError?.split('|');
+        const findIndex = productSelected.findIndex(product => product_id && product.product_id === product_id);
+
+        if (findIndex > -1) {
+          formRef.current?.setErrors({
+            [`quantity[${findIndex}]`]: 'Produto com quantidade insuficiente',
           });
+          return;
         }
+
+        addToast({
+          type: 'error',
+          message: 'Opss... Encontramos um Erro',
+          description:
+            whichError ||
+            `Ocorreu um erro ao tentar cadastrar os produtos na ${
+              selectCommandOrTable === 'command' ? 'comanda' : 'mesa'
+            }, por favor, tente novamente !`,
+        });
       } finally {
         setLoadingForm(false);
       }
@@ -348,7 +349,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
             ? {
                 ...prev,
                 quantity: value,
-                value_total: FormattedUtils.formattedValue(Number(value) * (prev.value || 0)),
+                value_total: FormattedUtils.formattedValue(+value * (prev.value || 0)),
                 ref_quantity: undefined,
                 ref_value: undefined,
               }
@@ -365,8 +366,8 @@ const RegisterProductInCommandOrTable: React.FC = () => {
           i === index
             ? {
                 ...prev,
-                value: value !== '.00' ? Number(value) : undefined,
-                value_total: FormattedUtils.formattedValue(Number(prev.quantity) * Number(value)),
+                value: value !== '.00' ? +value : undefined,
+                value_total: FormattedUtils.formattedValue(Number(prev.quantity) * +value),
               }
             : prev,
         ),
@@ -397,7 +398,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
   useEffect(() => {
     if (responseModal.response) {
-      formRef.current?.setFieldValue('command_or_table', responseModal.response);
+      formRef.current?.setFieldValue('command_or_table', responseModal.response.toString());
       inputRef.current?.focus();
 
       resetResponseModal();
@@ -439,7 +440,7 @@ const RegisterProductInCommandOrTable: React.FC = () => {
 
           <BoxProduct>
             {productSelected.map((product, index) => (
-              <LiProduct key={String(index)}>
+              <LiProduct key={index.toString()}>
                 <ImgProduct>
                   <img src={product.image_url || noProduct} alt={product.description} />
                 </ImgProduct>

@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import { BrasilAPIService, BusinessService, RegisterBusinessDTO } from '@/services';
 import { Header, Input, FileInput, Button } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { FormattedUtils, getValidationErrors } from '@/utils';
 import { noBusiness } from '@/assets';
 
@@ -29,10 +29,10 @@ interface CategoriesBusiness {
 
 const RegisterBusiness: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
+  const { setLoading } = useLoading();
   const { saveAuth, user } = useAuth();
   const { addToast } = useToast();
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [searchCategories, setSearchCategories] = useState<CategoriesBusiness[]>([]);
@@ -156,7 +156,7 @@ const RegisterBusiness: React.FC = () => {
           description: 'Seu novo Negócio foi cadastrado no goBar :D',
         });
 
-        history.push('/business/register-product');
+        history.push('/business/register/product');
       } catch (error) {
         let errorCategory: string | undefined;
 
@@ -165,43 +165,44 @@ const RegisterBusiness: React.FC = () => {
 
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           if (errorCategory) errors.category = errorCategory;
-
           formRef.current?.setErrors(errors);
-        } else {
-          const whichError = error?.response?.data ? error.response.data.message : undefined;
-
-          const errorData: any = {
-            'Business name already registered': { name: 'Nome de Negócio já cadastrodo' },
-            'Cell phone already registered with another business': {
-              cell_phone: 'Celular já cadastrado em outro Negócio',
-            },
-            'Phone already registered with another business': { phone: 'Telefone já cadastrado em outro Negócio' },
-            'TaxId informed is invalid': { taxId: 'CPF/CNPJ informado é inválido' },
-            'CPF registered at another business for another user': {
-              taxId: 'CPF cadastrado em outro Negócio por outro usuário',
-            },
-            'CNPJ registered at another business': { taxId: 'CNPJ cadatrado em outro Negócio' },
-          };
-
-          if (errorData[whichError] || errorCategory) {
-            formRef.current?.setErrors({
-              ...(errorCategory && { category: errorCategory }),
-              ...errorData[whichError],
-            });
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no cadastro',
-              description: whichError || 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Business name already registered': { name: 'Nome de Negócio já cadastrodo' },
+          'Cell phone already registered with another business': {
+            cell_phone: 'Celular já cadastrado em outro Negócio',
+          },
+          'Phone already registered with another business': { phone: 'Telefone já cadastrado em outro Negócio' },
+          'TaxId informed is invalid': { taxId: 'CPF/CNPJ informado é inválido' },
+          'CPF registered at another business for another user': {
+            taxId: 'CPF cadastrado em outro Negócio por outro usuário',
+          },
+          'CNPJ registered at another business': { taxId: 'CNPJ cadatrado em outro Negócio' },
+        };
+
+        if (typeErrors[whichError] || errorCategory) {
+          formRef.current?.setErrors({
+            ...(errorCategory && { category: errorCategory }),
+            ...typeErrors[whichError],
+          });
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro, por favor, tente novamente !',
+        });
+      } finally {
         setLoading(false);
       }
     },
-    [addToast, categories, saveAuth, user, history],
+    [addToast, categories, saveAuth, user, history, setLoading],
   );
 
   const handleSearchCategory = useCallback(
@@ -329,7 +330,7 @@ const RegisterBusiness: React.FC = () => {
                 />
               </ContentInput>
 
-              <Button type="button" loading={loading} onClick={functionThatSubmitsForm}>
+              <Button type="button" onClick={functionThatSubmitsForm}>
                 CONTINUAR
               </Button>
             </Form>

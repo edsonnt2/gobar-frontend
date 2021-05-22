@@ -8,7 +8,7 @@ import * as Yup from 'yup';
 
 import { ProductService } from '@/services';
 import { Header, Button, Input, FileInput } from '@/components';
-import { useToast } from '@/hooks';
+import { useLoading, useToast } from '@/hooks';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 import { addImage } from '@/assets';
 
@@ -44,10 +44,10 @@ interface RegisterProductBusinessData {
 }
 
 const RegisterProductBusiness: React.FC = () => {
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const history = useHistory();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
 
   const [loadingCategory, setLoadingCategory] = useState(false);
   const [allCategories, setAllCategories] = useState<CategoryProvider[]>([]);
@@ -113,39 +113,32 @@ const RegisterProductBusiness: React.FC = () => {
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           formRef.current?.setErrors(errors);
-        } else {
-          let errorData;
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          switch (whichError) {
-            case 'Internal code already registered':
-              errorData = { internal_code: 'Código interno já cadastrado' };
-              break;
-            case 'Description already registered':
-              errorData = { description: 'Descrição já cadastrada' };
-              break;
-            default:
-              errorData = undefined;
-              break;
-          }
-
-          if (errorData) {
-            formRef.current?.setErrors(errorData);
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no cadastro',
-              description: 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Internal code already registered': { internal_code: 'Código interno já cadastrado' },
+          'Description already registered': { description: 'Descrição já cadastrada' },
+        };
+
+        if (whichError && typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }
     },
-    [addToast],
+    [addToast, setLoading],
   );
 
   const handleCategory = useCallback((field: string) => {
@@ -180,7 +173,7 @@ const RegisterProductBusiness: React.FC = () => {
   const handleValueWithPorcent = useCallback(
     ({ value }: { value: number }) => {
       const result = value / 100;
-      const calcValue = value + Number(porcentDefault) * result;
+      const calcValue = value + +porcentDefault * result;
       setValueSaleDefault(calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ');
       setvaluePushaseDefault(value);
     },
@@ -192,7 +185,7 @@ const RegisterProductBusiness: React.FC = () => {
       const result = valuePushaseDefault / 100;
       const calcValue = valuePushaseDefault + value * result;
       setValueSaleDefault(calcValue > 0 ? FormattedUtils.formattedValue(calcValue) : ' ');
-      setPorcentDefault(String(value));
+      setPorcentDefault(value.toString());
     },
     [valuePushaseDefault],
   );
@@ -256,8 +249,6 @@ const RegisterProductBusiness: React.FC = () => {
         </BackPage>
 
         <Main>
-          <MenuRegisterPTT whoSelected="product" />
-
           <ContentRegister>
             <h1>Cadastrar Produto</h1>
 
@@ -346,7 +337,7 @@ const RegisterProductBusiness: React.FC = () => {
                 />
               </ContentInput>
 
-              <Button type="button" loading={loading} onClick={functionThatSubmitsForm}>
+              <Button type="button" onClick={functionThatSubmitsForm}>
                 CADASTRAR
               </Button>
             </Form>

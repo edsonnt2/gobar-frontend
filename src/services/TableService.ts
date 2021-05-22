@@ -52,10 +52,8 @@ export class TableService {
   }): Promise<void> {
     await ApiService.remove('tables/customers', {
       params: {
-        params: {
-          table_id,
-          customer_id,
-        },
+        table_id,
+        customer_id,
       },
     });
   }

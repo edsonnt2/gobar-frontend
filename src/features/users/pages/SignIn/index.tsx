@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { FiUser, FiLock, FiLogIn } from 'react-icons/fi';
 import * as Yup from 'yup';
 import { FormHandles } from '@unform/core';
@@ -6,7 +6,7 @@ import { Form } from '@unform/web';
 import { Link, useHistory } from 'react-router-dom';
 
 import { Input, Button } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { getValidationErrors } from '@/utils';
 import { logo } from '@/assets';
 
@@ -19,7 +19,7 @@ interface SignInData {
 
 const SignIn: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const { signIn } = useAuth();
   const history = useHistory();
@@ -47,7 +47,7 @@ const SignIn: React.FC = () => {
         addToast({
           type: 'success',
           message: 'Login feito com sucesso',
-          description: 'Estamos felizes em te ver por aqui :D',
+          description: 'Estamos felizes em saber que você está aqui :D',
         });
 
         history.push('/dashboard');
@@ -55,22 +55,26 @@ const SignIn: React.FC = () => {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
           formRef.current?.setErrors(errors);
-        } else {
-          const description =
-            error.response && error.response.data && error.response.data.message === 'Credentials is required'
-              ? 'Cheque suas credenciais e tente fazer login novamente'
-              : 'Ocorreu um erro ao fazer o login, por favor, tente novamente';
-
-          addToast({
-            type: 'error',
-            message: 'Erro ao fazer login',
-            description,
-          });
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Credentials is required': 'Cheque suas credenciais e tente fazer login novamente',
+        };
+
+        addToast({
+          type: 'error',
+          message: 'Erro ao fazer login',
+          description:
+            typeErrors[whichError] || whichError || 'Ocorreu um erro ao fazer o login, por favor, tente novamente',
+        });
+      } finally {
         setLoading(false);
       }
     },
-    [addToast, signIn, history],
+    [addToast, signIn, history, setLoading],
   );
 
   return (
@@ -83,9 +87,7 @@ const SignIn: React.FC = () => {
           <Form onSubmit={handleSubmit} ref={formRef}>
             <Input icon={FiUser} name="cellPhoneOrEmail" placeholder="Celular ou E-mail" />
             <Input icon={FiLock} name="password" placeholder="Senha" type="password" />
-            <Button loading={loading} type="submit">
-              ENTRAR
-            </Button>
+            <Button type="submit">ENTRAR</Button>
           </Form>
           <a href="teste">Esqueci minha senha</a>
 

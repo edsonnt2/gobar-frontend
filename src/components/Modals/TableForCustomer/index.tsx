@@ -6,7 +6,7 @@ import { InputSearch } from '@/components';
 import { CustomerData, useModal, useToast, useAuth } from '@/hooks';
 import { TableService } from '@/services';
 
-import { Container, CloseCommand, BoxInfoCustomer, ImgCustomer, InfoCustomer, ListTable, BoxTable } from './styles';
+import { Container, CloseCommand, BoxInfoCustomer, ImgCustomer, InfoCustomer, ListTables, BoxTable } from './styles';
 
 interface Props {
   style: React.CSSProperties;
@@ -30,13 +30,13 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
 
   const handleSearch = useCallback(
     (findTable: string) => {
-      if (findTable !== '') {
-        setSearch(findTable);
-        setListTable(allTables.filter(({ number }) => String(number).includes(findTable)));
-      } else {
+      if (!findTable?.trim()) {
         setSearch('');
         setListTable(allTables);
       }
+
+      setSearch(findTable.trim());
+      setListTable(allTables.filter(({ number }) => number.toString().includes(findTable)));
     },
     [allTables],
   );
@@ -65,35 +65,39 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
   );
 
   useEffect(() => {
-    if (business) {
-      setLoading(true);
-      TableService.fecthTables()
-        .then(response => {
-          const getTables = Array.from(
-            {
-              length: business.table,
-            },
-            (_, index): ListTableProps => ({
-              number: index + 1,
-              isEmpty: !response.some(({ number }) => Number(number) === index + 1),
-            }),
-          );
+    if (!business?.table) return;
 
-          setListTable(getTables);
-          setAllTables(getTables);
-        })
-        .catch(() => {
-          addToast({
-            type: 'error',
-            message: 'Opss.. Encontramos um erro',
-            description: 'Ocorreu um erro ao carregar as mesas para esse comércio, por favor, tente novamente',
-          });
-        })
-        .finally(() => {
-          setLoading(false);
+    setLoading(true);
+    TableService.fecthTables()
+      .then(response => {
+        const getTables = Array.from(
+          {
+            length: business.table,
+          },
+          (_, index): ListTableProps => ({
+            number: index + 1,
+            isEmpty: !response.some(({ number }) => +number === index + 1),
+          }),
+        );
+
+        setListTable(getTables);
+        setAllTables(getTables);
+      })
+      .catch(() => {
+        addToast({
+          type: 'error',
+          message: 'Opss.. Encontramos um erro',
+          description: 'Ocorreu um erro ao carregar as mesas para esse negócio, tente novamente',
         });
-    }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [addToast, business]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   return (
     <Container style={style}>
@@ -122,11 +126,11 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
 
       {loading && <span>loading...</span>}
 
-      {listTable.length > 0 && (
-        <ListTable>
+      {listTable.length && (
+        <ListTables>
           {listTable.map(list => (
             <BoxTable
-              key={String(list.number)}
+              key={list.number.toString()}
               isEmpty={Number(list.isEmpty)}
               onClick={() => handleOpenTable(list.number)}
             >
@@ -137,7 +141,7 @@ const TableForCustomer: React.FC<Props> = ({ style, data }) => {
               <span>{list.isEmpty ? 'MESA LIVRE' : 'MESA EM USO'}</span>
             </BoxTable>
           ))}
-        </ListTable>
+        </ListTables>
       )}
     </Container>
   );

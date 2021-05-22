@@ -1,6 +1,6 @@
 import { createContext, useCallback, useState, useContext } from 'react';
 
-import { ModalContainer } from '@/components';
+import { Modals } from '@/components';
 
 export interface CustomerData {
   id: string;
@@ -16,9 +16,12 @@ export interface MakeyPayData {
   value_total: number;
 }
 
+export type PlaceTable = 'close' | 'launch';
+
 export interface ModalRequest {
   customer?: CustomerData;
-  list_command?: boolean;
+  list_tables?: PlaceTable;
+  list_commands?: boolean;
   make_pay?: MakeyPayData;
 }
 
@@ -36,7 +39,7 @@ interface ModalContextData {
   resetResponseModal(): void;
 }
 
-const ModalContext = createContext<ModalContextData>({} as ModalContextData);
+const ModalContext = createContext({} as ModalContextData);
 
 const ModalProvider: React.FC = ({ children }) => {
   const [dataModal, setDataModal] = useState<ModalRequest | undefined>(undefined);
@@ -75,7 +78,7 @@ const ModalProvider: React.FC = ({ children }) => {
   return (
     <ModalContext.Provider value={{ addModal, removeModal, responseModal, resetResponseModal }}>
       {children}
-      <ModalContainer data={dataModal} />
+      <Modals data={dataModal} />
     </ModalContext.Provider>
   );
 };

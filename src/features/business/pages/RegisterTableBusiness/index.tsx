@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { FiArrowLeft } from 'react-icons/fi';
 import { useHistory } from 'react-router-dom';
 import { Form } from '@unform/web';
@@ -7,7 +7,7 @@ import * as Yup from 'yup';
 
 import { BusinessService } from '@/services';
 import { Header, Button, Input } from '@/components';
-import { useToast, useAuth } from '@/hooks';
+import { useToast, useAuth, useLoading } from '@/hooks';
 import { getValidationErrors } from '@/utils';
 
 import { MenuRegisterPTT } from '../../components';
@@ -15,14 +15,14 @@ import { MenuRegisterPTT } from '../../components';
 import { Container, Content, BackPage, Main, ContentRegister, Footer } from './styles';
 
 const RegisterTableBusiness: React.FC = () => {
+  const { setLoading } = useLoading();
   const { business, saveAuth } = useAuth();
   const { addToast } = useToast();
   const history = useHistory();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const quantityTable = String(business?.table) || '0';
+    const quantityTable = business?.table?.toString() || '0';
     formRef.current?.setFieldValue('table', quantityTable);
   }, [business]);
 
@@ -45,6 +45,8 @@ const RegisterTableBusiness: React.FC = () => {
 
         const response = await BusinessService.updateNumberOfTable(table);
 
+        if (!response) throw new Error();
+
         saveAuth({
           business: response,
         });
@@ -52,25 +54,27 @@ const RegisterTableBusiness: React.FC = () => {
         addToast({
           type: 'success',
           message: 'Cadastro de Mesas',
-          description: Number(table) > 1 ? 'Mesas forão cadastradas com sucesso' : 'Mesa foi cadastrada com sucesso',
+          description: +table > 1 ? 'Mesas forão cadastradas com sucesso' : 'Mesa foi cadastrada com sucesso',
         });
       } catch (error) {
         if (error instanceof Yup.ValidationError) {
           const errors = getValidationErrors(error);
-
           formRef.current?.setErrors(errors);
-        } else {
-          addToast({
-            type: 'error',
-            message: 'Erro no cadastro',
-            description: 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
-          });
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        addToast({
+          type: 'error',
+          message: 'Erro no cadastro',
+          description: whichError || 'Ocorreu um erro ao fazer o cadastro do produto, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }
     },
-    [addToast, saveAuth],
+    [addToast, saveAuth, setLoading],
   );
 
   return (
@@ -91,9 +95,7 @@ const RegisterTableBusiness: React.FC = () => {
 
             <Form onSubmit={handleSubmit} ref={formRef}>
               <Input type="number" name="table" hasTitle="Quantidade de Mesas" formatField="number" />
-              <Button loading={loading} type="submit">
-                SALVAR
-              </Button>
+              <Button type="submit">SALVAR</Button>
             </Form>
           </ContentRegister>
         </Main>

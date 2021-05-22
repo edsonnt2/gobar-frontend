@@ -6,7 +6,7 @@ import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
 import { CommandService, EntranceService, Entrance } from '@/services';
-import { CustomerData, useModal, useToast } from '@/hooks';
+import { CustomerData, useLoading, useModal, useToast } from '@/hooks';
 import { Button, Select, Input } from '@/components';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 
@@ -25,10 +25,10 @@ interface DataForm {
 }
 
 const Command: React.FC<Props> = ({ style, data: customer }) => {
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
   const [entrance, setEntrance] = useState<Entrance[]>([]);
 
   const handleSubmit = useCallback(
@@ -41,7 +41,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           number: Yup.string().required('Número da comanda é obrigatório'),
           ...(entrance.length > 0 && {
             entrance_id: Yup.string().required('Opção de Entrada é obrigatório'),
-            prepaid_entrance: Yup.string().required('Entrada é pré-paga?'),
+            prepaid_entrance: Yup.string().required('Entrada é pré-paga ?'),
           }),
         });
 
@@ -54,7 +54,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
         const formattedValueConsume = value_consume
           ? value_consume
               .split('')
-              .filter(char => Number(char) || char === '0' || char === ',')
+              .filter(char => +char || char === '0' || char === ',')
               .join('')
               .replace(',', '.')
           : undefined;
@@ -64,7 +64,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           number,
           ...(entrance_id && { entrance_id }),
           ...(prepaid_entrance && {
-            prepaid_entrance: !!Number(prepaid_entrance),
+            prepaid_entrance: !!+prepaid_entrance,
           }),
           ...(formattedValueConsume && {
             value_consume: formattedValueConsume,
@@ -82,25 +82,30 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
           const errors = getValidationErrors(error);
 
           formRef.current?.setErrors(errors);
-        } else {
-          const whichError = error.response && error.response.data ? error.response.data.message : 'error';
-
-          if (whichError === 'Command number already registered') {
-            formRef.current?.setErrors({
-              number: 'Número de comanda já Cadastrado',
-            });
-          } else {
-            addToast({
-              type: 'error',
-              message: 'Erro no Cadastro',
-              description: 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
-            });
-          }
+          return;
         }
+
+        const whichError = error?.response?.data?.message || undefined;
+
+        const typeErrors: { [key: string]: any } = {
+          'Command number already registered': { number: 'Número de comanda já Cadastrado' },
+        };
+
+        if (typeErrors[whichError]) {
+          formRef.current?.setErrors(typeErrors[whichError]);
+          return;
+        }
+
+        addToast({
+          type: 'error',
+          message: 'Erro no Cadastro',
+          description: whichError || 'Ocorreu um erro ao tentar cadastrar comanda, por favor, tente novamente !',
+        });
+      } finally {
         setLoading(false);
       }
     },
-    [addToast, customer, entrance.length, removeModal],
+    [addToast, customer, entrance.length, removeModal, setLoading],
   );
 
   useEffect(() => {
@@ -156,9 +161,7 @@ const Command: React.FC<Props> = ({ style, data: customer }) => {
 
         <Input name="value_consume" isCurrency icon={FiTag} hasTitle="Vale Consumo" placeholder="(Opcional)" />
 
-        <Button type="submit" loading={loading}>
-          Criar Comanda
-        </Button>
+        <Button type="submit">Criar Comanda</Button>
       </Form>
     </Container>
   );

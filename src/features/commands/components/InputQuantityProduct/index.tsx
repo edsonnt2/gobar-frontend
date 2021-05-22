@@ -49,7 +49,7 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
 
   const handleKeyPress = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
-      if (e.keyCode === 13 && hasKeyDown) {
+      if (e.key === 'Enter' && hasKeyDown) {
         if (isNumber) {
           hasKeyDown({
             where: 'quantity',
@@ -70,8 +70,7 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
     (value: string) => {
       let setValue;
       if (isNumber) {
-        const valueSplit = value.split('').filter(char => Number(char) || char === '0');
-        setValue = valueSplit.join('');
+        setValue = FormattedUtils.onlyNumber(value);
 
         if (isChange)
           isChange({
@@ -80,22 +79,17 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
             where: 'quantity',
           });
       } else if (isCurrency) {
-        const formatChar = value
-          .split('')
-          .filter(char => Number(char) || char === '0')
-          .join('')
-          .replace(',', '.');
+        const formatChar = FormattedUtils.onlyNumber(value).replace(',', '.');
 
         const valueCurrency =
           formatChar.length === 1
             ? `0.0${formatChar}`
             : formatChar
                 .split('')
-                .map((char, index) => (index + 2 === formatChar.length ? `.${char}` : char))
+                .map((char, index) => (index + 2 === formatChar?.length ? `.${char}` : char))
                 .join('');
 
-        setValue =
-          valueCurrency === '.00' || valueCurrency === '' ? '' : FormattedUtils.formattedValue(Number(valueCurrency));
+        setValue = valueCurrency === '.00' || !valueCurrency ? '' : FormattedUtils.formattedValue(+valueCurrency);
 
         if (isChange)
           isChange({
@@ -117,7 +111,7 @@ const InputQuantityProduct: React.FC<PropsInput> = ({
       ref: refInput.current,
       path: 'value',
       setValue(ref, value: string) {
-        if (value) handleChange(value.trim());
+        if (value) handleChange(value?.trim());
       },
     });
   }, [fieldName, registerField, handleChange]);

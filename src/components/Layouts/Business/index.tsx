@@ -2,7 +2,7 @@ import { findCustomer, closeCommand, commandBar, customerAccount, boxFront } fro
 
 import { Container, NavBusiness, MenuMain, LinkMenu, Content, Footer } from './styles';
 
-import { Header } from '../Header';
+import { Header } from '../../Header';
 
 interface Props {
   pgActive?: 'find-customer' | 'close-command-table' | 'register-command-table' | 'customer-account' | 'boxfront';
@@ -19,11 +19,11 @@ const LayoutBusiness: React.FC<Props> = ({ children, pgActive }) => {
             <img src={findCustomer} alt="Encontrar Cliente" />
             Encontrar Cliente
           </LinkMenu>
-          <LinkMenu to="/business/close-command-or-table" isshow={Number(pgActive === 'close-command-table')}>
+          <LinkMenu to="/business/command-or-table/close" isshow={Number(pgActive === 'close-command-table')}>
             <img src={closeCommand} alt="Fechar Comanda ou Mesa" />
             Fechar Comanda/Mesa
           </LinkMenu>
-          <LinkMenu to="/business/register-command-or-table" isshow={Number(pgActive === 'register-command-table')}>
+          <LinkMenu to="/business/command-or-table/register" isshow={Number(pgActive === 'register-command-table')}>
             <img src={commandBar} alt="Lançar Comanda ou Mesa" />
             Lançar Comanda/Mesa
           </LinkMenu>

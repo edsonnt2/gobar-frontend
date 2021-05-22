@@ -6,9 +6,9 @@ import { InputSearch } from '@/components';
 import { useModal, useToast } from '@/hooks';
 import { noAvatar } from '@/assets';
 
-import { Container, CloseCommand, ImgCustomer, InfoCustomer, ListCommands, RowCommand } from './styles';
+import { Container, CloseCommand, ImgCustomer, InfoCustomer, ContainerCommands, RowCommand } from './styles';
 
-const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
+const ListCommands: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -136,7 +136,7 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
       {LoadingSearch ? (
         'loading...'
       ) : (
-        <ListCommands>
+        <ContainerCommands>
           {commands.map(({ id, number, customer }, index) => (
             <RowCommand key={id} onClick={() => handleClick(number)} hasSelected={cursor === index}>
               <ImgCustomer>
@@ -150,10 +150,10 @@ const ListCommand: React.FC<{ style: React.CSSProperties }> = ({ style }) => {
               </InfoCustomer>
             </RowCommand>
           ))}
-        </ListCommands>
+        </ContainerCommands>
       )}
     </Container>
   );
 };
 
-export default ListCommand;
+export default ListCommands;

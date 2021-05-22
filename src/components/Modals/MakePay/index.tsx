@@ -5,7 +5,7 @@ import { Form } from '@unform/web';
 import * as Yup from 'yup';
 
 import { Button, Select, Input } from '@/components';
-import { MakeyPayData, useModal, useToast } from '@/hooks';
+import { MakeyPayData, useLoading, useModal, useToast } from '@/hooks';
 import { getValidationErrors, FormattedUtils } from '@/utils';
 
 import { onChangeDiscont, onChangePayment, sendPayment } from './Functions';
@@ -40,10 +40,10 @@ export interface FormOfPayment {
 }
 
 const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({ style, data }) => {
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const { removeModal } = useModal();
   const formRef = useRef<FormHandles>(null);
-  const [loading, setLoading] = useState(false);
   const [textButton, setTextButton] = useState('Fazer Pagamento');
   const [formOfPayment, setFormOfPayment] = useState<FormOfPayment[]>([
     {
@@ -98,24 +98,25 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           return;
         }
 
-        const whichError = error.response && error.response.data ? error.response.data.message : undefined;
+        const whichError = error?.response?.data?.message || undefined;
 
-        if (whichError === 'Command number already registered') {
-          formRef.current?.setErrors({
-            number: 'Número de comanda já Cadastrado',
-          });
-        } else {
-          addToast({
-            type: 'error',
-            message: 'Erro no Pagamento',
-            description: whichError || 'Ocorreu um erro ao tentar finalizar o pagamento, por favor, tente novamente !',
-          });
-        }
+        const typeErrors: { [key: string]: string } = {
+          'Type money requires value received': 'Forma de pagamento em dinheiro requer valor recebido',
+          'One of the command was not found in the business': 'Uma das comandas não foram encontradas no negócio',
+          'Type card requires selected of card': 'Forma de pagamento em cartão requer a seleção do tipo de cartão',
+        };
+
+        addToast({
+          type: 'error',
+          message: 'Erro no Pagamento',
+          description:
+            typeErrors[whichError] || 'Ocorreu um erro ao tentar finalizar o pagamento, por favor, tente novamente !',
+        });
       } finally {
         setLoading(false);
       }
     },
-    [addToast, formOfPayment, payData, removeModal],
+    [addToast, formOfPayment, payData, removeModal, setLoading],
   );
 
   const handleFormPayment = useCallback(
@@ -257,7 +258,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
         </RowHeaderPay>
 
         {formOfPayment.map((formPay, index) => (
-          <Fragment key={String(index)}>
+          <Fragment key={index.toString()}>
             <Select
               name={`form_of_payment[${index}]`}
               hasTitle={`${index + 1}º Forma de Pagamento${
@@ -326,9 +327,7 @@ const MakePay: React.FC<{ style: React.CSSProperties; data: MakeyPayData }> = ({
           </Fragment>
         ))}
 
-        <Button type="submit" loading={loading}>
-          {textButton}
-        </Button>
+        <Button type="submit">{textButton}</Button>
       </Form>
     </Container>
   );

@@ -6,11 +6,12 @@ import { ModalRequest, useModal } from '@/hooks';
 import { BackDrop } from '@/components';
 
 import TableForCustomer from './TableForCustomer';
-import ListCommand from './ListCommand';
+import ListTables from './ListTables';
+import ListCommands from './ListCommands';
 import Command from './Command';
 import MakePay from './MakePay';
 
-const ModalContainer: React.FC<{ data?: ModalRequest }> = ({ data }) => {
+const Modals: React.FC<{ data?: ModalRequest }> = ({ data }) => {
   const { removeModal } = useModal();
 
   const newData = useMemo(() => {
@@ -35,7 +36,9 @@ const ModalContainer: React.FC<{ data?: ModalRequest }> = ({ data }) => {
             ) : (
               <TableForCustomer style={props} data={item.customer} />
             ))}
-          {item.list_command && <ListCommand style={props} />}
+          {item.list_commands && <ListCommands style={props} />}
+          {item.list_tables && <ListTables style={props} place={item.list_tables} />}
+
           {item.make_pay && <MakePay style={props} data={item.make_pay} />}
         </Fragment>
       ))}
@@ -43,4 +46,4 @@ const ModalContainer: React.FC<{ data?: ModalRequest }> = ({ data }) => {
   );
 };
 
-export { ModalContainer };
+export { Modals };

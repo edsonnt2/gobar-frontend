@@ -75,7 +75,7 @@ export const InfoCustomer = styled.div`
   }
 `;
 
-export const ListTable = styled.ul`
+export const ListTables = styled.ul`
   list-style: none;
   width: 100%;
   display: flex;

@@ -4,7 +4,7 @@ import { useHistory, useParams } from 'react-router-dom';
 
 import { Customer as CustomerDTO, CustomerService } from '@/services';
 import { LayoutBusiness } from '@/components';
-import { useToast, useModal } from '@/hooks';
+import { useToast, useModal, useLoading } from '@/hooks';
 import { noAvatar } from '@/assets';
 
 import {
@@ -20,6 +20,7 @@ import {
 } from './styles';
 
 const Customer: React.FC = () => {
+  const { setLoading } = useLoading();
   const { addToast } = useToast();
   const { addModal, responseModal, resetResponseModal } = useModal();
   const history = useHistory();
@@ -27,6 +28,7 @@ const Customer: React.FC = () => {
   const [customer, setCustomer] = useState<CustomerDTO>({} as CustomerDTO);
 
   const loadCustomer = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await CustomerService.fetchCustomer(id);
 
@@ -39,8 +41,10 @@ const Customer: React.FC = () => {
         message: 'Opss... Encontramos um erro',
         description: 'Ocorreu um erro ao carregar dados do cliente, tente novamente',
       });
+    } finally {
+      setLoading(false);
     }
-  }, [id, addToast]);
+  }, [id, addToast, setLoading]);
 
   useEffect(() => {
     loadCustomer();

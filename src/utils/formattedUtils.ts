@@ -2,14 +2,14 @@ export class FormattedUtils {
   public static onlyNumber(value: string): string {
     return value
       .split('')
-      .filter(char => Number(char) || char === '0')
+      .filter(char => +char || char === '0')
       .join('');
   }
 
   public static valueDefault(value: string): string {
     return value
       .split('')
-      .filter(char => Number(char) || char === ',' || char === '0')
+      .filter(char => +char || char === ',' || char === '0')
       .join('')
       .replace(',', '.');
   }
